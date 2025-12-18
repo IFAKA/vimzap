@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="VimZap - Fast Neovim setup with LSP, completion, and fuzzy finding">
+  <title>VimZap</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: #0d1117;
+      color: #c9d1d9;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container { max-width: 600px; padding: 2rem; text-align: center; }
+    h1 { font-size: 3rem; margin-bottom: 0.5rem; }
+    h1 span { color: #58a6ff; }
+    .tagline { color: #8b949e; margin-bottom: 2rem; }
+    .install-box {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .install-box code {
+      display: block;
+      background: #0d1117;
+      padding: 1rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      color: #7ee787;
+      word-break: break-all;
+      user-select: all;
+      cursor: pointer;
+    }
+    .install-box small { color: #8b949e; display: block; margin-top: 0.75rem; }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      text-align: left;
+      margin: 2rem 0;
+    }
+    .feature {
+      background: #161b22;
+      padding: 1rem;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+    }
+    .feature strong { color: #58a6ff; }
+    .links { margin-top: 2rem; }
+    .links a {
+      color: #58a6ff;
+      text-decoration: none;
+      margin: 0 1rem;
+    }
+    .links a:hover { text-decoration: underline; }
+    .warning {
+      background: #1c1407;
+      border: 1px solid #9e6a03;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      font-size: 0.85rem;
+      color: #f0c14b;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>Vim</span>Zap</h1>
+    <p class="tagline">Fast Neovim with LSP, completion, and fuzzy finding.</p>
+
+    <div class="install-box">
+      <code onclick="navigator.clipboard.writeText(this.textContent)">curl -fsSL ifaka.github.io/vimzap/i | bash</code>
+      <small>Click to copy. macOS and Linux.</small>
+    </div>
+
+    <div class="warning">
+      Always inspect scripts before running:<br>
+      <code style="font-size: 0.8rem; margin-top: 0.5rem;">curl -fsSL ifaka.github.io/vimzap/i | less</code>
+    </div>
+
+    <div class="features">
+      <div class="feature"><strong>Telescope</strong><br>Fuzzy finder</div>
+      <div class="feature"><strong>LSP + CMP</strong><br>Autocomplete</div>
+      <div class="feature"><strong>Gitsigns</strong><br>Git hunks</div>
+      <div class="feature"><strong>Which-Key</strong><br>Key discovery</div>
+    </div>
+
+    <div class="links">
+      <a href="https://github.com/IFAKA/vimzap">GitHub</a>
+      <a href="https://github.com/IFAKA/vimzap/blob/main/init.lua">Config</a>
+      <a href="i">Install Script</a>
+    </div>
+  </div>
+</body>
+</html>
