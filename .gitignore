@@ -1,5 +1,7 @@
 *
 !init.lua
+!lua/
+!lua/*.lua
 !uninstall.sh
 !index.html
 !i
