@@ -202,6 +202,7 @@ main() {
     "hrsh7th/nvim-cmp"
     "hrsh7th/cmp-nvim-lsp"
     "lewis6991/gitsigns.nvim"
+    "MeanderingProgrammer/render-markdown.nvim"
   )
 
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"

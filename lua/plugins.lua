@@ -5,6 +5,7 @@ vim.cmd[[packadd which-key.nvim]]
 vim.cmd[[packadd gitsigns.nvim]]
 vim.cmd[[packadd nvim-cmp]]
 vim.cmd[[packadd cmp-nvim-lsp]]
+vim.cmd[[packadd render-markdown.nvim]]
 
 -- Mason (LSP server manager)
 require("mason").setup()
@@ -88,4 +89,10 @@ cmp.setup({
 require("which-key").setup({
   delay = 100,
   icons = { mappings = false },
+})
+
+-- Render Markdown (in-editor markdown preview)
+require("render-markdown").setup({
+  file_types = { "markdown" },
+  render_modes = { "n", "c" }, -- Normal and command mode
 })
