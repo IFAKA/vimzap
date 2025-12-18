@@ -1,6 +1,6 @@
 VimZap
 
-Fast Neovim setup with LSP, completion, and fuzzy finding.
+Fast Neovim with file explorer, fuzzy finder, LSP, and git.
 
 Install
 ```
@@ -9,20 +9,30 @@ curl -fsSL ifaka.github.io/vimzap/i | bash
 
 Keys (Press SPACE)
 ```
-f   file: ff=find fg=grep fb=buffers fr=recent
-c   code: ca=action cr=rename cf=format cd=diagnostic
-g   git:  gg=lazygit gp=preview gs=stage gr=reset gb=blame
-?   help: ??=key visualizer
-h   health: hc=checkhealth
+e        File explorer (toggle)
+f        File: ff=find fg=grep fb=buffers fr=recent
+c        Code: ca=action cr=rename cf=format cs=symbols
+g        Git:  gg=lazygit gf=files gs=status
+s        Search: sh=help sk=keymaps sc=commands
+?        Show all keymaps
 ```
 
-Navigation
+Explorer (inside file tree)
 ```
-gd          Go to definition
-gr          Go to references
-K           Hover documentation
-[d / ]d     Prev/next diagnostic
-[h / ]h     Prev/next git hunk
+a        Add file/folder (end with / for folder)
+d        Delete
+r        Rename
+m        Move (select with Tab first)
+c        Copy
+```
+
+LSP Navigation
+```
+gd       Go to definition
+gr       Go to references
+K        Hover docs
+[d ]d    Prev/next diagnostic
+[h ]h    Prev/next git hunk
 ```
 
 Uninstall

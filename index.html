@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="VimZap - Fast Neovim setup with LSP, completion, and fuzzy finding">
+  <meta name="description" content="VimZap - Fast Neovim with file explorer, fuzzy finder, LSP, and git">
   <title>VimZap</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -69,12 +69,17 @@
       font-size: 0.85rem;
       color: #f0c14b;
     }
+    .stats {
+      color: #8b949e;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1><span>Vim</span>Zap</h1>
-    <p class="tagline">Fast Neovim with LSP, completion, and fuzzy finding.</p>
+    <p class="tagline">Fast Neovim with file explorer, fuzzy finder, LSP, and git.</p>
 
     <div class="install-box">
       <code onclick="navigator.clipboard.writeText(this.textContent)">curl -fsSL ifaka.github.io/vimzap/i | bash</code>
@@ -87,11 +92,13 @@
     </div>
 
     <div class="features">
-      <div class="feature"><strong>Telescope</strong><br>Fuzzy finder</div>
+      <div class="feature"><strong>Explorer</strong><br>File tree + operations</div>
+      <div class="feature"><strong>Picker</strong><br>Fast fuzzy finder</div>
       <div class="feature"><strong>LSP + CMP</strong><br>Autocomplete</div>
-      <div class="feature"><strong>Gitsigns</strong><br>Git hunks</div>
-      <div class="feature"><strong>Which-Key</strong><br>Key discovery</div>
+      <div class="feature"><strong>Gitsigns</strong><br>Git integration</div>
     </div>
+
+    <p class="stats">5 plugins | 20ms startup | 32MB disk</p>
 
     <div class="links">
       <a href="https://github.com/IFAKA/vimzap">GitHub</a>

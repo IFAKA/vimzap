@@ -40,7 +40,7 @@ main() {
     if command -v apt-get &>/dev/null; then
       sudo apt-get update -qq
       sudo apt-get install -y neovim git nodejs npm ripgrep fzf curl
-      # lazygit via binary (not in apt)
+      # lazygit via binary
       if ! command -v lazygit &>/dev/null; then
         echo "        Installing lazygit..."
         LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
@@ -74,13 +74,11 @@ main() {
   # Plugins
   echo "  [3/4] Installing plugins..."
   PLUGINS=(
-    "nvim-telescope/telescope.nvim"
-    "nvim-lua/plenary.nvim"
+    "folke/snacks.nvim"
+    "folke/which-key.nvim"
     "hrsh7th/nvim-cmp"
     "hrsh7th/cmp-nvim-lsp"
-    "folke/which-key.nvim"
     "lewis6991/gitsigns.nvim"
-    "jokajak/keyseer.nvim"
   )
 
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
@@ -112,8 +110,16 @@ main() {
   echo "  Usage:"
   echo "    nvim             Open Neovim"
   echo "    <Space>          Show all commands"
+  echo "    <Space>e         File explorer"
   echo "    <Space>ff        Find files"
   echo "    <Space>fg        Grep"
+  echo ""
+  echo "  Explorer keys:"
+  echo "    a                Add file/folder"
+  echo "    d                Delete"
+  echo "    r                Rename"
+  echo "    m                Move"
+  echo "    c                Copy"
   echo ""
   echo "  Uninstall:"
   echo "    rm -rf ~/.config/nvim ~/.local/share/nvim"
