@@ -4,15 +4,95 @@
 
 set -euo pipefail
 
+VIMZAP_MARKER="# VimZap aliases"
+
+get_shell_rc() {
+  if [[ -n "${ZSH_VERSION:-}" ]] || [[ "$SHELL" == *"zsh"* ]]; then
+    echo "$HOME/.zshrc"
+  elif [[ -n "${BASH_VERSION:-}" ]] || [[ "$SHELL" == *"bash"* ]]; then
+    if [[ "$(uname -s)" == "Darwin" ]]; then
+      echo "$HOME/.bash_profile"
+    else
+      echo "$HOME/.bashrc"
+    fi
+  else
+    echo "$HOME/.profile"
+  fi
+}
+
+add_aliases() {
+  local rc_file
+  rc_file=$(get_shell_rc)
+
+  # Skip if already added
+  if grep -q "$VIMZAP_MARKER" "$rc_file" 2>/dev/null; then
+    return 0
+  fi
+
+  echo "" >> "$rc_file"
+  echo "$VIMZAP_MARKER" >> "$rc_file"
+  echo "alias v='nvim'" >> "$rc_file"
+  echo "alias vi='nvim'" >> "$rc_file"
+  echo "alias vim='nvim'" >> "$rc_file"
+  echo "$VIMZAP_MARKER end" >> "$rc_file"
+}
+
+remove_aliases() {
+  local rc_file
+  rc_file=$(get_shell_rc)
+
+  if [[ -f "$rc_file" ]] && grep -q "$VIMZAP_MARKER" "$rc_file"; then
+    # Remove lines between markers (inclusive)
+    sed -i.bak "/$VIMZAP_MARKER/,/$VIMZAP_MARKER end/d" "$rc_file"
+    rm -f "${rc_file}.bak"
+    echo "  Removed aliases from $rc_file"
+  fi
+}
+
+uninstall() {
+  echo ""
+  echo "  VimZap Uninstall"
+  echo "  ================"
+  echo ""
+
+  # Remove aliases
+  remove_aliases
+
+  # Remove nvim config and data
+  echo "  Removing config..."
+  rm -rf ~/.config/nvim
+
+  echo "  Removing plugins and data..."
+  rm -rf ~/.local/share/nvim
+
+  echo "  Removing cache..."
+  rm -rf ~/.cache/nvim
+
+  echo ""
+  echo "  Done! VimZap has been uninstalled."
+  echo "  Note: Restart your shell or run 'source $(get_shell_rc)' to apply changes."
+  echo ""
+}
+
+# Check for --uninstall flag
+if [[ "${1:-}" == "--uninstall" || "${1:-}" == "uninstall" ]]; then
+  uninstall
+  exit 0
+fi
+
 update() {
   echo ""
   echo "  VimZap Update"
   echo "  ============="
   echo ""
 
-  # Update config
+  # Update config files
   echo "  Updating config..."
-  curl -fsSL "https://raw.githubusercontent.com/IFAKA/vimzap/main/init.lua" -o ~/.config/nvim/init.lua
+  mkdir -p ~/.config/nvim/lua
+  BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
+  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/keymaps.lua; do
+    curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"
+  done
 
   # Update plugins
   echo "  Updating plugins..."
@@ -55,7 +135,7 @@ main() {
 
   # macOS
   if [[ "$OS" == "Darwin" ]]; then
-    echo "  [1/4] Installing tools via Homebrew..."
+    echo "  [1/5] Installing tools via Homebrew..."
 
     if ! command -v brew &>/dev/null; then
       echo "        Installing Homebrew..."
@@ -69,7 +149,7 @@ main() {
 
   # Linux
   if [[ "$OS" == "Linux" ]]; then
-    echo "  [1/4] Installing tools..."
+    echo "  [1/5] Installing tools..."
 
     if command -v apt-get &>/dev/null; then
       sudo apt-get update -qq
@@ -94,19 +174,28 @@ main() {
   fi
 
   # Directories
-  echo "  [2/4] Setting up config..."
-  mkdir -p ~/.config/nvim
+  echo "  [2/5] Setting up config..."
+  mkdir -p ~/.config/nvim/lua
   mkdir -p ~/.local/share/nvim/site/pack/plugins/opt
 
-  # Download config
-  CONFIG_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main/init.lua"
-  if ! curl -fsSL "$CONFIG_URL" -o ~/.config/nvim/init.lua; then
-    echo "Error: Failed to download config"
-    exit 1
-  fi
+  # Download config files
+  BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
+  CONFIG_FILES=(
+    "init.lua"
+    "lua/options.lua"
+    "lua/plugins.lua"
+    "lua/lsp.lua"
+    "lua/keymaps.lua"
+  )
+  for file in "${CONFIG_FILES[@]}"; do
+    if ! curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"; then
+      echo "Error: Failed to download $file"
+      exit 1
+    fi
+  done
 
   # Plugins
-  echo "  [3/4] Installing plugins..."
+  echo "  [3/5] Installing plugins..."
   PLUGINS=(
     "folke/snacks.nvim"
     "folke/which-key.nvim"
@@ -129,7 +218,7 @@ main() {
   done
 
   # LSP servers
-  echo "  [4/4] Installing LSP servers..."
+  echo "  [4/5] Installing LSP servers..."
   if command -v npm &>/dev/null; then
     npm install -g typescript typescript-language-server vscode-langservers-extracted 2>/dev/null || {
       echo "        Note: Run with sudo if npm install fails"
@@ -138,11 +227,18 @@ main() {
     echo "        Warning: npm not found, LSP servers not installed"
   fi
 
+  # Add shell aliases
+  echo "  [5/5] Setting up aliases..."
+  add_aliases
+  echo "        v, vi, vim -> nvim"
+
   echo ""
   echo "  Done!"
   echo ""
+  echo "  Restart your shell or run: source $(get_shell_rc)"
+  echo ""
   echo "  Usage:"
-  echo "    nvim             Open Neovim"
+  echo "    v                Open Neovim (also vi, vim)"
   echo "    <Space>          Show all commands"
   echo "    <Space>e         File explorer"
   echo "    <Space>ff        Find files"
@@ -159,7 +255,7 @@ main() {
   echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s update"
   echo ""
   echo "  Uninstall:"
-  echo "    rm -rf ~/.config/nvim ~/.local/share/nvim"
+  echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall"
   echo ""
 }
 

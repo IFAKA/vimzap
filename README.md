@@ -6,6 +6,7 @@ Install
 ```
 curl -fsSL ifaka.github.io/vimzap/i | bash
 ```
+After install, use `v`, `vi`, or `vim` to open Neovim.
 
 Keys (Press SPACE)
 ```
@@ -42,5 +43,5 @@ curl -fsSL ifaka.github.io/vimzap/i | bash -s update
 
 Uninstall
 ```
-rm -rf ~/.config/nvim ~/.local/share/nvim
+curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall
 ```

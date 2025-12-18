@@ -3,6 +3,36 @@ local function gitsigns_cmd(cmd)
   vim.cmd("Gitsigns " .. cmd)
 end
 
+-- Dashboard: press 'x' to clear recent files, 'X' to clear projects
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "snacks_dashboard",
+  callback = function(args)
+    -- Clear recent files
+    vim.keymap.set("n", "x", function()
+      vim.ui.select({ "Yes", "No" }, { prompt = "Clear all recent files?" }, function(choice)
+        if choice == "Yes" then
+          vim.v.oldfiles = {}
+          vim.cmd("wshada!")
+          Snacks.dashboard()
+        end
+      end)
+    end, { buffer = args.buf, desc = "Clear recent files" })
+
+    -- Clear projects (delete the snacks projects cache)
+    vim.keymap.set("n", "X", function()
+      vim.ui.select({ "Yes", "No" }, { prompt = "Clear all projects?" }, function(choice)
+        if choice == "Yes" then
+          local projects_file = vim.fn.stdpath("data") .. "/snacks/projects.json"
+          vim.fn.delete(projects_file)
+          vim.v.oldfiles = {}
+          vim.cmd("wshada!")
+          Snacks.dashboard()
+        end
+      end)
+    end, { buffer = args.buf, desc = "Clear projects" })
+  end,
+})
+
 local function lsp_cmd(fn)
   return function()
     if #vim.lsp.get_clients({ bufnr = 0 }) > 0 then
