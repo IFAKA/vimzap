@@ -4,6 +4,40 @@
 
 set -euo pipefail
 
+update() {
+  echo ""
+  echo "  VimZap Update"
+  echo "  ============="
+  echo ""
+
+  # Update config
+  echo "  Updating config..."
+  curl -fsSL "https://raw.githubusercontent.com/IFAKA/vimzap/main/init.lua" -o ~/.config/nvim/init.lua
+
+  # Update plugins
+  echo "  Updating plugins..."
+  PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
+  for dir in "$PLUGIN_DIR"/*/; do
+    name=$(basename "$dir")
+    printf "    %s... " "$name"
+    if git -C "$dir" pull --quiet 2>/dev/null; then
+      echo "ok"
+    else
+      echo "skip"
+    fi
+  done
+
+  echo ""
+  echo "  Done!"
+  echo ""
+}
+
+# Check for --update flag
+if [[ "${1:-}" == "--update" || "${1:-}" == "update" ]]; then
+  update
+  exit 0
+fi
+
 main() {
   echo ""
   echo "  VimZap Installer"
@@ -120,6 +154,9 @@ main() {
   echo "    r                Rename"
   echo "    m                Move"
   echo "    c                Copy"
+  echo ""
+  echo "  Update:"
+  echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s update"
   echo ""
   echo "  Uninstall:"
   echo "    rm -rf ~/.config/nvim ~/.local/share/nvim"

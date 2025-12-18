@@ -35,6 +35,11 @@ K        Hover docs
 [h ]h    Prev/next git hunk
 ```
 
+Update
+```
+curl -fsSL ifaka.github.io/vimzap/i | bash -s update
+```
+
 Uninstall
 ```
 rm -rf ~/.config/nvim ~/.local/share/nvim
