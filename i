@@ -69,8 +69,7 @@ uninstall() {
   rm -rf ~/.cache/nvim
 
   echo ""
-  echo "  Done! VimZap has been uninstalled."
-  echo "  Note: Restart your shell or run 'source $(get_shell_rc)' to apply changes."
+  echo "  Done! Run: source $(get_shell_rc)"
   echo ""
 }
 
@@ -234,9 +233,7 @@ main() {
   echo "        v, vi, vim -> nvim"
 
   echo ""
-  echo "  Done!"
-  echo ""
-  echo "  Restart your shell or run: source $(get_shell_rc)"
+  echo "  Done! Run: source $(get_shell_rc)"
   echo ""
   echo "  Usage:"
   echo "    v                Open Neovim (also vi, vim)"
@@ -256,7 +253,7 @@ main() {
   echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s update"
   echo ""
   echo "  Uninstall:"
-  echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall"
+  echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall && source ~/.zshrc"
   echo ""
 }
 

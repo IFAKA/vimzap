@@ -4,9 +4,9 @@ Fast Neovim with file explorer, fuzzy finder, LSP, and git.
 
 Install
 ```
-curl -fsSL ifaka.github.io/vimzap/i | bash
+curl -fsSL ifaka.github.io/vimzap/i | bash && source ~/.zshrc
 ```
-After install, use `v`, `vi`, or `vim` to open Neovim.
+Then use `v`, `vi`, or `vim` to open Neovim.
 
 Keys (Press SPACE)
 ```
@@ -43,5 +43,5 @@ curl -fsSL ifaka.github.io/vimzap/i | bash -s update
 
 Uninstall
 ```
-curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall
+curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall && source ~/.zshrc
 ```
