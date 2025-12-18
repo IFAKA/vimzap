@@ -197,6 +197,7 @@ main() {
   # Plugins
   echo "  [3/5] Installing plugins..."
   PLUGINS=(
+    "williamboman/mason.nvim"
     "folke/snacks.nvim"
     "folke/which-key.nvim"
     "hrsh7th/nvim-cmp"
