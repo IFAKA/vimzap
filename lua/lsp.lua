@@ -46,10 +46,19 @@ vim.lsp.config("tailwindcss", {
 vim.lsp.config("eslint", {
   cmd = { "vscode-eslint-language-server", "--stdio" },
   filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-  root_markers = { "eslint.config.mjs", "eslint.config.js", ".eslintrc.js", ".eslintrc.json" },
+  root_markers = { "eslint.config.mjs", "eslint.config.js", ".eslintrc.js", ".eslintrc.json", "package.json" },
   capabilities = get_capabilities(),
   settings = {
-    workingDirectories = { mode = "auto" },
+    validate = "on",
+    experimental = { useFlatConfig = true },
+    rulesCustomizations = {},
+    run = "onType",
+    problems = { shortenToSingleLine = false },
+    nodePath = "",
+  },
+  init_options = {
+    documentFormatting = true,
+    codeActionOnSave = { mode = "all" },
   },
 })
 
