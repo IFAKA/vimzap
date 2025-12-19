@@ -36,14 +36,24 @@ vim.lsp.config("jsonls", {
   capabilities = get_capabilities(),
 })
 
-vim.lsp.config("yamlls", {
-  cmd = { "yaml-language-server", "--stdio" },
-  filetypes = { "yaml", "yml" },
-  root_markers = { ".git" },
+vim.lsp.config("tailwindcss", {
+  cmd = { "tailwindcss-language-server", "--stdio" },
+  filetypes = { "typescriptreact", "javascriptreact", "html", "css" },
+  root_markers = { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.mjs" },
   capabilities = get_capabilities(),
 })
 
-vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "yamlls" })
+vim.lsp.config("eslint", {
+  cmd = { "vscode-eslint-language-server", "--stdio" },
+  filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+  root_markers = { "eslint.config.mjs", "eslint.config.js", ".eslintrc.js", ".eslintrc.json" },
+  capabilities = get_capabilities(),
+  settings = {
+    workingDirectories = { mode = "auto" },
+  },
+})
+
+vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint" })
 
 -- Format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
