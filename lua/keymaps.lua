@@ -55,6 +55,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 -- Which-key mappings
 require("which-key").add({
+  -- Save
+  { "<leader>w", "<cmd>w<cr>", desc = "save" },
+
   -- Explorer
   { "<leader>e", function() Snacks.explorer() end, desc = "explorer" },
 
