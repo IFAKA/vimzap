@@ -3,6 +3,9 @@ local function gitsigns_cmd(cmd)
   vim.cmd("Gitsigns " .. cmd)
 end
 
+-- Insert mode: leader+leader (space space) to escape
+vim.keymap.set("i", "<leader><leader>", "<Esc>", { desc = "Exit insert mode" })
+
 -- Dashboard: press 'x' to clear recent files, 'X' to clear projects
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "snacks_dashboard",

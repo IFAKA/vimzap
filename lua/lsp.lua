@@ -39,8 +39,27 @@ vim.lsp.config("jsonls", {
 vim.lsp.config("tailwindcss", {
   cmd = { "tailwindcss-language-server", "--stdio" },
   filetypes = { "typescriptreact", "javascriptreact", "html", "css" },
-  root_markers = { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.mjs" },
+  root_markers = {
+    "tailwind.config.js",
+    "tailwind.config.ts",
+    "tailwind.config.mjs",
+    "tailwind.config.cjs",
+    "postcss.config.js",
+    "postcss.config.mjs",  -- Tailwind v4
+    "package.json",
+  },
   capabilities = get_capabilities(),
+  settings = {
+    tailwindCSS = {
+      experimental = {
+        classRegex = {
+          { "class:\\s*\"([^\"]*)\"" },
+          { "className:\\s*\"([^\"]*)\"" },
+          { "className={\"([^\"}]*)\"}" },
+        },
+      },
+    },
+  },
 })
 
 vim.lsp.config("eslint", {
