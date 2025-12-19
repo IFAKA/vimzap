@@ -203,6 +203,7 @@ main() {
     "hrsh7th/cmp-nvim-lsp"
     "lewis6991/gitsigns.nvim"
     "MeanderingProgrammer/render-markdown.nvim"
+    "stevearc/conform.nvim"
   )
 
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
@@ -218,15 +219,8 @@ main() {
     fi
   done
 
-  # LSP servers
-  echo "  [4/5] Installing LSP servers..."
-  if command -v npm &>/dev/null; then
-    npm install -g typescript typescript-language-server vscode-langservers-extracted 2>/dev/null || {
-      echo "        Note: Run with sudo if npm install fails"
-    }
-  else
-    echo "        Warning: npm not found, LSP servers not installed"
-  fi
+  # LSP servers (installed via Mason on first launch)
+  echo "  [4/5] LSP servers will be installed via Mason on first launch..."
 
   # Add shell aliases
   echo "  [5/5] Setting up aliases..."

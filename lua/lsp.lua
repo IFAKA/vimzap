@@ -83,10 +83,16 @@ vim.lsp.config("eslint", {
 
 vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint" })
 
--- Format on save
+-- Remove unused imports + format on save
 vim.api.nvim_create_autocmd("BufWritePre", {
   pattern = { "*.ts", "*.tsx", "*.js", "*.jsx" },
   callback = function()
-    vim.lsp.buf.format({ async = false, timeout_ms = 3000 })
+    -- Remove unused imports
+    vim.lsp.buf.code_action({
+      apply = true,
+      context = { only = { "source.removeUnusedImports.ts" }, diagnostics = {} },
+    })
+    -- Format with prettier via conform
+    require("conform").format({ async = false, timeout_ms = 3000 })
   end,
 })

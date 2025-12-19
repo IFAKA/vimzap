@@ -75,7 +75,10 @@ require("which-key").add({
   { "<leader>c", group = "code" },
   { "<leader>ca", lsp_cmd(vim.lsp.buf.code_action), desc = "action" },
   { "<leader>cr", lsp_cmd(vim.lsp.buf.rename), desc = "rename" },
-  { "<leader>cf", lsp_cmd(function() vim.lsp.buf.format() end), desc = "format" },
+  { "<leader>cf", function() require("conform").format() end, desc = "format" },
+  { "<leader>co", lsp_cmd(function()
+      vim.lsp.buf.code_action({ apply = true, context = { only = { "source.removeUnusedImports.ts" }, diagnostics = {} } })
+    end), desc = "remove unused imports" },
   { "<leader>cd", vim.diagnostic.open_float, desc = "diagnostic" },
   { "<leader>cs", function() Snacks.picker.lsp_symbols() end, desc = "symbols" },
 

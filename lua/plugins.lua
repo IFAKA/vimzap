@@ -6,10 +6,34 @@ vim.cmd[[packadd gitsigns.nvim]]
 vim.cmd[[packadd nvim-cmp]]
 vim.cmd[[packadd cmp-nvim-lsp]]
 vim.cmd[[packadd render-markdown.nvim]]
+vim.cmd[[packadd conform.nvim]]
 
 -- Mason (LSP server manager)
 require("mason").setup()
 vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
+
+-- Auto-install tools via Mason
+local mason_registry = require("mason-registry")
+local ensure_installed = {
+  "typescript-language-server",
+  "vscode-eslint-language-server",
+  "tailwindcss-language-server",
+  "html-lsp",
+  "css-lsp",
+  "json-lsp",
+  "prettierd",
+}
+local to_install = {}
+for _, tool in ipairs(ensure_installed) do
+  if not mason_registry.is_installed(tool) then
+    table.insert(to_install, tool)
+  end
+end
+if #to_install > 0 then
+  vim.defer_fn(function()
+    vim.cmd("MasonInstall " .. table.concat(to_install, " "))
+  end, 500)
+end
 
 -- Snacks.nvim
 local dashboard_cmd = [[bash -c '
@@ -95,4 +119,18 @@ require("which-key").setup({
 require("render-markdown").setup({
   file_types = { "markdown" },
   render_modes = { "n", "c" }, -- Normal and command mode
+})
+
+-- Conform (formatter)
+require("conform").setup({
+  formatters_by_ft = {
+    javascript = { "prettierd", "prettier", stop_after_first = true },
+    javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+    typescript = { "prettierd", "prettier", stop_after_first = true },
+    typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+    json = { "prettierd", "prettier", stop_after_first = true },
+    html = { "prettierd", "prettier", stop_after_first = true },
+    css = { "prettierd", "prettier", stop_after_first = true },
+    markdown = { "prettierd", "prettier", stop_after_first = true },
+  },
 })
