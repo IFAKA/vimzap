@@ -16,7 +16,7 @@ vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
 local mason_registry = require("mason-registry")
 local ensure_installed = {
   "typescript-language-server",
-  "vscode-eslint-language-server",
+  "eslint-lsp",
   "tailwindcss-language-server",
   "html-lsp",
   "css-lsp",
