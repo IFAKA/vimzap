@@ -1,3 +1,5 @@
+<img width="1280" height="640" alt="image" src="https://github.com/user-attachments/assets/938952ac-ebfc-40c3-850e-ee798d8339df" />
+
 # VimZap
 
 Fast Neovim with file explorer, fuzzy finder, LSP, git, and markdown preview.
