@@ -22,6 +22,7 @@ local ensure_installed = {
   "css-lsp",
   "json-lsp",
   "prettierd",
+  "js-debug-adapter",
 }
 local to_install = {}
 for _, tool in ipairs(ensure_installed) do

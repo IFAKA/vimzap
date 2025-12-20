@@ -2,5 +2,6 @@
 require("options")
 require("plugins")
 require("lsp")
+require("debug")
 require("keymaps")
 require("benchmark")

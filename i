@@ -89,7 +89,7 @@ update() {
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
   BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
-  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/keymaps.lua; do
+  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/debug.lua lua/keymaps.lua; do
     curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"
   done
 
@@ -184,6 +184,7 @@ main() {
     "lua/options.lua"
     "lua/plugins.lua"
     "lua/lsp.lua"
+    "lua/debug.lua"
     "lua/keymaps.lua"
   )
   for file in "${CONFIG_FILES[@]}"; do
@@ -204,6 +205,9 @@ main() {
     "lewis6991/gitsigns.nvim"
     "MeanderingProgrammer/render-markdown.nvim"
     "stevearc/conform.nvim"
+    "mfussenegger/nvim-dap"
+    "rcarriga/nvim-dap-ui"
+    "nvim-neotest/nvim-nio"
   )
 
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"

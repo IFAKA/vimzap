@@ -108,6 +108,19 @@ require("which-key").add({
   -- Benchmark
   { "<leader>B", function() require("benchmark").run() end, desc = "benchmark" },
 
+  -- Debug
+  { "<leader>d", group = "debug" },
+  { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "breakpoint" },
+  { "<leader>dB", function() require("dap").set_breakpoint(vim.fn.input("Condition: ")) end, desc = "conditional breakpoint" },
+  { "<leader>dc", function() require("dap").continue() end, desc = "continue/start" },
+  { "<leader>di", function() require("dap").step_into() end, desc = "step into" },
+  { "<leader>do", function() require("dap").step_over() end, desc = "step over" },
+  { "<leader>dO", function() require("dap").step_out() end, desc = "step out" },
+  { "<leader>dr", function() require("dap").restart() end, desc = "restart" },
+  { "<leader>dq", function() require("dap").terminate() end, desc = "quit/stop" },
+  { "<leader>du", function() require("dapui").toggle() end, desc = "toggle UI" },
+  { "<leader>de", function() require("dapui").eval() end, desc = "eval", mode = { "n", "v" } },
+
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },
   { "]d", vim.diagnostic.goto_next, desc = "next diagnostic" },

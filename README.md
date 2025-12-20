@@ -21,6 +21,7 @@ Press `<Space>` to open the command menu.
 | `e` | File explorer (toggle) |
 | `f` | File: `ff`=find `fg`=grep `fb`=buffers `fr`=recent |
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
+| `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
 | `s` | Search: `sh`=help `sk`=keymaps `sc`=commands |
 | `?` | Show all keymaps |
@@ -46,6 +47,30 @@ Inside the file tree:
 | `K` | Hover docs |
 | `[d` `]d` | Prev/next diagnostic |
 | `[h` `]h` | Prev/next git hunk |
+
+## Debugging (Node.js)
+
+Start your app with `--inspect`:
+
+```bash
+node --inspect server.js
+# or for Next.js/Remix:
+NODE_OPTIONS='--inspect' npm run dev
+```
+
+Then attach in Neovim with `<Space>dc` and select "Attach to Node".
+
+| Key | Action |
+|-----|--------|
+| `<Space>db` | Toggle breakpoint |
+| `<Space>dB` | Conditional breakpoint |
+| `<Space>dc` | Continue / Start debugger |
+| `<Space>di` | Step into |
+| `<Space>do` | Step over |
+| `<Space>dO` | Step out |
+| `<Space>du` | Toggle debug UI |
+| `<Space>de` | Eval expression (works in visual mode) |
+| `<Space>dq` | Stop debugger |
 
 ## Markdown Preview
 
