@@ -43,6 +43,10 @@ local dashboard_cmd = [[bash -c '
     else echo "$1"; fi
   }
 
+  short_time() {
+    echo "$1" | sed -E "s/ seconds?/ s/; s/ minutes?/ m/; s/ hours?/ h/; s/ days?/ d/; s/ weeks?/ w/; s/ months?/ mo/; s/ years?/ y/; s/ ago//"
+  }
+
   echo " $(basename "$PWD")"
   echo "────────────────"
 
@@ -50,8 +54,8 @@ local dashboard_cmd = [[bash -c '
   if git rev-parse --git-dir >/dev/null 2>&1; then
     branch=$(git branch --show-current 2>/dev/null)
     commit=$(git log -1 --format="%an: %s" 2>/dev/null | cut -c1-40)
-    ago=$(git log -1 --format="%cr" 2>/dev/null)
-    echo " $branch  $commit  $ago"
+    ago=$(short_time "$(git log -1 --format="%cr" 2>/dev/null)")
+    echo " $branch  $commit | $ago"
     changes=$(git status --porcelain 2>/dev/null | wc -l | tr -d " ")
     files=$(git ls-files "*.lua" "*.ts" "*.tsx" "*.js" "*.py" 2>/dev/null | wc -l | tr -d " ")
   else

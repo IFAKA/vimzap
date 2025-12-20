@@ -105,6 +105,9 @@ require("which-key").add({
   -- Help
   { "<leader>?", function() Snacks.picker.keymaps() end, desc = "keymaps" },
 
+  -- Benchmark
+  { "<leader>B", function() require("benchmark").run() end, desc = "benchmark" },
+
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },
   { "]d", vim.diagnostic.goto_next, desc = "next diagnostic" },
