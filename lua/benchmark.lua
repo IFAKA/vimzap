@@ -20,31 +20,42 @@ local function get_system_info()
   }
 end
 
+-- Measure startup time by parsing startuptime file
+local function parse_startuptime(startup_file)
+  local lines = vim.fn.readfile(startup_file)
+  for i = #lines, 1, -1 do
+    local line = lines[i]
+    -- Look for the "--- NVIM STARTED ---" line which has total time
+    if line:match("NVIM STARTED") then
+      local time = line:match("^%s*([%d.]+)")
+      if time then
+        return tonumber(time) or 0
+      end
+    end
+  end
+  return 0
+end
+
 -- Measure startup time
 local function measure_startup()
   local startup_file = vim.fn.tempname()
-  local cmd = string.format(
-    "nvim --startuptime %s -c 'qall' 2>/dev/null && tail -1 %s | awk '{print $1}'",
-    startup_file, startup_file
-  )
-  local result = vim.fn.system(cmd):gsub("\n", "")
+  -- Use --headless for non-interactive mode, +qa to quit immediately
+  vim.fn.system(string.format("nvim --headless --startuptime %s +qa 2>/dev/null", startup_file))
+  local result = parse_startuptime(startup_file)
   vim.fn.delete(startup_file)
-  return tonumber(result) or 0
+  return result
 end
 
 -- Measure startup with a file
 local function measure_startup_with_file(filetype)
   local startup_file = vim.fn.tempname()
   local test_file = vim.fn.tempname() .. "." .. filetype
-  vim.fn.writefile({""}, test_file)
-  local cmd = string.format(
-    "nvim --startuptime %s %s -c 'qall' 2>/dev/null && tail -1 %s | awk '{print $1}'",
-    startup_file, test_file, startup_file
-  )
-  local result = vim.fn.system(cmd):gsub("\n", "")
+  vim.fn.writefile({ "" }, test_file)
+  vim.fn.system(string.format("nvim --headless --startuptime %s %s +qa 2>/dev/null", startup_file, test_file))
+  local result = parse_startuptime(startup_file)
   vim.fn.delete(startup_file)
   vim.fn.delete(test_file)
-  return tonumber(result) or 0
+  return result
 end
 
 -- Get plugin count
@@ -77,14 +88,16 @@ end
 -- Get loaded plugins with timing
 local function get_plugin_timing()
   local startup_file = vim.fn.tempname()
-  vim.fn.system(string.format("nvim --startuptime %s -c 'qall' 2>/dev/null", startup_file))
+  vim.fn.system(string.format("nvim --headless --startuptime %s +qa 2>/dev/null", startup_file))
 
   local plugins = {}
   local lines = vim.fn.readfile(startup_file)
   for _, line in ipairs(lines) do
-    local time, _, plugin = line:match("^%s*([%d.]+)%s+[%d.]+%s+[%d.]+:%s+sourcing%s+.*/pack/plugins/opt/([^/]+)/")
-    if time and plugin then
-      plugins[plugin] = (plugins[plugin] or 0) + tonumber(time)
+    -- Format: "clock  self+sourced  self: sourcing path"
+    -- We want self+sourced (2nd column) for the actual time spent
+    local self_sourced, plugin = line:match("^%s*[%d.]+%s+([%d.]+)%s+[%d.]+:%s+sourcing%s+.*/pack/plugins/opt/([^/]+)/")
+    if self_sourced and plugin then
+      plugins[plugin] = (plugins[plugin] or 0) + tonumber(self_sourced)
     end
   end
   vim.fn.delete(startup_file)
