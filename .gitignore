@@ -8,3 +8,6 @@
 !README.md
 !LICENSE
 !.gitignore
+!scripts/
+!scripts/*.html
+!scripts/*.js

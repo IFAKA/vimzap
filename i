@@ -58,6 +58,12 @@ uninstall() {
   # Remove aliases
   remove_aliases
 
+  # Kill any running md-share servers
+  if lsof -ti:8765 >/dev/null 2>&1; then
+    echo "  Stopping markdown share server..."
+    kill $(lsof -ti:8765) 2>/dev/null || true
+  fi
+
   # Remove nvim config and data
   echo "  Removing config..."
   rm -rf ~/.config/nvim
@@ -88,10 +94,14 @@ update() {
   # Update config files
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
+  mkdir -p ~/.config/nvim/scripts
   BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
-  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/debug.lua lua/keymaps.lua; do
+  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/debug.lua lua/keymaps.lua lua/md-share.lua scripts/md-server.py; do
     curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"
   done
+  
+  # Make scripts executable
+  chmod +x ~/.config/nvim/scripts/md-server.py
 
   # Update plugins
   echo "  Updating plugins..."
@@ -175,6 +185,7 @@ main() {
   # Directories
   echo "  [2/5] Setting up config..."
   mkdir -p ~/.config/nvim/lua
+  mkdir -p ~/.config/nvim/scripts
   mkdir -p ~/.local/share/nvim/site/pack/plugins/opt
 
   # Download config files
@@ -186,6 +197,8 @@ main() {
     "lua/lsp.lua"
     "lua/debug.lua"
     "lua/keymaps.lua"
+    "lua/md-share.lua"
+    "scripts/md-server.py"
   )
   for file in "${CONFIG_FILES[@]}"; do
     if ! curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"; then
@@ -193,6 +206,9 @@ main() {
       exit 1
     fi
   done
+  
+  # Make scripts executable
+  chmod +x ~/.config/nvim/scripts/md-server.py
 
   # Plugins
   echo "  [3/5] Installing plugins..."

@@ -98,6 +98,7 @@ require("which-key").add({
   { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "keymaps" },
   { "<leader>sc", function() Snacks.picker.commands() end, desc = "commands" },
   { "<leader>sd", function() Snacks.picker.diagnostics() end, desc = "diagnostics" },
+  { "<leader>sq", function() require("md-share").share() end, desc = "share markdown (QR)" },
 
   -- Mason
   { "<leader>m", ":Mason<CR>", desc = "mason (LSP manager)" },

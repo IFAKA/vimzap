@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VimZap Banner</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #0a0a0a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .banner {
+      width: 1280px;
+      height: 640px;
+      background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0a0a0a 100%);
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Terminal scanlines effect */
+    .scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 255, 0, 0.01) 0px,
+        rgba(0, 255, 0, 0.01) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+    }
+
+    /* Grid background */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(34, 197, 94, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 197, 94, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    /* Glow effects */
+    .glow-1 {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.12) 0%, transparent 70%);
+      top: -150px;
+      left: -100px;
+    }
+
+    .glow-2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(250, 204, 21, 0.08) 0%, transparent 70%);
+      bottom: -100px;
+      right: 100px;
+    }
+
+    .glow-3 {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);
+      top: 50%;
+      right: 20%;
+      transform: translateY(-50%);
+    }
+
+    /* Content container */
+    .content {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      height: 100%;
+      padding: 60px;
+    }
+
+    /* Left side - branding */
+    .left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .logo-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+      position: relative;
+    }
+
+    /* Lightning bolt SVG */
+    .logo-icon svg {
+      width: 40px;
+      height: 40px;
+      fill: white;
+    }
+
+    .title {
+      font-size: 64px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #22c55e 0%, #4ade80 50%, #86efac 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -3px;
+    }
+
+    .tagline {
+      font-size: 22px;
+      color: #6b7280;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .tagline strong {
+      color: #9ca3af;
+      font-weight: 600;
+    }
+
+    /* Install command */
+    .install-box {
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      max-width: 520px;
+    }
+
+    .install-label {
+      font-size: 11px;
+      color: #22c55e;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .install-cmd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #d1d5db;
+    }
+
+    .install-cmd .highlight {
+      color: #4ade80;
+    }
+
+    /* Features */
+    .features {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .feature {
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      font-size: 12px;
+      color: #9ca3af;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .feature.primary {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.3);
+      color: #4ade80;
+    }
+
+    /* Right side - terminal preview */
+    .right {
+      width: 440px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin-left: 40px;
+    }
+
+    .terminal {
+      background: #0f0f0f;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .terminal-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .terminal-dot.red { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green { background: #27ca40; }
+
+    .terminal-title {
+      margin-left: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .terminal-body {
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .prompt {
+      color: #22c55e;
+    }
+
+    .cmd {
+      color: #e5e7eb;
+    }
+
+    .comment {
+      color: #4b5563;
+    }
+
+    .key {
+      display: inline-block;
+      padding: 2px 8px;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      border-radius: 4px;
+      color: #4ade80;
+      font-size: 11px;
+      margin: 0 2px;
+    }
+
+    .action {
+      color: #9ca3af;
+    }
+
+    .keymap-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    /* Version badge */
+    .badge {
+      position: absolute;
+      top: 40px;
+      right: 60px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .badge-icon {
+      font-size: 16px;
+    }
+
+    /* Bottom text */
+    .bottom-text {
+      position: absolute;
+      bottom: 40px;
+      right: 60px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .tech-item {
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 6px;
+      font-size: 11px;
+      color: #4b5563;
+      font-family: 'JetBrains Mono', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <!-- Background effects -->
+    <div class="grid-bg"></div>
+    <div class="scanlines"></div>
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+    <div class="glow-3"></div>
+
+    <!-- Badge -->
+    <div class="badge">
+      <span class="badge-icon">⚡</span>
+      <span>Neovim</span>
+    </div>
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="left">
+        <div class="logo-container">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          </div>
+          <span class="title">VimZap</span>
+        </div>
+
+        <p class="tagline">
+          <strong>Fast Neovim.</strong> File explorer, fuzzy finder,<br>
+          LSP, git, and markdown preview. One command.
+        </p>
+
+        <div class="install-box">
+          <div class="install-label">One-line install</div>
+          <div class="install-cmd">
+            <span class="highlight">curl -fsSL</span> ifaka.github.io/vimzap/i <span class="highlight">| bash</span>
+          </div>
+        </div>
+
+        <div class="features">
+          <div class="feature primary">LSP</div>
+          <div class="feature primary">Fuzzy Find</div>
+          <div class="feature">Explorer</div>
+          <div class="feature">Git</div>
+          <div class="feature">Markdown</div>
+        </div>
+      </div>
+
+      <div class="right">
+        <div class="terminal">
+          <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <span class="terminal-title">nvim</span>
+          </div>
+          <div class="terminal-body">
+            <div><span class="comment">-- Press Space to open menu</span></div>
+            <div class="keymap-line">
+              <span class="key">SPC</span><span class="key">f</span><span class="key">f</span>
+              <span class="action">Find files</span>
+            </div>
+            <div class="keymap-line">
+              <span class="key">SPC</span><span class="key">f</span><span class="key">g</span>
+              <span class="action">Live grep</span>
+            </div>
+            <div class="keymap-line">
+              <span class="key">SPC</span><span class="key">e</span>
+              <span class="action">File explorer</span>
+            </div>
+            <div class="keymap-line">
+              <span class="key">SPC</span><span class="key">g</span><span class="key">g</span>
+              <span class="action">Lazygit</span>
+            </div>
+            <div class="keymap-line">
+              <span class="key">g</span><span class="key">d</span>
+              <span class="action">Go to definition</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom -->
+    <div class="bottom-text">
+      <div class="tech-item">Lua</div>
+      <div class="tech-item">snacks.nvim</div>
+      <div class="tech-item">lazy.nvim</div>
+    </div>
+  </div>
+</body>
+</html>

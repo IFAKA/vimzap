@@ -23,7 +23,7 @@ Press `<Space>` to open the command menu.
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
-| `s` | Search: `sh`=help `sk`=keymaps `sc`=commands |
+| `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sq`=share markdown (QR) |
 | `?` | Show all keymaps |
 
 ## Explorer
@@ -79,6 +79,24 @@ Open any `.md` file to see rendered headings, code blocks, and tables.
 | Command | Action |
 |---------|--------|
 | `:RenderMarkdown toggle` | Toggle preview on/off |
+
+## Markdown Sharing (QR Code)
+
+Share your markdown file to your phone for reading on the go.
+
+**Setup:**
+```bash
+brew install qrencode
+```
+
+**Usage:**
+
+1. Open a markdown file in Neovim
+2. Press `<Space>sq` to show QR code
+3. Scan with your phone to open rendered markdown in browser
+4. Press `q` or `<Esc>` to close QR and stop server
+
+The server runs only on your local network and stops automatically when you close the QR window.
 
 ## Update
 
