@@ -96,7 +96,7 @@ update() {
   mkdir -p ~/.config/nvim/lua
   mkdir -p ~/.config/nvim/scripts
   BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
-  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/debug.lua lua/keymaps.lua lua/md-share.lua scripts/md-server.py; do
+  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/debug.lua lua/keymaps.lua lua/benchmark.lua lua/md-share.lua scripts/md-server.py; do
     curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"
   done
   
@@ -197,6 +197,7 @@ main() {
     "lua/lsp.lua"
     "lua/debug.lua"
     "lua/keymaps.lua"
+    "lua/benchmark.lua"
     "lua/md-share.lua"
     "scripts/md-server.py"
   )
