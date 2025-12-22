@@ -11,3 +11,4 @@
 !scripts/
 !scripts/*.html
 !scripts/*.js
+!scripts/*.py
