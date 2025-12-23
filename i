@@ -91,31 +91,120 @@ update() {
   echo "  ============="
   echo ""
 
+  # Counters for summary
+  local config_updated=0
+  local config_unchanged=0
+  local plugins_updated=0
+  local plugins_unchanged=0
+  local plugins_failed=0
+
   # Update config files
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
   mkdir -p ~/.config/nvim/scripts
   BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
-  for file in init.lua lua/options.lua lua/plugins.lua lua/lsp.lua lua/debug.lua lua/keymaps.lua lua/benchmark.lua lua/md-share.lua scripts/md-server.py; do
-    curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"
+  
+  CONFIG_FILES=(
+    "init.lua"
+    "lua/options.lua"
+    "lua/plugins.lua"
+    "lua/lsp.lua"
+    "lua/debug.lua"
+    "lua/keymaps.lua"
+    "lua/benchmark.lua"
+    "lua/md-share.lua"
+    "scripts/md-server.py"
+  )
+  
+  for file in "${CONFIG_FILES[@]}"; do
+    local dest="$HOME/.config/nvim/$file"
+    local temp="/tmp/vimzap_${file//\//_}"
+    
+    # Download to temp file
+    if curl -fsSL "$BASE_URL/$file" -o "$temp" 2>/dev/null; then
+      # Check if file exists and has changed
+      if [[ -f "$dest" ]]; then
+        if ! cmp -s "$dest" "$temp"; then
+          mv "$temp" "$dest"
+          echo "    Updated: $file"
+          ((config_updated++))
+        else
+          rm "$temp"
+          ((config_unchanged++))
+        fi
+      else
+        mv "$temp" "$dest"
+        echo "    Added: $file"
+        ((config_updated++))
+      fi
+    else
+      echo "    Failed: $file"
+      rm -f "$temp"
+    fi
   done
+  
+  if [[ $config_unchanged -gt 0 ]]; then
+    echo "    ($config_unchanged unchanged)"
+  fi
   
   # Make scripts executable
   chmod +x ~/.config/nvim/scripts/md-server.py
 
   # Update plugins
+  echo ""
   echo "  Updating plugins..."
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
-  for dir in "$PLUGIN_DIR"/*/; do
-    name=$(basename "$dir")
-    printf "    %s... " "$name"
-    if git -C "$dir" pull --quiet 2>/dev/null; then
-      echo "ok"
-    else
-      echo "skip"
-    fi
-  done
+  
+  if [[ ! -d "$PLUGIN_DIR" ]]; then
+    echo "    No plugins directory found"
+  else
+    for dir in "$PLUGIN_DIR"/*/; do
+      if [[ ! -d "$dir" ]]; then
+        continue
+      fi
+      
+      name=$(basename "$dir")
+      printf "    %s... " "$name"
+      
+      # Check if it's a git repo
+      if [[ ! -d "$dir/.git" ]]; then
+        echo "not a git repo"
+        ((plugins_failed++))
+        continue
+      fi
+      
+      # Get current HEAD before pulling
+      local old_head=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
+      
+      # Pull changes
+      if git -C "$dir" pull --quiet 2>/dev/null; then
+        local new_head=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
+        
+        if [[ "$old_head" != "$new_head" ]]; then
+          # Get number of new commits
+          local commit_count=$(git -C "$dir" rev-list --count "$old_head..$new_head" 2>/dev/null || echo "?")
+          echo "updated (+$commit_count commits)"
+          ((plugins_updated++))
+        else
+          echo "up to date"
+          ((plugins_unchanged++))
+        fi
+      else
+        echo "failed"
+        ((plugins_failed++))
+      fi
+    done
+  fi
 
+  # Summary
+  echo ""
+  echo "  Summary"
+  echo "  -------"
+  echo "    Config files: $config_updated updated, $config_unchanged unchanged"
+  echo "    Plugins: $plugins_updated updated, $plugins_unchanged up to date"
+  if [[ $plugins_failed -gt 0 ]]; then
+    echo "    Failed: $plugins_failed plugins"
+  fi
   echo ""
   echo "  Done!"
   echo ""
