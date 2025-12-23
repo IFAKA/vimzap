@@ -11,43 +11,53 @@ end
 vim.lsp.config("ts_ls", {
   cmd = { "typescript-language-server", "--stdio" },
   filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-  root_markers = { "tsconfig.json", "jsconfig.json", "package.json", ".git" },
+  root_dir = function(fname)
+    return vim.fs.root(fname, { "tsconfig.json", "jsconfig.json", "package.json", ".git" })
+  end,
   capabilities = get_capabilities(),
 })
 
 vim.lsp.config("html", {
   cmd = { "vscode-html-language-server", "--stdio" },
   filetypes = { "html" },
-  root_markers = { "package.json", ".git" },
+  root_dir = function(fname)
+    return vim.fs.root(fname, { "package.json", ".git" })
+  end,
   capabilities = get_capabilities(),
 })
 
 vim.lsp.config("cssls", {
   cmd = { "vscode-css-language-server", "--stdio" },
   filetypes = { "css", "scss" },
-  root_markers = { "package.json", ".git" },
+  root_dir = function(fname)
+    return vim.fs.root(fname, { "package.json", ".git" })
+  end,
   capabilities = get_capabilities(),
 })
 
 vim.lsp.config("jsonls", {
   cmd = { "vscode-json-language-server", "--stdio" },
   filetypes = { "json", "jsonc" },
-  root_markers = { ".git" },
+  root_dir = function(fname)
+    return vim.fs.root(fname, { ".git" })
+  end,
   capabilities = get_capabilities(),
 })
 
 vim.lsp.config("tailwindcss", {
   cmd = { "tailwindcss-language-server", "--stdio" },
   filetypes = { "typescriptreact", "javascriptreact", "html", "css" },
-  root_markers = {
-    "tailwind.config.js",
-    "tailwind.config.ts",
-    "tailwind.config.mjs",
-    "tailwind.config.cjs",
-    "postcss.config.js",
-    "postcss.config.mjs",  -- Tailwind v4
-    "package.json",
-  },
+  root_dir = function(fname)
+    return vim.fs.root(fname, {
+      "tailwind.config.js",
+      "tailwind.config.ts",
+      "tailwind.config.mjs",
+      "tailwind.config.cjs",
+      "postcss.config.js",
+      "postcss.config.mjs",  -- Tailwind v4
+      "package.json",
+    })
+  end,
   capabilities = get_capabilities(),
   settings = {
     tailwindCSS = {
@@ -65,7 +75,9 @@ vim.lsp.config("tailwindcss", {
 vim.lsp.config("eslint", {
   cmd = { "vscode-eslint-language-server", "--stdio" },
   filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-  root_markers = { "eslint.config.mjs", "eslint.config.js", ".eslintrc.js", ".eslintrc.json", "package.json" },
+  root_dir = function(fname)
+    return vim.fs.root(fname, { "eslint.config.mjs", "eslint.config.js", ".eslintrc.js", ".eslintrc.json", "package.json" })
+  end,
   capabilities = get_capabilities(),
   settings = {
     validate = "on",
@@ -83,7 +95,9 @@ vim.lsp.config("eslint", {
 vim.lsp.config("lua_ls", {
   cmd = { "lua-language-server" },
   filetypes = { "lua" },
-  root_markers = { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", ".git" },
+  root_dir = function(fname)
+    return vim.fs.root(fname, { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", ".git" })
+  end,
   capabilities = get_capabilities(),
   settings = {
     Lua = {

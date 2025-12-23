@@ -230,10 +230,24 @@ main() {
 
   echo "  OS: $OS"
   echo ""
+  
+  # Check for existing nvim config and warn
+  if [[ -d "$HOME/.config/nvim" ]]; then
+    echo "  Warning: Existing Neovim config detected!"
+    echo "  This will overwrite: ~/.config/nvim"
+    echo ""
+    read -p "  Continue? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "  Installation cancelled."
+      exit 0
+    fi
+    echo ""
+  fi
 
   # macOS
   if [[ "$OS" == "Darwin" ]]; then
-    echo "  [1/5] Installing tools via Homebrew..."
+    echo "  [1/6] Installing tools via Homebrew..."
 
     if ! command -v brew &>/dev/null; then
       echo "        Installing Homebrew..."
@@ -247,7 +261,7 @@ main() {
 
   # Linux
   if [[ "$OS" == "Linux" ]]; then
-    echo "  [1/5] Installing tools..."
+    echo "  [1/6] Installing tools..."
 
     if command -v apt-get &>/dev/null; then
       sudo apt-get update -qq
@@ -271,8 +285,35 @@ main() {
     fi
   fi
 
+  # Check Neovim version
+  echo "  [2/6] Checking Neovim version..."
+  if command -v nvim &>/dev/null; then
+    NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | grep -oP 'v\K[0-9]+\.[0-9]+' || echo "0.0")
+    NVIM_MAJOR=$(echo "$NVIM_VERSION" | cut -d. -f1)
+    NVIM_MINOR=$(echo "$NVIM_VERSION" | cut -d. -f2)
+    
+    echo "        Found: v${NVIM_VERSION}"
+    
+    if [[ "$NVIM_MAJOR" -eq 0 && "$NVIM_MINOR" -lt 11 ]]; then
+      echo ""
+      echo "  Error: VimZap requires Neovim 0.11 or higher"
+      echo "  Your version: v${NVIM_VERSION}"
+      echo ""
+      echo "  Update Neovim:"
+      if [[ "$OS" == "Darwin" ]]; then
+        echo "    brew upgrade neovim"
+      else
+        echo "    See: https://github.com/neovim/neovim/releases"
+      fi
+      exit 1
+    fi
+  else
+    echo "        Neovim not found (will be installed)"
+  fi
+  echo ""
+
   # Directories
-  echo "  [2/5] Setting up config..."
+  echo "  [3/6] Setting up config..."
   mkdir -p ~/.config/nvim/lua
   mkdir -p ~/.config/nvim/scripts
   mkdir -p ~/.local/share/nvim/site/pack/plugins/opt
@@ -301,7 +342,7 @@ main() {
   chmod +x ~/.config/nvim/scripts/md-server.py
 
   # Plugins
-  echo "  [3/5] Installing plugins..."
+  echo "  [4/6] Installing plugins..."
   PLUGINS=(
     "williamboman/mason.nvim"
     "folke/snacks.nvim"
@@ -334,10 +375,10 @@ main() {
   done
 
   # LSP servers (installed via Mason on first launch)
-  echo "  [4/5] LSP servers will be installed via Mason on first launch..."
+  echo "  [5/6] LSP servers will be installed via Mason on first launch..."
 
   # Add shell aliases
-  echo "  [5/5] Setting up aliases..."
+  echo "  [6/6] Setting up aliases..."
   add_aliases
   echo "        v, vi, vim -> nvim"
 

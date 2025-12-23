@@ -87,7 +87,13 @@ require("which-key").add({
 
   -- Git
   { "<leader>g", group = "git" },
-  { "<leader>gg", ":LazyGit<CR>", desc = "lazygit" },
+  { "<leader>gg", function()
+      if vim.fn.executable("lazygit") == 1 then
+        vim.cmd("LazyGit")
+      else
+        Snacks.notifier.notify("lazygit not installed. Install: brew install lazygit", "warn")
+      end
+    end, desc = "lazygit" },
   { "<leader>gf", function() Snacks.picker.git_files() end, desc = "git files" },
   { "<leader>gs", function() Snacks.picker.git_status() end, desc = "status" },
   { "<leader>gp", function() gitsigns_cmd("preview_hunk") end, desc = "preview hunk" },

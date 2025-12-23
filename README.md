@@ -4,6 +4,8 @@
 
 Fast Neovim with file explorer, fuzzy finder, LSP, git, and markdown preview.
 
+**Requirements:** Neovim 0.11+
+
 ## Install
 
 ```bash

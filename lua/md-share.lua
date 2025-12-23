@@ -114,6 +114,62 @@ local function show_qr(url)
   end
 end
 
+-- Parse server output and show QR
+local function parse_server_output(output)
+  if #output < 2 then
+    Snacks.notifier.notify("Invalid server output", "error")
+    return
+  end
+  
+  -- Parse output
+  local url = nil
+  local port = nil
+  local note = nil
+  local error_msg = nil
+  
+  for _, line in ipairs(output) do
+    local u = line:match("URL:(.+)")
+    if u then url = vim.trim(u) end
+    
+    local p = line:match("PORT:(.+)")
+    if p then port = vim.trim(p) end
+    
+    local n = line:match("NOTE:(.+)")
+    if n then note = vim.trim(n) end
+    
+    local e = line:match("ERROR:(.+)")
+    if e then error_msg = vim.trim(e) end
+  end
+  
+  if error_msg then
+    Snacks.notifier.notify(error_msg, "error")
+    return
+  end
+  
+  if not url or not port then
+    Snacks.notifier.notify("Failed to parse server output", "error")
+    return
+  end
+  
+  M.server_url = url
+  
+  -- Get server PID
+  local pid_output = vim.fn.system("lsof -ti:" .. port)
+  if vim.v.shell_error == 0 and pid_output ~= "" then
+    M.server_pid = tonumber(vim.trim(pid_output))
+  end
+  
+  -- Show QR code
+  show_qr(url)
+  
+  -- Show notification with port info
+  if note then
+    Snacks.notifier.notify(note, "info")
+  else
+    Snacks.notifier.notify("Server running on port " .. port, "info")
+  end
+end
+
 -- Start server and show QR
 function M.share()
   -- Check if current buffer is a markdown file
@@ -148,8 +204,14 @@ function M.share()
     return
   end
   
-  -- Get script path (relative to this lua file)
+  -- Get script path
   local script_path = vim.fn.stdpath("config") .. "/scripts/md-server.py"
+  
+  -- Check if script exists
+  if vim.fn.filereadable(script_path) == 0 then
+    Snacks.notifier.notify("Server script not found: " .. script_path, "error")
+    return
+  end
   
   -- Create temporary output file for server info
   local tmpfile = vim.fn.tempname()
@@ -158,64 +220,36 @@ function M.share()
   local cmd = string.format("python3 '%s' '%s' > '%s' 2>&1 &", script_path, filepath, tmpfile)
   vim.fn.system(cmd)
   
-  -- Wait a bit for server to start and write output
-  vim.defer_fn(function()
-    local output = vim.fn.readfile(tmpfile)
+  if vim.v.shell_error ~= 0 then
+    Snacks.notifier.notify("Failed to start server process", "error")
     vim.fn.delete(tmpfile)
+    return
+  end
+  
+  -- Wait for server to start and write output (with retry logic)
+  local max_attempts = 10
+  local attempt = 0
+  
+  local function try_read()
+    attempt = attempt + 1
+    local output = vim.fn.readfile(tmpfile)
     
-    if #output < 2 then
-      Snacks.notifier.notify("Failed to start server", "error")
-      return
-    end
-    
-    -- Parse output
-    local url = nil
-    local port = nil
-    local note = nil
-    local error_msg = nil
-    
-    for _, line in ipairs(output) do
-      local u = line:match("URL:(.+)")
-      if u then url = vim.trim(u) end
-      
-      local p = line:match("PORT:(.+)")
-      if p then port = vim.trim(p) end
-      
-      local n = line:match("NOTE:(.+)")
-      if n then note = vim.trim(n) end
-      
-      local e = line:match("ERROR:(.+)")
-      if e then error_msg = vim.trim(e) end
-    end
-    
-    if error_msg then
-      Snacks.notifier.notify(error_msg, "error")
-      return
-    end
-    
-    if not url or not port then
-      Snacks.notifier.notify("Failed to parse server output", "error")
-      return
-    end
-    
-    M.server_url = url
-    
-    -- Get server PID
-    local pid_output = vim.fn.system("lsof -ti:" .. port)
-    if vim.v.shell_error == 0 and pid_output ~= "" then
-      M.server_pid = tonumber(vim.trim(pid_output))
-    end
-    
-    -- Show QR code
-    show_qr(url)
-    
-    -- Show notification with port info
-    if note then
-      Snacks.notifier.notify(note, "info")
+    if #output >= 2 then
+      -- Success - parse output
+      vim.fn.delete(tmpfile)
+      parse_server_output(output)
+    elseif attempt < max_attempts then
+      -- Retry after 100ms
+      vim.defer_fn(try_read, 100)
     else
-      Snacks.notifier.notify("Server running on port " .. port, "info")
+      -- Timeout
+      vim.fn.delete(tmpfile)
+      Snacks.notifier.notify("Server failed to start (timeout)", "error")
     end
-  end, 1000)
+  end
+  
+  -- Start trying to read after 200ms
+  vim.defer_fn(try_read, 200)
 end
 
 return M

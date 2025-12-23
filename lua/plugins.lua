@@ -186,7 +186,15 @@ require("mini.surround").setup() -- Surround operations (cs"', ysiw", etc.)
 -- Auto-install common language parsers
 vim.defer_fn(function()
   local parsers = { "lua", "javascript", "typescript", "tsx", "html", "css", "json", "markdown", "markdown_inline", "vim", "vimdoc" }
-  pcall(function()
-    require("nvim-treesitter").install(parsers)
-  end)
+  local success, ts = pcall(require, "nvim-treesitter")
+  if success then
+    local ok = pcall(function()
+      ts.install(parsers)
+    end)
+    if not ok then
+      vim.notify("Treesitter: Some parsers may not have installed. They will auto-install when opening files.", vim.log.levels.WARN)
+    end
+  else
+    vim.notify("Treesitter not found. Syntax highlighting may be limited.", vim.log.levels.WARN)
+  end
 end, 1000)
