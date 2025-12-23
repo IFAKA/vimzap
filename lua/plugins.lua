@@ -183,21 +183,10 @@ require("mini.comment").setup() -- Comment toggling with gcc
 require("mini.surround").setup() -- Surround operations (cs"', ysiw", etc.)
 
 -- Treesitter (better syntax highlighting)
-require("nvim-treesitter.configs").setup({
-  ensure_installed = { 
-    "lua", "javascript", "typescript", "tsx", "html", "css", 
-    "json", "markdown", "markdown_inline", "vim", "vimdoc" 
-  },
-  auto_install = true,
-  highlight = { enable = true },
-  indent = { enable = true },
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = "<C-space>",
-      node_incremental = "<C-space>",
-      scope_incremental = false,
-      node_decremental = "<bs>",
-    },
-  },
-})
+-- Auto-install common language parsers
+vim.defer_fn(function()
+  local parsers = { "lua", "javascript", "typescript", "tsx", "html", "css", "json", "markdown", "markdown_inline", "vim", "vimdoc" }
+  pcall(function()
+    require("nvim-treesitter").install(parsers)
+  end)
+end, 1000)
