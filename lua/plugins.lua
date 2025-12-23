@@ -5,8 +5,12 @@ vim.cmd[[packadd which-key.nvim]]
 vim.cmd[[packadd gitsigns.nvim]]
 vim.cmd[[packadd nvim-cmp]]
 vim.cmd[[packadd cmp-nvim-lsp]]
+vim.cmd[[packadd cmp-buffer]]
+vim.cmd[[packadd cmp-path]]
 vim.cmd[[packadd render-markdown.nvim]]
 vim.cmd[[packadd conform.nvim]]
+vim.cmd[[packadd mini.nvim]]
+vim.cmd[[packadd nvim-treesitter]]
 
 -- Mason (LSP server manager)
 require("mason").setup()
@@ -78,6 +82,9 @@ require("snacks").setup({
   quickfile = { enabled = true },
   input = { enabled = true },
   indent = { enabled = true },
+  words = { enabled = true }, -- Auto-highlight references under cursor
+  terminal = { enabled = true }, -- Floating terminal
+  bufdelete = { enabled = true }, -- Smart buffer deletion
   dashboard = {
     enabled = true,
     sections = {
@@ -88,6 +95,25 @@ require("snacks").setup({
     },
   },
 })
+
+-- Simple bufferline (shows open buffers like VSCode tabs)
+vim.opt.showtabline = 2 -- Always show
+function _G.custom_tabline()
+  local s = ''
+  for i = 1, vim.fn.bufnr('$') do
+    if vim.fn.buflisted(i) == 1 then
+      local name = vim.fn.bufname(i)
+      name = name ~= '' and vim.fn.fnamemodify(name, ':t') or '[No Name]'
+      if i == vim.fn.bufnr('%') then
+        s = s .. '%#TabLineSel# ' .. name .. ' %#TabLineFill#'
+      else
+        s = s .. '%#TabLine# ' .. name .. ' '
+      end
+    end
+  end
+  return s
+end
+vim.opt.tabline = "%!v:lua.custom_tabline()"
 
 -- Gitsigns
 require("gitsigns").setup({
@@ -118,7 +144,9 @@ cmp.setup({
     ["<C-d>"] = cmp.mapping.scroll_docs(4),
   }),
   sources = cmp.config.sources({
-    { name = "nvim_lsp" },
+    { name = "nvim_lsp", priority = 1000 },
+    { name = "buffer", priority = 500 },
+    { name = "path", priority = 250 },
   }),
 })
 
@@ -146,5 +174,30 @@ require("conform").setup({
     css = { "prettierd", "prettier", stop_after_first = true },
     markdown = { "prettierd", "prettier", stop_after_first = true },
     lua = { "stylua" },
+  },
+})
+
+-- Mini.nvim plugins
+require("mini.pairs").setup() -- Auto-pairs for brackets/quotes
+require("mini.comment").setup() -- Comment toggling with gcc
+require("mini.surround").setup() -- Surround operations (cs"', ysiw", etc.)
+
+-- Treesitter (better syntax highlighting)
+require("nvim-treesitter.configs").setup({
+  ensure_installed = { 
+    "lua", "javascript", "typescript", "tsx", "html", "css", 
+    "json", "markdown", "markdown_inline", "vim", "vimdoc" 
+  },
+  auto_install = true,
+  highlight = { enable = true },
+  indent = { enable = true },
+  incremental_selection = {
+    enable = true,
+    keymaps = {
+      init_selection = "<C-space>",
+      node_incremental = "<C-space>",
+      scope_incremental = false,
+      node_decremental = "<bs>",
+    },
   },
 })

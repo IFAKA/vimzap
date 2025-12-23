@@ -38,15 +38,49 @@ Inside the file tree:
 | `m` | Move (select with Tab first) |
 | `c` | Copy |
 
+## Buffer Navigation
+
+Open files appear in a tab bar at the top (like VSCode tabs).
+
+| Key | Action |
+|-----|--------|
+| `Shift+h` | Previous buffer (tab) |
+| `Shift+l` | Next buffer (tab) |
+| `<Space>fb` | Show all buffers |
+| `<Space>bd` | Close current buffer |
+| `<Space>bo` | Close other buffers |
+
 ## LSP Navigation
 
 | Key | Action |
 |-----|--------|
 | `gd` | Go to definition |
 | `gr` | Go to references |
+| `gi` | Go to implementation |
+| `gy` | Go to type definition |
 | `K` | Hover docs |
+| `Ctrl+k` (insert mode) | Signature help |
 | `[d` `]d` | Prev/next diagnostic |
+| `[e` `]e` | Prev/next error |
 | `[h` `]h` | Prev/next git hunk |
+
+## Editing Features
+
+| Key | Action |
+|-----|--------|
+| `gcc` | Comment/uncomment line |
+| `gc` (visual) | Comment selection |
+| `cs"'` | Change surrounding quotes " to ' |
+| `ds"` | Delete surrounding quotes |
+| `ysiw"` | Surround word with quotes |
+
+## Terminal
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+/` | Toggle floating terminal |
+
+Open terminal, run `npm run dev`, then `Ctrl+/` to hide (keeps running). Press `Ctrl+/` again to show logs.
 
 ## Debugging (Node.js)
 
@@ -71,6 +105,15 @@ Then attach in Neovim with `<Space>dc` and select "Attach to Node".
 | `<Space>du` | Toggle debug UI |
 | `<Space>de` | Eval expression (works in visual mode) |
 | `<Space>dq` | Stop debugger |
+
+## Clipboard
+
+VimZap uses system clipboard by default:
+- `yy` (yank line) → Copies to system clipboard
+- `p` → Pastes from system clipboard
+- Works with browser Ctrl+C/Ctrl+V
+
+**Tip:** If you delete something after yanking, use `"0p` to paste the yanked text (not the deleted text).
 
 ## Markdown Preview
 

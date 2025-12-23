@@ -52,7 +52,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
     local opts = { buffer = args.buf }
     vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
     vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+    vim.keymap.set("n", "gi", vim.lsp.buf.implementation, opts)
+    vim.keymap.set("n", "gy", vim.lsp.buf.type_definition, opts)
     vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+    vim.keymap.set("i", "<C-k>", vim.lsp.buf.signature_help, opts)
   end,
 })
 
@@ -125,6 +128,21 @@ require("which-key").add({
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },
   { "]d", vim.diagnostic.goto_next, desc = "next diagnostic" },
+  { "[e", function()
+      vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR })
+    end, desc = "prev error" },
+  { "]e", function()
+      vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
+    end, desc = "next error" },
   { "[h", function() gitsigns_cmd("nav_hunk prev") end, desc = "prev hunk" },
   { "]h", function() gitsigns_cmd("nav_hunk next") end, desc = "next hunk" },
+
+  -- Buffer navigation
+  { "<S-h>", "<cmd>bprevious<cr>", desc = "prev buffer" },
+  { "<S-l>", "<cmd>bnext<cr>", desc = "next buffer" },
+  { "<leader>bd", function() Snacks.bufdelete() end, desc = "delete buffer" },
+  { "<leader>bo", "<cmd>%bd|e#|bd#<cr>", desc = "close other buffers" },
+
+  -- Terminal
+  { "<C-/>", function() Snacks.terminal() end, desc = "terminal", mode = { "n", "t" } },
 })
