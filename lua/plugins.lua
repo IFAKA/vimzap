@@ -21,7 +21,9 @@ local ensure_installed = {
   "html-lsp",
   "css-lsp",
   "json-lsp",
+  "lua-language-server",
   "prettierd",
+  "stylua",
   "js-debug-adapter",
 }
 local to_install = {}
@@ -143,5 +145,6 @@ require("conform").setup({
     html = { "prettierd", "prettier", stop_after_first = true },
     css = { "prettierd", "prettier", stop_after_first = true },
     markdown = { "prettierd", "prettier", stop_after_first = true },
+    lua = { "stylua" },
   },
 })

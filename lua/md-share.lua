@@ -68,8 +68,8 @@ local function show_qr(url)
   -- Create buffer
   M.qr_buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(M.qr_buf, 0, -1, false, lines)
-  vim.api.nvim_buf_set_option(M.qr_buf, "modifiable", false)
-  vim.api.nvim_buf_set_option(M.qr_buf, "bufhidden", "wipe")
+  vim.bo[M.qr_buf].modifiable = false
+  vim.bo[M.qr_buf].bufhidden = "wipe"
   
   -- Calculate window size
   local width = 0
@@ -101,7 +101,7 @@ local function show_qr(url)
   })
   
   -- Set window options
-  vim.api.nvim_win_set_option(M.qr_win, "winblend", 0)
+  vim.wo[M.qr_win].winblend = 0
   
   -- Key mappings to close
   local close_keys = { "q", "<Esc>", "<CR>" }
@@ -139,6 +139,13 @@ function M.share()
   -- Close existing session if any
   if M.server_pid then
     close_qr()
+  end
+  
+  -- Check if python3 is available
+  local python_check = vim.fn.system("which python3")
+  if vim.v.shell_error ~= 0 then
+    Snacks.notifier.notify("Python3 is required for markdown sharing", "error")
+    return
   end
   
   -- Get script path (relative to this lua file)
