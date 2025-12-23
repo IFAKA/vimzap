@@ -2,12 +2,14 @@
 !init.lua
 !lua/
 !lua/*.lua
-!uninstall.sh
 !index.html
 !i
 !README.md
 !LICENSE
 !.gitignore
+!CHANGELOG.md
+!.github/
+!.github/**
 !scripts/
 !scripts/*.html
 !scripts/*.js
