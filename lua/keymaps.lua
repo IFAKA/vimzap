@@ -115,9 +115,8 @@ require("which-key").add({
   -- Help
   { "<leader>?", function() Snacks.picker.keymaps() end, desc = "keymaps" },
 
-  -- Benchmark & Health
-  { "<leader>B", function() require("benchmark").run() end, desc = "benchmark" },
-  { "<leader>H", function() require("health").run() end, desc = "health check" },
+  -- Health Check (includes performance metrics)
+  { "<leader>h", function() require("health").run() end, desc = "health check" },
 
   -- Debug
   { "<leader>d", group = "debug" },

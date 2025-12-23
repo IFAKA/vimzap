@@ -54,6 +54,20 @@ uninstall() {
   echo "  VimZap Uninstall"
   echo "  ================"
   echo ""
+  echo "  This will remove:"
+  echo "    - ~/.config/nvim (VimZap config)"
+  echo "    - ~/.local/share/nvim (plugins & data)"
+  echo "    - ~/.cache/nvim (cache files)"
+  echo "    - Shell aliases (v, vi, vim)"
+  echo ""
+  
+  read -p "  Are you sure? (y/N) " -n 1 -r
+  echo ""
+  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "  Uninstall cancelled."
+    exit 0
+  fi
+  echo ""
 
   # Remove aliases
   remove_aliases
@@ -62,6 +76,12 @@ uninstall() {
   if lsof -ti:8765 >/dev/null 2>&1; then
     echo "  Stopping markdown share server..."
     kill $(lsof -ti:8765) 2>/dev/null || true
+  fi
+
+  # Create backup before removing (just in case)
+  if [[ -d ~/.config/nvim ]]; then
+    echo "  Creating backup at ~/.config/nvim.backup.$(date +%s)..."
+    cp -r ~/.config/nvim ~/.config/nvim.backup.$(date +%s)
   fi
 
   # Remove nvim config and data
@@ -75,7 +95,10 @@ uninstall() {
   rm -rf ~/.cache/nvim
 
   echo ""
-  echo "  Done! Run: source $(get_shell_rc)"
+  echo "  ✓ VimZap uninstalled successfully!"
+  echo "  Backup saved at ~/.config/nvim.backup.*"
+  echo ""
+  echo "  Run: source $(get_shell_rc)"
   echo ""
 }
 
@@ -207,8 +230,18 @@ update() {
     echo "    Failed: $plugins_failed plugins"
   fi
   echo ""
-  echo "  Done!"
-  echo ""
+  
+  # Suggest health check if updates were made
+  if [[ $config_updated -gt 0 || $plugins_updated -gt 0 ]]; then
+    echo "  ✓ Updates applied successfully!"
+    echo ""
+    echo "  Verify everything works:"
+    echo "    nvim -c 'VimZapHealth'"
+    echo ""
+  else
+    echo "  ✓ Already up to date!"
+    echo ""
+  fi
 }
 
 # Check for --update flag

@@ -26,6 +26,7 @@ Press `<Space>` to open the command menu.
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
 | `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sq`=share markdown (QR) |
+| `h` | Health check (diagnostics + performance) |
 | `?` | Show all keymaps |
 
 ## Explorer
@@ -157,7 +158,7 @@ Run diagnostics to verify your setup:
 :VimZapHealth
 ```
 
-Or use the keymap: `<Space>H`
+Or use the keymap: `<Space>h`
 
 This checks:
 - Neovim version

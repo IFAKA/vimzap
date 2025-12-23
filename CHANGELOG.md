@@ -5,6 +5,17 @@ All notable changes to VimZap will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2025-12-24
+
+### Changed
+- **Simplified keymaps** - Changed health check from `<Space>H` to `<Space>h` (lowercase)
+- **Improved uninstall** - Added confirmation prompt and automatic backup before removal
+- **Improved update** - Suggests health check after successful updates
+- **Removed redundant benchmark keymap** - Health check now includes performance metrics
+
+### Removed
+- **Benchmark keymap (`<Space>B`)** - Functionality merged into health check
+
 ## [1.0.0] - 2025-12-24
 
 ### Added
