@@ -1,0 +1,128 @@
+name: Test VimZap
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-install:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Neovim (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo add-apt-repository ppa:neovim-ppa/unstable -y
+          sudo apt-get update
+          sudo apt-get install -y neovim
+      
+      - name: Install Neovim (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew install neovim
+      
+      - name: Verify Neovim version
+        run: |
+          nvim --version
+          NVIM_VERSION=$(nvim --version | head -1 | grep -oE 'v[0-9]+\.[0-9]+' | cut -c2-)
+          echo "Neovim version: $NVIM_VERSION"
+          MAJOR=$(echo $NVIM_VERSION | cut -d. -f1)
+          MINOR=$(echo $NVIM_VERSION | cut -d. -f2)
+          if [ "$MAJOR" -eq 0 ] && [ "$MINOR" -lt 11 ]; then
+            echo "Error: Neovim $NVIM_VERSION is too old (requires 0.11+)"
+            exit 1
+          fi
+      
+      - name: Test install script syntax
+        run: |
+          bash -n i
+      
+      - name: Test Lua files syntax
+        run: |
+          for file in lua/*.lua; do
+            echo "Testing $file..."
+            nvim --headless -c "luafile $file" -c "quit" 2>&1 | grep -i "error" && exit 1 || true
+          done
+          echo "All Lua files passed syntax check"
+      
+      - name: Backup existing config
+        run: |
+          if [ -d "$HOME/.config/nvim" ]; then
+            mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup"
+          fi
+      
+      - name: Test install (dry run simulation)
+        run: |
+          # Simulate install by copying files
+          mkdir -p ~/.config/nvim/lua
+          mkdir -p ~/.config/nvim/scripts
+          cp init.lua ~/.config/nvim/
+          cp lua/*.lua ~/.config/nvim/lua/
+          cp scripts/*.py ~/.config/nvim/scripts/
+          chmod +x ~/.config/nvim/scripts/md-server.py
+      
+      - name: Verify config structure
+        run: |
+          test -f ~/.config/nvim/init.lua || exit 1
+          test -f ~/.config/nvim/lua/options.lua || exit 1
+          test -f ~/.config/nvim/lua/plugins.lua || exit 1
+          test -f ~/.config/nvim/lua/lsp.lua || exit 1
+          test -f ~/.config/nvim/lua/keymaps.lua || exit 1
+          test -f ~/.config/nvim/lua/health.lua || exit 1
+          test -f ~/.config/nvim/scripts/md-server.py || exit 1
+          echo "Config structure verified"
+      
+      - name: Test Neovim can load config
+        run: |
+          timeout 30s nvim --headless -c "quit" 2>&1 | tee nvim_output.log
+          if grep -i "error\|fatal" nvim_output.log; then
+            echo "Neovim reported errors:"
+            cat nvim_output.log
+            exit 1
+          fi
+          echo "Neovim loaded config successfully"
+      
+      - name: Restore backup
+        if: always()
+        run: |
+          rm -rf ~/.config/nvim
+          if [ -d "$HOME/.config/nvim.backup" ]; then
+            mv "$HOME/.config/nvim.backup" "$HOME/.config/nvim"
+          fi
+
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+      
+      - name: Lint install script
+        run: |
+          shellcheck i || true
+      
+      - name: Check for common issues
+        run: |
+          # Check for trailing whitespace
+          if grep -r '[[:space:]]$' lua/*.lua; then
+            echo "Warning: Found trailing whitespace"
+          fi
+          
+          # Check for TODO/FIXME comments
+          if grep -r 'TODO\|FIXME' lua/*.lua; then
+            echo "Warning: Found TODO/FIXME comments"
+          fi

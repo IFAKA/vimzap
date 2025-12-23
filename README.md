@@ -149,6 +149,118 @@ The server runs only on your local network and stops automatically when you clos
 curl -fsSL ifaka.github.io/vimzap/i | bash -s update
 ```
 
+## Health Check
+
+Run diagnostics to verify your setup:
+
+```vim
+:VimZapHealth
+```
+
+Or use the keymap: `<Space>H`
+
+This checks:
+- Neovim version
+- Plugin installation
+- LSP servers
+- External tools
+- Startup performance
+
+## Troubleshooting
+
+### LSP not working
+
+1. Check if LSP servers are installed:
+   ```vim
+   :Mason
+   ```
+2. Verify LSP is running:
+   ```vim
+   :LspInfo
+   ```
+3. Check for errors:
+   ```vim
+   :VimZapHealth
+   ```
+
+### Slow startup
+
+1. Run benchmark:
+   ```vim
+   :VimZapBench
+   ```
+   Or press `<Space>B`
+
+2. If startup > 100ms, check plugin load times in the benchmark output
+
+### Keymaps not working
+
+1. Verify keymap is loaded:
+   ```vim
+   :map <Space>
+   ```
+2. Check for conflicts:
+   ```vim
+   :verbose map <Space>
+   ```
+
+### Missing LSP servers
+
+LSP servers install automatically on first launch. If they're missing:
+
+```vim
+:Mason
+```
+
+Then select and install: `i` to install, `X` to uninstall
+
+### Missing external tools
+
+**macOS:**
+```bash
+brew install lazygit qrencode ripgrep
+```
+
+**Linux:**
+```bash
+sudo apt install lazygit qrencode ripgrep  # Ubuntu/Debian
+sudo dnf install lazygit qrencode ripgrep  # Fedora
+```
+
+### Markdown share not working
+
+1. Check if qrencode is installed:
+   ```bash
+   which qrencode
+   ```
+
+2. Check if Python 3 is available:
+   ```bash
+   python3 --version
+   ```
+
+3. Install missing dependencies:
+   ```bash
+   brew install qrencode  # macOS
+   sudo apt install qrencode  # Linux
+   ```
+
+### Configuration conflicts
+
+If you have existing Neovim config, VimZap will warn before overwriting. To keep both:
+
+1. Backup your config:
+   ```bash
+   mv ~/.config/nvim ~/.config/nvim.backup
+   ```
+
+2. Install VimZap:
+   ```bash
+   curl -fsSL ifaka.github.io/vimzap/i | bash
+   ```
+
+3. Merge configs manually or use VimZap exclusively
+
 ## Uninstall
 
 ```bash

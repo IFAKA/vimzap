@@ -113,6 +113,7 @@ update() {
     "lua/keymaps.lua"
     "lua/benchmark.lua"
     "lua/md-share.lua"
+    "lua/health.lua"
     "scripts/md-server.py"
   )
   
@@ -329,6 +330,7 @@ main() {
     "lua/keymaps.lua"
     "lua/benchmark.lua"
     "lua/md-share.lua"
+    "lua/health.lua"
     "scripts/md-server.py"
   )
   for file in "${CONFIG_FILES[@]}"; do
