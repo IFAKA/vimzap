@@ -15,6 +15,28 @@ vim.lsp.config("ts_ls", {
     return vim.fs.root(fname, { "tsconfig.json", "jsconfig.json", "package.json", ".git" })
   end,
   capabilities = get_capabilities(),
+  -- Use workspace TypeScript version (like VS Code does)
+  init_options = {},
+  on_new_config = function(config, root_dir)
+    -- Find local TypeScript installation
+    local local_ts = root_dir .. "/node_modules/typescript/lib"
+    if vim.fn.isdirectory(local_ts) == 1 then
+      config.init_options = {
+        preferences = {
+          includePackageJsonAutoImports = "auto",
+        },
+        tsserver = {
+          path = local_ts
+        }
+      }
+    else
+      config.init_options = {
+        preferences = {
+          includePackageJsonAutoImports = "auto",
+        },
+      }
+    end
+  end,
 })
 
 vim.lsp.config("html", {
@@ -119,6 +141,42 @@ vim.lsp.config("lua_ls", {
 })
 
 vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint", "lua_ls" })
+
+-- Auto-attach LSP to buffers (Neovim 0.11 doesn't auto-attach with just enable())
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+  callback = function(args)
+    vim.lsp.start(vim.lsp.config.ts_ls)
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "html" },
+  callback = function(args)
+    vim.lsp.start(vim.lsp.config.html)
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "css", "scss" },
+  callback = function(args)
+    vim.lsp.start(vim.lsp.config.cssls)
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "json", "jsonc" },
+  callback = function(args)
+    vim.lsp.start(vim.lsp.config.jsonls)
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "lua" },
+  callback = function(args)
+    vim.lsp.start(vim.lsp.config.lua_ls)
+  end,
+})
 
 -- Format on save (all file types handled by conform)
 vim.api.nvim_create_autocmd("BufWritePre", {
