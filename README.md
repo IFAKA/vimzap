@@ -226,6 +226,30 @@ This checks:
 - External tools
 - Startup performance
 
+## Plugin Dependencies
+
+VimZap includes both **required** and **optional** plugins:
+
+### Required Plugins (automatically installed)
+- `snacks.nvim` - Dashboard, file explorer, fuzzy finder
+- `mason.nvim` - LSP server manager  
+- `nvim-cmp` + completion sources - Autocompletion
+- `which-key.nvim` - Keymap hints
+- `gitsigns.nvim` - Git integration
+- `render-markdown.nvim` - Markdown preview
+- `conform.nvim` - Code formatting
+- `mini.nvim` - Pairs, comments, surround
+- `nvim-treesitter` - Syntax highlighting
+
+### Optional Plugins (safe to skip)
+- `nvim-ts-autotag` - Auto-close HTML/JSX tags
+- `nvim-dap` + `nvim-dap-ui` + `nvim-nio` - Debug support
+- `prophet.nvim` - Salesforce Commerce Cloud development
+
+**Note:** VimZap will continue to work even if optional plugins are missing. You may see reduced functionality for specific features (like debugging or SFCC development) but core editing will work fine.
+
+To install optional plugins, use your preferred Neovim package manager or add them to your `packpath`.
+
 ## Troubleshooting
 
 ### LSP not working

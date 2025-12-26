@@ -1,7 +1,12 @@
 -- Debug (nvim-dap)
-vim.cmd[[packadd nvim-dap]]
-vim.cmd[[packadd nvim-dap-ui]]
-vim.cmd[[packadd nvim-nio]]
+-- Only load if DAP plugins are available
+local dap_ok = pcall(function() vim.cmd[[packadd nvim-dap]] end)
+local dapui_ok = pcall(function() vim.cmd[[packadd nvim-dap-ui]] end)
+local nio_ok = pcall(function() vim.cmd[[packadd nvim-nio]] end)
+
+if not (dap_ok and dapui_ok and nio_ok) then
+  return -- Exit early if DAP plugins aren't available
+end
 
 local dap = require("dap")
 local dapui = require("dapui")

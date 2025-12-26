@@ -11,8 +11,8 @@ vim.cmd[[packadd render-markdown.nvim]]
 vim.cmd[[packadd conform.nvim]]
 vim.cmd[[packadd mini.nvim]]
 vim.cmd[[packadd nvim-treesitter]]
-vim.cmd[[packadd nvim-ts-autotag]]
-vim.cmd[[packadd prophet.nvim]]
+pcall(function() vim.cmd[[packadd nvim-ts-autotag]] end)
+pcall(function() vim.cmd[[packadd prophet.nvim]] end)
 
 -- Mason (LSP server manager)
 require("mason").setup()
