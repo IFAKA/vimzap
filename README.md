@@ -25,7 +25,7 @@ Press `<Space>` to open the command menu.
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
-| `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=clean upload `px`=cancel |
+| `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=clean upload `px`=cancel `pp`=perf |
 | `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sq`=share markdown (QR) |
 | `h` | Health check (diagnostics + performance) |
 | `?` | Show all keymaps |
@@ -143,6 +143,7 @@ VimZap includes prophet.nvim for SFCC development with optimized performance and
 | `<Space>pt` | Toggle auto-upload on/off |
 | `<Space>pc` | Clean upload all cartridges (manual) |
 | `<Space>px` | Cancel active uploads |
+| `<Space>pp` | Performance statistics |
 
 **Tips:**
 - Auto-upload is **disabled by default** to prevent accidental uploads

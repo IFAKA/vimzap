@@ -138,6 +138,7 @@ require("which-key").add({
   { "<leader>pt", "<cmd>ProphetToggle<cr>", desc = "toggle auto-upload" },
   { "<leader>pc", "<cmd>ProphetClean<cr>", desc = "clean upload all" },
   { "<leader>px", "<cmd>ProphetCancel<cr>", desc = "cancel uploads" },
+  { "<leader>pp", "<cmd>ProphetPerf<cr>", desc = "performance stats" },
 
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },
