@@ -110,13 +110,15 @@ uninstall() {
   echo "    - Shell aliases (v, vi, vim)"
   echo ""
   
-  read -p "  Are you sure? (y/N) " -n 1 -r
-  echo ""
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "  Uninstall cancelled."
-    exit 0
+  if [[ "$SKIP_PROMPTS" != "true" ]]; then
+    read -p "  Are you sure? (y/N) " -n 1 -r
+    echo ""
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+      echo "  Uninstall cancelled."
+      exit 0
+    fi
+    echo ""
   fi
-  echo ""
 
   # Remove aliases
   remove_aliases
@@ -151,8 +153,26 @@ uninstall() {
   echo ""
 }
 
+# Parse flags
+SKIP_PROMPTS=false
+ACTION=""
+
+for arg in "$@"; do
+  case "$arg" in
+    --uninstall|uninstall)
+      ACTION="uninstall"
+      ;;
+    --update|update)
+      ACTION="update"
+      ;;
+    --yes|-y)
+      SKIP_PROMPTS=true
+      ;;
+  esac
+done
+
 # Check for --uninstall flag
-if [[ "${1:-}" == "--uninstall" || "${1:-}" == "uninstall" ]]; then
+if [[ "$ACTION" == "uninstall" ]]; then
   uninstall
   exit 0
 fi
@@ -344,7 +364,7 @@ update() {
 }
 
 # Check for --update flag
-if [[ "${1:-}" == "--update" || "${1:-}" == "update" ]]; then
+if [[ "$ACTION" == "update" ]]; then
   update
   exit 0
 fi
@@ -369,13 +389,19 @@ main() {
     echo "  Warning: Existing Neovim config detected!"
     echo "  This will overwrite: ~/.config/nvim"
     echo ""
-    read -p "  Continue? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      echo "  Installation cancelled."
-      exit 0
+    
+    if [[ "$SKIP_PROMPTS" != "true" ]]; then
+      read -p "  Continue? (y/N) " -n 1 -r
+      echo ""
+      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "  Installation cancelled."
+        exit 0
+      fi
+      echo ""
+    else
+      echo "  Continuing (--yes flag provided)..."
+      echo ""
     fi
-    echo ""
   fi
 
   # macOS
@@ -519,10 +545,10 @@ main() {
   echo "    c                Copy"
   echo ""
   echo "  Update:"
-  echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s update"
+  echo "    bash <(curl -fsSL ifaka.github.io/vimzap/i) update"
   echo ""
   echo "  Uninstall:"
-  echo "    curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall && source ~/.zshrc"
+  echo "    bash <(curl -fsSL ifaka.github.io/vimzap/i) uninstall"
   echo ""
 }
 

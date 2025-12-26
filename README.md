@@ -9,7 +9,7 @@ Fast Neovim with file explorer, fuzzy finder, LSP, git, and markdown preview.
 ## Install
 
 ```bash
-curl -fsSL ifaka.github.io/vimzap/i | bash && source ~/.zshrc
+bash <(curl -fsSL ifaka.github.io/vimzap/i)
 ```
 
 Then use `v`, `vi`, or `vim` to open Neovim.
@@ -148,7 +148,7 @@ The server runs only on your local network and stops automatically when you clos
 ## Update
 
 ```bash
-curl -fsSL ifaka.github.io/vimzap/i | bash -s update
+bash <(curl -fsSL ifaka.github.io/vimzap/i) update
 ```
 
 ## Health Check
@@ -266,5 +266,5 @@ If you have existing Neovim config, VimZap will warn before overwriting. To keep
 ## Uninstall
 
 ```bash
-curl -fsSL ifaka.github.io/vimzap/i | bash -s uninstall && source ~/.zshrc
+bash <(curl -fsSL ifaka.github.io/vimzap/i) uninstall
 ```
