@@ -5,9 +5,23 @@
 set -euo pipefail
 
 VIMZAP_MARKER="# VimZap aliases"
+BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
+
+# Single source of truth for config files
+CONFIG_FILES=(
+  "init.lua"
+  "lua/options.lua"
+  "lua/plugins.lua"
+  "lua/lsp.lua"
+  "lua/debug.lua"
+  "lua/keymaps.lua"
+  "lua/benchmark.lua"
+  "lua/md-share.lua"
+  "lua/health.lua"
+  "scripts/md-server.py"
+)
 
 # Single source of truth for VimZap plugins
-# Both install and update use this list
 VIMZAP_PLUGINS=(
   "williamboman/mason.nvim"
   "folke/snacks.nvim"
@@ -26,34 +40,6 @@ VIMZAP_PLUGINS=(
   "nvim-neotest/nvim-nio"
   "IFAKA/prophet.nvim"
 )
-
-# Fetch the PLUGINS array from the latest installer script on GitHub
-fetch_plugins_list() {
-  local temp_script="/tmp/vimzap_installer_$$"
-  
-  # Download the latest installer script
-  if ! curl -fsSL "https://raw.githubusercontent.com/IFAKA/vimzap/main/i" -o "$temp_script" 2>/dev/null; then
-    rm -f "$temp_script"
-    return 1
-  fi
-  
-  # Extract the PLUGINS array from main() function
-  # Use the "Installing plugins" echo as a marker (only in main(), not update())
-  local plugins=$(sed -n '/Installing plugins\.\.\./,/^  PLUGIN_DIR=/{
-    /^    "[^"]*\/[^"]*"/{
-      s/^[[:space:]]*"\([^"]*\)".*/\1/p
-    }
-  }' "$temp_script" | tr '\n' ' ')
-  
-  rm -f "$temp_script"
-  
-  if [[ -z "$plugins" ]]; then
-    return 1
-  fi
-  
-  echo "$plugins"
-  return 0
-}
 
 get_shell_rc() {
   if [[ -n "${ZSH_VERSION:-}" ]] || [[ "$SHELL" == *"zsh"* ]]; then
@@ -194,21 +180,7 @@ update() {
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
   mkdir -p ~/.config/nvim/scripts
-  BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
-  
-  CONFIG_FILES=(
-    "init.lua"
-    "lua/options.lua"
-    "lua/plugins.lua"
-    "lua/lsp.lua"
-    "lua/debug.lua"
-    "lua/keymaps.lua"
-    "lua/benchmark.lua"
-    "lua/md-share.lua"
-    "lua/health.lua"
-    "scripts/md-server.py"
-  )
-  
+
   for file in "${CONFIG_FILES[@]}"; do
     local dest="$HOME/.config/nvim/$file"
     local temp="/tmp/vimzap_${file//\//_}"
@@ -247,24 +219,11 @@ update() {
   echo ""
   echo "  Updating plugins..."
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
-  
-  # Try to fetch the latest PLUGINS list from GitHub
-  local plugins_str=$(fetch_plugins_list)
-  
-  # Prefer dynamic list, fall back to bundled list
-  if [[ $? -ne 0 ]] || [[ -z "$plugins_str" ]]; then
-    # Use the bundled VIMZAP_PLUGINS array (defined at top of script)
-    PLUGINS=("${VIMZAP_PLUGINS[@]}")
-  else
-    # Convert space-separated string to array
-    read -ra PLUGINS <<< "$plugins_str"
-  fi
-  
   local plugins_installed=0
   
   # First, install any missing plugins
   mkdir -p "$PLUGIN_DIR"
-  for plugin in "${PLUGINS[@]}"; do
+  for plugin in "${VIMZAP_PLUGINS[@]}"; do
     name=$(basename "$plugin")
     if [[ ! -d "$PLUGIN_DIR/$name" ]]; then
       printf "    %s... " "$name"
@@ -291,7 +250,7 @@ update() {
       
       # Skip if we just installed this plugin
       local just_installed=false
-      for plugin in "${PLUGINS[@]}"; do
+      for plugin in "${VIMZAP_PLUGINS[@]}"; do
         if [[ "$(basename "$plugin")" == "$name" ]] && [[ ! -d "$dir/.git" ]] || [[ $plugins_installed -gt 0 ]]; then
           just_installed=true
           break
@@ -481,19 +440,6 @@ main() {
   mkdir -p ~/.local/share/nvim/site/pack/plugins/opt
 
   # Download config files
-  BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
-  CONFIG_FILES=(
-    "init.lua"
-    "lua/options.lua"
-    "lua/plugins.lua"
-    "lua/lsp.lua"
-    "lua/debug.lua"
-    "lua/keymaps.lua"
-    "lua/benchmark.lua"
-    "lua/md-share.lua"
-    "lua/health.lua"
-    "scripts/md-server.py"
-  )
   for file in "${CONFIG_FILES[@]}"; do
     if ! curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"; then
       echo "Error: Failed to download $file"
@@ -506,11 +452,8 @@ main() {
 
   # Plugins
   echo "  [4/6] Installing plugins..."
-  # Use the shared VIMZAP_PLUGINS array (defined at top of script)
-  PLUGINS=("${VIMZAP_PLUGINS[@]}")
-
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
-  for plugin in "${PLUGINS[@]}"; do
+  for plugin in "${VIMZAP_PLUGINS[@]}"; do
     name=$(basename "$plugin")
     if [[ ! -d "$PLUGIN_DIR/$name" ]]; then
       printf "        %s " "$name"

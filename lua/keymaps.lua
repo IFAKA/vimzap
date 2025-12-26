@@ -1,35 +1,9 @@
--- Helper functions
-
--- Fallback for Snacks when not available  
+-- Snacks with minimal fallback
 local snacks_ok, Snacks = pcall(require, "snacks")
 if not snacks_ok then
-  -- Create dummy Snacks object with safe fallbacks
-  Snacks = {
-    dashboard = function() vim.notify("Dashboard not available", vim.log.levels.WARN) end,
-    explorer = function() vim.cmd("Explore") end,
-    picker = {
-      files = function() vim.cmd("find .") end,
-      grep = function() vim.cmd("grep") end,
-      buffers = function() vim.cmd("ls") end,
-      recent = function() vim.notify("Recent files not available", vim.log.levels.WARN) end,
-      lsp_symbols = function() vim.notify("LSP symbols not available", vim.log.levels.WARN) end,
-      git_files = function() vim.notify("Git files picker not available", vim.log.levels.WARN) end,
-      git_status = function() vim.notify("Git status picker not available", vim.log.levels.WARN) end,
-      help = function() vim.cmd("help") end,
-      keymaps = function() vim.cmd("map") end,
-      commands = function() vim.cmd("command") end,
-      diagnostics = function() vim.notify("Diagnostics picker not available", vim.log.levels.WARN) end,
-    },
-    notifier = {
-      notify = function(msg, level) vim.notify(msg, level) end,
-    },
-    bufdelete = function() vim.cmd("bdelete") end,
-    terminal = function() vim.cmd("terminal") end,
-  }
-end
-
-local function gitsigns_cmd(cmd)
-  vim.cmd("Gitsigns " .. cmd)
+  local warn = function() vim.notify("Snacks.nvim not available", vim.log.levels.WARN) end
+  local noop = setmetatable({}, { __index = function() return warn end })
+  Snacks = setmetatable({ picker = noop, notifier = { notify = vim.notify } }, { __index = function() return warn end })
 end
 
 -- Insert mode: jj to escape
@@ -127,10 +101,10 @@ if wk_ok then
     end, desc = "lazygit" },
   { "<leader>gf", function() Snacks.picker.git_files() end, desc = "git files" },
   { "<leader>gs", function() Snacks.picker.git_status() end, desc = "status" },
-  { "<leader>gp", function() gitsigns_cmd("preview_hunk") end, desc = "preview hunk" },
-  { "<leader>ga", function() gitsigns_cmd("stage_hunk") end, desc = "stage hunk" },
-  { "<leader>gr", function() gitsigns_cmd("reset_hunk") end, desc = "reset hunk" },
-  { "<leader>gb", function() gitsigns_cmd("blame_line") end, desc = "blame" },
+  { "<leader>gp", "<cmd>Gitsigns preview_hunk<cr>", desc = "preview hunk" },
+  { "<leader>ga", "<cmd>Gitsigns stage_hunk<cr>", desc = "stage hunk" },
+  { "<leader>gr", "<cmd>Gitsigns reset_hunk<cr>", desc = "reset hunk" },
+  { "<leader>gb", "<cmd>Gitsigns blame_line<cr>", desc = "blame" },
 
   -- Search
   { "<leader>s", group = "search" },
@@ -186,8 +160,8 @@ if wk_ok then
   { "]e", function()
       vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR })
     end, desc = "next error" },
-  { "[h", function() gitsigns_cmd("nav_hunk prev") end, desc = "prev hunk" },
-  { "]h", function() gitsigns_cmd("nav_hunk next") end, desc = "next hunk" },
+  { "[h", "<cmd>Gitsigns nav_hunk prev<cr>", desc = "prev hunk" },
+  { "]h", "<cmd>Gitsigns nav_hunk next<cr>", desc = "next hunk" },
 
   -- Buffer navigation
   { "<S-h>", "<cmd>bprevious<cr>", desc = "prev buffer" },

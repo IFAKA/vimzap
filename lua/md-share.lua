@@ -2,12 +2,7 @@
 -- Share current markdown file on local network with QR code
 
 local M = {}
-
--- State
-M.server_pid = nil
-M.server_url = nil
-M.qr_buf = nil
-M.qr_win = nil
+local state = { pid = nil, url = nil, buf = nil, win = nil }
 
 -- Check if qrencode is installed
 local function check_qrencode()
@@ -17,27 +12,24 @@ end
 
 -- Kill the server process
 local function kill_server()
-  if M.server_pid then
-    vim.fn.system("kill " .. M.server_pid)
-    M.server_pid = nil
-    M.server_url = nil
+  if state.pid then
+    vim.fn.system("kill " .. state.pid)
+    state.pid = nil
+    state.url = nil
   end
 end
 
 -- Close QR window and kill server
 local function close_qr()
-  if M.qr_win and vim.api.nvim_win_is_valid(M.qr_win) then
-    vim.api.nvim_win_close(M.qr_win, true)
+  if state.win and vim.api.nvim_win_is_valid(state.win) then
+    vim.api.nvim_win_close(state.win, true)
   end
-  if M.qr_buf and vim.api.nvim_buf_is_valid(M.qr_buf) then
-    vim.api.nvim_buf_delete(M.qr_buf, { force = true })
+  if state.buf and vim.api.nvim_buf_is_valid(state.buf) then
+    vim.api.nvim_buf_delete(state.buf, { force = true })
   end
-  M.qr_win = nil
-  M.qr_buf = nil
-  
-  -- Kill server when closing QR
+  state.win = nil
+  state.buf = nil
   kill_server()
-  
   Snacks.notifier.notify("Server stopped", "info")
 end
 
@@ -66,10 +58,10 @@ local function show_qr(url)
   table.insert(lines, "")
   
   -- Create buffer
-  M.qr_buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(M.qr_buf, 0, -1, false, lines)
-  vim.bo[M.qr_buf].modifiable = false
-  vim.bo[M.qr_buf].bufhidden = "wipe"
+  state.buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, lines)
+  vim.bo[state.buf].modifiable = false
+  vim.bo[state.buf].bufhidden = "wipe"
   
   -- Calculate window size
   local width = 0
@@ -88,7 +80,7 @@ local function show_qr(url)
   local row = math.floor((win_height - height) / 2)
   
   -- Create floating window
-  M.qr_win = vim.api.nvim_open_win(M.qr_buf, true, {
+  state.win = vim.api.nvim_open_win(state.buf, true, {
     relative = "editor",
     width = width + 4,
     height = height + 2,
@@ -101,12 +93,11 @@ local function show_qr(url)
   })
   
   -- Set window options
-  vim.wo[M.qr_win].winblend = 0
-  
+  vim.wo[state.win].winblend = 0
+
   -- Key mappings to close
-  local close_keys = { "q", "<Esc>", "<CR>" }
-  for _, key in ipairs(close_keys) do
-    vim.api.nvim_buf_set_keymap(M.qr_buf, "n", key, "", {
+  for _, key in ipairs({ "q", "<Esc>", "<CR>" }) do
+    vim.api.nvim_buf_set_keymap(state.buf, "n", key, "", {
       callback = close_qr,
       noremap = true,
       silent = true,
@@ -151,12 +142,12 @@ local function parse_server_output(output)
     return
   end
   
-  M.server_url = url
-  
+  state.url = url
+
   -- Get server PID
   local pid_output = vim.fn.system("lsof -ti:" .. port)
   if vim.v.shell_error == 0 and pid_output ~= "" then
-    M.server_pid = tonumber(vim.trim(pid_output))
+    state.pid = tonumber(vim.trim(pid_output))
   end
   
   -- Show QR code
@@ -193,7 +184,7 @@ function M.share()
   end
   
   -- Close existing session if any
-  if M.server_pid then
+  if state.pid then
     close_qr()
   end
   

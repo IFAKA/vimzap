@@ -143,38 +143,19 @@ vim.lsp.config("lua_ls", {
 vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint", "lua_ls" })
 
 -- Auto-attach LSP to buffers (Neovim 0.11 doesn't auto-attach with just enable())
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-  callback = function(args)
-    vim.lsp.start(vim.lsp.config.ts_ls)
-  end,
-})
+local filetype_to_lsp = {
+  typescript = "ts_ls", typescriptreact = "ts_ls", javascript = "ts_ls", javascriptreact = "ts_ls",
+  html = "html", css = "cssls", scss = "cssls",
+  json = "jsonls", jsonc = "jsonls", lua = "lua_ls",
+}
 
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "html" },
+  pattern = vim.tbl_keys(filetype_to_lsp),
   callback = function(args)
-    vim.lsp.start(vim.lsp.config.html)
-  end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "css", "scss" },
-  callback = function(args)
-    vim.lsp.start(vim.lsp.config.cssls)
-  end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "json", "jsonc" },
-  callback = function(args)
-    vim.lsp.start(vim.lsp.config.jsonls)
-  end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "lua" },
-  callback = function(args)
-    vim.lsp.start(vim.lsp.config.lua_ls)
+    local server = filetype_to_lsp[vim.bo[args.buf].filetype]
+    if server and vim.lsp.config[server] then
+      vim.lsp.start(vim.lsp.config[server])
+    end
   end,
 })
 
