@@ -204,9 +204,8 @@ end, 1000)
 -- Silently setup - only activates when dw.json is found
 pcall(function()
   require("prophet").setup({
-    auto_upload = false,      -- Don't watch by default (manual toggle)
-    clean_on_start = true,    -- Auto-upload all cartridges on startup
-    notify = true,            -- Show progress notifications
-    keymaps = false,          -- Keymaps set in keymaps.lua (VimZap style)
+    auto_upload = false,    -- Don't watch by default
+    clean_on_start = true,  -- Upload all on startup
+    notify = true,          -- Show notifications
   })
 end)
