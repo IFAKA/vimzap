@@ -139,7 +139,7 @@ require("which-key").add({
   { "<leader>pc", "<cmd>ProphetCleanFeedback<cr>", desc = "clean upload (terminal)" },
   { "<leader>pC", "<cmd>ProphetCleanExternal<cr>", desc = "clean upload (external/non-blocking)" },
   { "<leader>px", "<cmd>ProphetCancel<cr>", desc = "cancel uploads" },
-  { "<leader>pp", "<cmd>ProphetPerfFeedback<cr>", desc = "performance stats (enhanced)" },
+  { "<leader>pp", "<cmd>ProphetPerFeedback<cr>", desc = "performance stats (enhanced)" },
 
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },
