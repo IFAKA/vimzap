@@ -12,6 +12,7 @@ vim.cmd[[packadd conform.nvim]]
 vim.cmd[[packadd mini.nvim]]
 vim.cmd[[packadd nvim-treesitter]]
 pcall(function() vim.cmd[[packadd nvim-ts-autotag]] end)
+-- Load optimized Prophet plugin (performance-enhanced fork)
 pcall(function() vim.cmd[[packadd prophet.nvim]] end)
 
 -- Mason (LSP server manager) - with error handling
