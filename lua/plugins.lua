@@ -11,6 +11,7 @@ vim.cmd[[packadd render-markdown.nvim]]
 vim.cmd[[packadd conform.nvim]]
 vim.cmd[[packadd mini.nvim]]
 vim.cmd[[packadd nvim-treesitter]]
+vim.cmd[[packadd prophet.nvim]]
 
 -- Mason (LSP server manager)
 require("mason").setup()
@@ -198,3 +199,14 @@ vim.defer_fn(function()
     vim.notify("Treesitter not found. Syntax highlighting may be limited.", vim.log.levels.WARN)
   end
 end, 1000)
+
+-- Prophet (SFCC Development)
+-- Silently setup - only activates when dw.json is found
+pcall(function()
+  require("prophet").setup({
+    auto_upload = false,      -- Don't watch by default (manual toggle)
+    clean_on_start = true,    -- Auto-upload all cartridges on startup
+    notify = true,            -- Show progress notifications
+    keymaps = false,          -- Keymaps set in keymaps.lua (VimZap style)
+  })
+end)

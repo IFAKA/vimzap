@@ -25,6 +25,7 @@ Press `<Space>` to open the command menu.
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
+| `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=clean upload |
 | `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sq`=share markdown (QR) |
 | `h` | Health check (diagnostics + performance) |
 | `?` | Show all keymaps |

@@ -394,6 +394,7 @@ main() {
     "mfussenegger/nvim-dap"
     "rcarriga/nvim-dap-ui"
     "nvim-neotest/nvim-nio"
+    "IFAKA/prophet.nvim"
   )
 
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
