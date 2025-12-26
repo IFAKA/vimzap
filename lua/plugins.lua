@@ -220,4 +220,7 @@ pcall(function()
     clean_on_start = false, -- Don't upload all on startup (prevents lag)
     notify = true,          -- Show notifications
   })
+  
+  -- Setup enhanced visual feedback for Prophet operations
+  require("prophet-feedback").setup()
 end)

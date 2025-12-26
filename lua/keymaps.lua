@@ -131,14 +131,15 @@ require("which-key").add({
   { "<leader>du", function() require("dapui").toggle() end, desc = "toggle UI" },
   { "<leader>de", function() require("dapui").eval() end, desc = "eval", mode = { "n", "v" } },
 
-  -- Prophet (SFCC Development)
+  -- Prophet (SFCC Development) - Enhanced with visual feedback
   { "<leader>p", group = "prophet" },
   { "<leader>pe", "<cmd>ProphetEnable<cr>", desc = "enable auto-upload" },
   { "<leader>pd", "<cmd>ProphetDisable<cr>", desc = "disable auto-upload" },
-  { "<leader>pt", "<cmd>ProphetToggle<cr>", desc = "toggle auto-upload" },
-  { "<leader>pc", "<cmd>ProphetClean<cr>", desc = "clean upload all" },
+  { "<leader>pt", "<cmd>ProphetToggleFeedback<cr>", desc = "toggle auto-upload (enhanced)" },
+  { "<leader>pc", "<cmd>ProphetCleanFeedback<cr>", desc = "clean upload (terminal)" },
+  { "<leader>pC", "<cmd>ProphetCleanExternal<cr>", desc = "clean upload (external/non-blocking)" },
   { "<leader>px", "<cmd>ProphetCancel<cr>", desc = "cancel uploads" },
-  { "<leader>pp", "<cmd>ProphetPerf<cr>", desc = "performance stats" },
+  { "<leader>pp", "<cmd>ProphetPerfFeedback<cr>", desc = "performance stats (enhanced)" },
 
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },
