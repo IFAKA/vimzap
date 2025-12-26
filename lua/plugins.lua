@@ -164,10 +164,14 @@ pcall(function()
     }),
     sources = cmp.config.sources({
       { name = "nvim_lsp", priority = 1000 },
+      { name = "sfcc", priority = 900 }, -- SFCC-specific completions
       { name = "buffer", priority = 500 },
       { name = "path", priority = 250 },
     }),
   })
+
+  -- Register SFCC completion source
+  pcall(function() require("sfcc").setup_completions() end)
 end)
 
 -- Which-key - with error handling
@@ -245,5 +249,25 @@ pcall(function()
     notify = true,          -- Real-time progress notifications
   })
 end)
+
+-- SFCC file type settings (ISML and DS)
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "isml" },
+  callback = function()
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.expandtab = true
+    vim.opt_local.commentstring = "<%-- %s --%>"
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "ds" },
+  callback = function()
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.expandtab = true
+  end,
+})
 
 

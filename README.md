@@ -25,7 +25,7 @@ Press `<Space>` to open the command menu.
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
-| `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=clean upload `px`=cancel `pp`=perf |
+| `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=upload all `pf`=find controller `pi`=find template |
 | `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sq`=share markdown (QR) |
 | `h` | Health check (diagnostics + performance) |
 | `?` | Show all keymaps |
@@ -112,7 +112,23 @@ Then attach in Neovim with `<Space>dc` and select "Attach to Node".
 
 ## Prophet (Salesforce Commerce Cloud Development)
 
-VimZap includes prophet.nvim for SFCC development with optimized performance and non-intrusive notifications.
+VimZap includes prophet.nvim for SFCC development with optimized performance and non-intrusive notifications. It aims to match the functionality of the [VSCode Prophet extension](https://github.com/SqrTT/prophet).
+
+### Features
+
+| Feature | VimZap | VSCode Prophet |
+|---------|--------|----------------|
+| WebDAV Upload | Yes | Yes |
+| Auto-upload on save | Yes | Yes |
+| ISML Syntax Highlighting | Yes | Yes |
+| DWScript (.ds) Support | Yes | Yes |
+| Controller Quick-Find | Yes (`<Space>pf`) | Yes (Ctrl+F7) |
+| ISML Template Picker | Yes (`<Space>pi`) | Via explorer |
+| SFCC Completions | Yes (URLUtils, Resource, server.*) | Yes (full LSP) |
+| Snippets | Yes | Yes |
+| Sandbox Connectivity Check | Yes | Yes |
+| Full SDAPI Debugger | No (placeholder) | Yes |
+| Log Viewer | Browser link | In-editor |
 
 ### Setup
 
@@ -128,7 +144,7 @@ VimZap includes prophet.nvim for SFCC development with optimized performance and
 
 **2. Authentication:**
 - **hostname**: Your SFCC sandbox domain (e.g., `dev01-company.demandware.net`)
-- **username**: Your Business Manager username 
+- **username**: Your Business Manager username
 - **password**: Your Business Manager password
 - **code-version**: Code version in Business Manager (usually `version1`)
 
@@ -141,15 +157,31 @@ VimZap includes prophet.nvim for SFCC development with optimized performance and
 | `<Space>pe` | Enable auto-upload (watches file changes) |
 | `<Space>pd` | Disable auto-upload |
 | `<Space>pt` | Toggle auto-upload on/off |
-| `<Space>pc` | Clean upload all cartridges (manual) |
-| `<Space>px` | Cancel active uploads |
-| `<Space>pp` | Performance statistics |
+| `<Space>pc` | Clean upload all cartridges |
+| `<Space>pu` | Upload specific cartridge |
+| `<Space>pC` | Check sandbox connectivity |
+| `<Space>ps` | Show status |
+| `<Space>pf` | Find controller (like Ctrl+F7) |
+| `<Space>pi` | Find ISML template |
+| `<Space>pl` | View logs (opens browser) |
+| `<Space>pr` | Refresh controller cache |
 
-**Tips:**
+### SFCC Completions
+
+When editing JavaScript files in SFCC projects, you get completions for:
+- `URLUtils.url()`, `.http()`, `.https()`, `.abs()`, etc.
+- `Resource.msg()`, `Resource.msgf()`
+- `server.get()`, `.post()`, `.append()`, `.prepend()`, `.replace()`
+- `res.render()`, `.json()`, `.redirect()`, `.setViewData()`
+- `Transaction.wrap()`, `.begin()`, `.commit()`, `.rollback()`
+- `require('dw/...')` module suggestions
+
+### Tips
+
 - Auto-upload is **disabled by default** to prevent accidental uploads
-- Use `<Space>pc` for initial upload of all cartridges  
+- Use `<Space>pc` for initial upload of all cartridges
 - Enable auto-upload (`<Space>pe`) only when actively developing
-- If you interrupt uploads (close nvim), use `<Space>pc` again next time
+- Use `<Space>pf` to quickly jump to any controller endpoint
 - All notifications appear in the corner (non-intrusive)
 
 ### Cartridge Structure

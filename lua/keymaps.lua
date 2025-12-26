@@ -162,11 +162,20 @@ if wk_ok then
   { "<leader>du", function() require("dapui").toggle() end, desc = "toggle UI" },
   { "<leader>de", function() require("dapui").eval() end, desc = "eval", mode = { "n", "v" } },
 
-  -- Prophet (SFCC Development) - minimal commands
-  { "<leader>p", group = "prophet" },
-  { "<leader>pc", "<cmd>ProphetClean<cr>", desc = "upload all" },
+  -- Prophet (SFCC Development)
+  { "<leader>p", group = "prophet/sfcc" },
+  { "<leader>pc", "<cmd>ProphetClean<cr>", desc = "upload all cartridges" },
   { "<leader>pt", "<cmd>ProphetToggle<cr>", desc = "toggle auto-upload" },
   { "<leader>ps", "<cmd>ProphetStatus<cr>", desc = "status" },
+  { "<leader>pe", "<cmd>ProphetEnable<cr>", desc = "enable auto-upload" },
+  { "<leader>pd", "<cmd>ProphetDisable<cr>", desc = "disable auto-upload" },
+  { "<leader>pu", "<cmd>ProphetUpload<cr>", desc = "upload cartridge" },
+  { "<leader>pC", "<cmd>ProphetCheckSandbox<cr>", desc = "check sandbox" },
+  -- SFCC utilities (controller/template pickers)
+  { "<leader>pf", function() require("sfcc").controller_picker() end, desc = "find controller (Ctrl+F7)" },
+  { "<leader>pi", function() require("sfcc").template_picker() end, desc = "find ISML template" },
+  { "<leader>pl", function() require("sfcc").view_logs() end, desc = "view logs (browser)" },
+  { "<leader>pr", function() require("sfcc").refresh_controllers() end, desc = "refresh controller cache" },
 
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },

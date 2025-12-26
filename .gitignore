@@ -2,6 +2,10 @@
 !init.lua
 !lua/
 !lua/*.lua
+!syntax/
+!syntax/*.vim
+!ftdetect/
+!ftdetect/*.vim
 !index.html
 !i
 !README.md
