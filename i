@@ -179,6 +179,45 @@ update() {
   echo "  Updating plugins..."
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
   
+  # Define the list of plugins that should be installed
+  PLUGINS=(
+    "williamboman/mason.nvim"
+    "folke/snacks.nvim"
+    "folke/which-key.nvim"
+    "hrsh7th/nvim-cmp"
+    "hrsh7th/cmp-nvim-lsp"
+    "hrsh7th/cmp-buffer"
+    "hrsh7th/cmp-path"
+    "lewis6991/gitsigns.nvim"
+    "MeanderingProgrammer/render-markdown.nvim"
+    "stevearc/conform.nvim"
+    "echasnovski/mini.nvim"
+    "nvim-treesitter/nvim-treesitter"
+    "mfussenegger/nvim-dap"
+    "rcarriga/nvim-dap-ui"
+    "nvim-neotest/nvim-nio"
+    "IFAKA/prophet.nvim"
+  )
+  
+  local plugins_installed=0
+  
+  # First, install any missing plugins
+  mkdir -p "$PLUGIN_DIR"
+  for plugin in "${PLUGINS[@]}"; do
+    name=$(basename "$plugin")
+    if [[ ! -d "$PLUGIN_DIR/$name" ]]; then
+      printf "    %s... " "$name"
+      if git clone --depth=1 --quiet "https://github.com/$plugin" "$PLUGIN_DIR/$name" 2>/dev/null; then
+        echo "installed"
+        ((plugins_installed++))
+      else
+        echo "failed to install"
+        ((plugins_failed++))
+      fi
+    fi
+  done
+  
+  # Then, update existing plugins
   if [[ ! -d "$PLUGIN_DIR" ]]; then
     echo "    No plugins directory found"
   else
@@ -188,6 +227,21 @@ update() {
       fi
       
       name=$(basename "$dir")
+      
+      # Skip if we just installed this plugin
+      local just_installed=false
+      for plugin in "${PLUGINS[@]}"; do
+        if [[ "$(basename "$plugin")" == "$name" ]] && [[ ! -d "$dir/.git" ]] || [[ $plugins_installed -gt 0 ]]; then
+          just_installed=true
+          break
+        fi
+      done
+      
+      # Skip newly installed plugins in the update loop
+      if [[ $just_installed == true ]] && [[ ! -d "$dir/.git" ]]; then
+        continue
+      fi
+      
       printf "    %s... " "$name"
       
       # Check if it's a git repo
@@ -225,14 +279,18 @@ update() {
   echo "  Summary"
   echo "  -------"
   echo "    Config files: $config_updated updated, $config_unchanged unchanged"
-  echo "    Plugins: $plugins_updated updated, $plugins_unchanged up to date"
+  if [[ $plugins_installed -gt 0 ]]; then
+    echo "    Plugins: $plugins_installed installed, $plugins_updated updated, $plugins_unchanged up to date"
+  else
+    echo "    Plugins: $plugins_updated updated, $plugins_unchanged up to date"
+  fi
   if [[ $plugins_failed -gt 0 ]]; then
     echo "    Failed: $plugins_failed plugins"
   fi
   echo ""
   
   # Suggest health check if updates were made
-  if [[ $config_updated -gt 0 || $plugins_updated -gt 0 ]]; then
+  if [[ $config_updated -gt 0 || $plugins_updated -gt 0 || $plugins_installed -gt 0 ]]; then
     echo "  ✓ Updates applied successfully!"
     echo ""
     echo "  Verify everything works:"
