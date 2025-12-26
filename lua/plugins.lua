@@ -11,6 +11,7 @@ vim.cmd[[packadd render-markdown.nvim]]
 vim.cmd[[packadd conform.nvim]]
 vim.cmd[[packadd mini.nvim]]
 vim.cmd[[packadd nvim-treesitter]]
+vim.cmd[[packadd nvim-ts-autotag]]
 vim.cmd[[packadd prophet.nvim]]
 
 -- Mason (LSP server manager)
@@ -199,6 +200,17 @@ vim.defer_fn(function()
     vim.notify("Treesitter not found. Syntax highlighting may be limited.", vim.log.levels.WARN)
   end
 end, 1000)
+
+-- Auto-tag closing for HTML/JSX
+pcall(function()
+  require("nvim-ts-autotag").setup({
+    opts = {
+      enable_close = true,         -- Auto close tags
+      enable_rename = true,        -- Auto rename pairs of tags
+      enable_close_on_slash = true -- Auto close on trailing </
+    },
+  })
+end)
 
 -- Prophet (SFCC Development)
 -- Silently setup - only activates when dw.json is found
