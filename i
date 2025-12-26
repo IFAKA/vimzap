@@ -6,6 +6,27 @@ set -euo pipefail
 
 VIMZAP_MARKER="# VimZap aliases"
 
+# Single source of truth for VimZap plugins
+# Both install and update use this list
+VIMZAP_PLUGINS=(
+  "williamboman/mason.nvim"
+  "folke/snacks.nvim"
+  "folke/which-key.nvim"
+  "hrsh7th/nvim-cmp"
+  "hrsh7th/cmp-nvim-lsp"
+  "hrsh7th/cmp-buffer"
+  "hrsh7th/cmp-path"
+  "lewis6991/gitsigns.nvim"
+  "MeanderingProgrammer/render-markdown.nvim"
+  "stevearc/conform.nvim"
+  "echasnovski/mini.nvim"
+  "nvim-treesitter/nvim-treesitter"
+  "mfussenegger/nvim-dap"
+  "rcarriga/nvim-dap-ui"
+  "nvim-neotest/nvim-nio"
+  "IFAKA/prophet.nvim"
+)
+
 # Fetch the PLUGINS array from the latest installer script on GitHub
 fetch_plugins_list() {
   local temp_script="/tmp/vimzap_installer_$$"
@@ -207,30 +228,13 @@ update() {
   echo "  Updating plugins..."
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
   
-  # Fetch the latest PLUGINS list from GitHub
+  # Try to fetch the latest PLUGINS list from GitHub
   local plugins_str=$(fetch_plugins_list)
   
-  # If fetching fails, use fallback list
+  # Prefer dynamic list, fall back to bundled list
   if [[ $? -ne 0 ]] || [[ -z "$plugins_str" ]]; then
-    echo "    (Using fallback plugin list)"
-    PLUGINS=(
-      "williamboman/mason.nvim"
-      "folke/snacks.nvim"
-      "folke/which-key.nvim"
-      "hrsh7th/nvim-cmp"
-      "hrsh7th/cmp-nvim-lsp"
-      "hrsh7th/cmp-buffer"
-      "hrsh7th/cmp-path"
-      "lewis6991/gitsigns.nvim"
-      "MeanderingProgrammer/render-markdown.nvim"
-      "stevearc/conform.nvim"
-      "echasnovski/mini.nvim"
-      "nvim-treesitter/nvim-treesitter"
-      "mfussenegger/nvim-dap"
-      "rcarriga/nvim-dap-ui"
-      "nvim-neotest/nvim-nio"
-      "IFAKA/prophet.nvim"
-    )
+    # Use the bundled VIMZAP_PLUGINS array (defined at top of script)
+    PLUGINS=("${VIMZAP_PLUGINS[@]}")
   else
     # Convert space-separated string to array
     read -ra PLUGINS <<< "$plugins_str"
@@ -473,24 +477,8 @@ main() {
 
   # Plugins
   echo "  [4/6] Installing plugins..."
-  PLUGINS=(
-    "williamboman/mason.nvim"
-    "folke/snacks.nvim"
-    "folke/which-key.nvim"
-    "hrsh7th/nvim-cmp"
-    "hrsh7th/cmp-nvim-lsp"
-    "hrsh7th/cmp-buffer"
-    "hrsh7th/cmp-path"
-    "lewis6991/gitsigns.nvim"
-    "MeanderingProgrammer/render-markdown.nvim"
-    "stevearc/conform.nvim"
-    "echasnovski/mini.nvim"
-    "nvim-treesitter/nvim-treesitter"
-    "mfussenegger/nvim-dap"
-    "rcarriga/nvim-dap-ui"
-    "nvim-neotest/nvim-nio"
-    "IFAKA/prophet.nvim"
-  )
+  # Use the shared VIMZAP_PLUGINS array (defined at top of script)
+  PLUGINS=("${VIMZAP_PLUGINS[@]}")
 
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
   for plugin in "${PLUGINS[@]}"; do
