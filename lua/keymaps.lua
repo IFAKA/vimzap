@@ -1,4 +1,33 @@
 -- Helper functions
+
+-- Fallback for Snacks when not available  
+local snacks_ok, Snacks = pcall(require, "snacks")
+if not snacks_ok then
+  -- Create dummy Snacks object with safe fallbacks
+  Snacks = {
+    dashboard = function() vim.notify("Dashboard not available", vim.log.levels.WARN) end,
+    explorer = function() vim.cmd("Explore") end,
+    picker = {
+      files = function() vim.cmd("find .") end,
+      grep = function() vim.cmd("grep") end,
+      buffers = function() vim.cmd("ls") end,
+      recent = function() vim.notify("Recent files not available", vim.log.levels.WARN) end,
+      lsp_symbols = function() vim.notify("LSP symbols not available", vim.log.levels.WARN) end,
+      git_files = function() vim.notify("Git files picker not available", vim.log.levels.WARN) end,
+      git_status = function() vim.notify("Git status picker not available", vim.log.levels.WARN) end,
+      help = function() vim.cmd("help") end,
+      keymaps = function() vim.cmd("map") end,
+      commands = function() vim.cmd("command") end,
+      diagnostics = function() vim.notify("Diagnostics picker not available", vim.log.levels.WARN) end,
+    },
+    notifier = {
+      notify = function(msg, level) vim.notify(msg, level) end,
+    },
+    bufdelete = function() vim.cmd("bdelete") end,
+    terminal = function() vim.cmd("terminal") end,
+  }
+end
+
 local function gitsigns_cmd(cmd)
   vim.cmd("Gitsigns " .. cmd)
 end
@@ -59,8 +88,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- Which-key mappings
-require("which-key").add({
+-- Which-key mappings - with error handling
+local wk_ok, which_key = pcall(require, "which-key")
+if wk_ok then
+  which_key.add({
   -- Save
   { "<leader>w", "<cmd>w<cr>", desc = "save" },
 
@@ -162,3 +193,6 @@ require("which-key").add({
   -- Terminal
   { "<C-/>", function() Snacks.terminal() end, desc = "terminal", mode = { "n", "t" } },
 })
+else
+  vim.notify("Which-key not available, keymaps still work but no hints", vim.log.levels.WARN)
+end
