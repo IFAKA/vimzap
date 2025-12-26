@@ -162,15 +162,11 @@ if wk_ok then
   { "<leader>du", function() require("dapui").toggle() end, desc = "toggle UI" },
   { "<leader>de", function() require("dapui").eval() end, desc = "eval", mode = { "n", "v" } },
 
-  -- Prophet (SFCC Development) - Enhanced with visual feedback
+  -- Prophet (SFCC Development) - minimal commands
   { "<leader>p", group = "prophet" },
-  { "<leader>pe", "<cmd>ProphetEnable<cr>", desc = "enable auto-upload" },
-  { "<leader>pd", "<cmd>ProphetDisable<cr>", desc = "disable auto-upload" },
-  { "<leader>pt", "<cmd>ProphetToggleFeedback<cr>", desc = "toggle auto-upload (enhanced)" },
-  { "<leader>pc", "<cmd>ProphetCleanFeedback<cr>", desc = "clean upload (async)" },
-  { "<leader>pC", "<cmd>ProphetCleanExternal<cr>", desc = "clean upload (async)" },
-  { "<leader>px", "<cmd>ProphetCancel<cr>", desc = "cancel uploads" },
-  { "<leader>pp", "<cmd>ProphetPerFeedback<cr>", desc = "performance stats (enhanced)" },
+  { "<leader>pc", "<cmd>ProphetClean<cr>", desc = "upload all" },
+  { "<leader>pt", "<cmd>ProphetToggle<cr>", desc = "toggle auto-upload" },
+  { "<leader>ps", "<cmd>ProphetStatus<cr>", desc = "status" },
 
   -- Navigation
   { "[d", vim.diagnostic.goto_prev, desc = "prev diagnostic" },

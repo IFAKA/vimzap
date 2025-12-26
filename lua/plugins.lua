@@ -235,15 +235,13 @@ pcall(function()
   })
 end)
 
--- Prophet (SFCC Development)
--- Silently setup - only activates when dw.json is found
+-- Prophet (SFCC Development) - minimal setup
 pcall(function()
   require("prophet").setup({
-    auto_upload = false,    -- Don't watch by default
-    clean_on_start = false, -- Don't upload all on startup (prevents lag)
-    notify = true,          -- Show notifications
+    auto_upload = false,    -- Don't auto-upload by default
+    clean_on_start = false, -- Don't upload on startup
+    notify = true,          -- Basic notifications only
   })
-  
-  -- Setup enhanced visual feedback for Prophet operations
-  require("prophet-feedback").setup()
 end)
+
+
