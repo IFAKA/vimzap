@@ -186,13 +186,13 @@ end
 
 -- Setup all commands and keymaps
 function M.setup()
-  -- Create user commands
-  vim.api.nvim_create_user_command("ProphetCleanFeedback", M.clean_upload_terminal, {
-    desc = "Terminal upload with live progress"
+  -- Create user commands - all using optimized async implementation
+  vim.api.nvim_create_user_command("ProphetCleanFeedback", M.clean_upload_async, {
+    desc = "Async upload with live progress (optimized)"
   })
   
-  vim.api.nvim_create_user_command("ProphetCleanExternal", M.direct_curl_upload, {
-    desc = "Direct curl upload bypass"
+  vim.api.nvim_create_user_command("ProphetCleanExternal", M.clean_upload_async, {
+    desc = "Async upload with live progress (optimized)"
   })
   
   vim.api.nvim_create_user_command("ProphetToggleFeedback", M.toggle_upload, {
@@ -207,11 +207,11 @@ function M.setup()
     desc = "Force cancel all uploads"
   })
   
-  -- Override keymaps if Prophet is available
+  -- Override keymaps if Prophet is available - all using optimized async
   pcall(function()
     if pcall(require, "prophet") then
-      vim.keymap.set("n", "<leader>pc", M.clean_upload_terminal, { desc = "Prophet: Terminal upload" })
-      vim.keymap.set("n", "<leader>pC", M.direct_curl_upload, { desc = "Prophet: Direct curl" })
+      vim.keymap.set("n", "<leader>pc", M.clean_upload_async, { desc = "Prophet: Async upload" })
+      vim.keymap.set("n", "<leader>pC", M.clean_upload_async, { desc = "Prophet: Async upload" })
       vim.keymap.set("n", "<leader>pt", M.toggle_upload, { desc = "Prophet: Toggle upload" })
       vim.keymap.set("n", "<leader>pp", M.show_status, { desc = "Prophet: Status" })
       vim.keymap.set("n", "<leader>px", M.force_cancel, { desc = "Prophet: Cancel" })

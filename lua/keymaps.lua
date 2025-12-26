@@ -136,8 +136,8 @@ require("which-key").add({
   { "<leader>pe", "<cmd>ProphetEnable<cr>", desc = "enable auto-upload" },
   { "<leader>pd", "<cmd>ProphetDisable<cr>", desc = "disable auto-upload" },
   { "<leader>pt", "<cmd>ProphetToggleFeedback<cr>", desc = "toggle auto-upload (enhanced)" },
-  { "<leader>pc", "<cmd>ProphetCleanFeedback<cr>", desc = "clean upload (terminal)" },
-  { "<leader>pC", "<cmd>ProphetCleanExternal<cr>", desc = "clean upload (external/non-blocking)" },
+  { "<leader>pc", "<cmd>ProphetCleanFeedback<cr>", desc = "clean upload (async)" },
+  { "<leader>pC", "<cmd>ProphetCleanExternal<cr>", desc = "clean upload (async)" },
   { "<leader>px", "<cmd>ProphetCancel<cr>", desc = "cancel uploads" },
   { "<leader>pp", "<cmd>ProphetPerFeedback<cr>", desc = "performance stats (enhanced)" },
 
