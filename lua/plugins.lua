@@ -217,7 +217,7 @@ end)
 pcall(function()
   require("prophet").setup({
     auto_upload = false,    -- Don't watch by default
-    clean_on_start = true,  -- Upload all on startup
+    clean_on_start = false, -- Don't upload all on startup (prevents lag)
     notify = true,          -- Show notifications
   })
 end)

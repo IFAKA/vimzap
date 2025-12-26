@@ -25,7 +25,7 @@ Press `<Space>` to open the command menu.
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
-| `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=clean upload |
+| `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=clean upload `px`=cancel |
 | `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sq`=share markdown (QR) |
 | `h` | Health check (diagnostics + performance) |
 | `?` | Show all keymaps |
@@ -109,6 +109,64 @@ Then attach in Neovim with `<Space>dc` and select "Attach to Node".
 | `<Space>du` | Toggle debug UI |
 | `<Space>de` | Eval expression (works in visual mode) |
 | `<Space>dq` | Stop debugger |
+
+## Prophet (Salesforce Commerce Cloud Development)
+
+VimZap includes prophet.nvim for SFCC development with optimized performance and non-intrusive notifications.
+
+### Setup
+
+**1. Create dw.json in your project root:**
+```json
+{
+  "hostname": "your-sandbox-name.demandware.net",
+  "username": "your-username",
+  "password": "your-password",
+  "code-version": "version1"
+}
+```
+
+**2. Authentication:**
+- **hostname**: Your SFCC sandbox domain (e.g., `dev01-company.demandware.net`)
+- **username**: Your Business Manager username 
+- **password**: Your Business Manager password
+- **code-version**: Code version in Business Manager (usually `version1`)
+
+**Important**: Add `dw.json` to your `.gitignore` to avoid committing credentials!
+
+### Usage
+
+| Key | Action |
+|-----|--------|
+| `<Space>pe` | Enable auto-upload (watches file changes) |
+| `<Space>pd` | Disable auto-upload |
+| `<Space>pt` | Toggle auto-upload on/off |
+| `<Space>pc` | Clean upload all cartridges (manual) |
+| `<Space>px` | Cancel active uploads |
+
+**Tips:**
+- Auto-upload is **disabled by default** to prevent accidental uploads
+- Use `<Space>pc` for initial upload of all cartridges  
+- Enable auto-upload (`<Space>pe`) only when actively developing
+- If you interrupt uploads (close nvim), use `<Space>pc` again next time
+- All notifications appear in the corner (non-intrusive)
+
+### Cartridge Structure
+
+Prophet.nvim automatically detects cartridges using `.project` files:
+```
+your-project/
+├── dw.json
+├── cartridge1/
+│   ├── .project
+│   └── cartridge/
+│       ├── scripts/
+│       ├── templates/
+│       └── static/
+└── cartridge2/
+    ├── .project
+    └── cartridge/
+```
 
 ## Clipboard
 
