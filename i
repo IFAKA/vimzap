@@ -428,7 +428,7 @@ main() {
       # lazygit via binary
       if ! command -v lazygit &>/dev/null; then
         echo "        Installing lazygit..."
-        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | sed -n 's/.*"tag_name": "v\([^"]*\)".*/\1/p' | head -1)
         curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
         sudo tar xf /tmp/lazygit.tar.gz -C /usr/local/bin lazygit
         rm /tmp/lazygit.tar.gz
@@ -447,7 +447,10 @@ main() {
   # Check Neovim version
   echo "  [2/6] Checking Neovim version..."
   if command -v nvim &>/dev/null; then
-    NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | grep -oP 'v\K[0-9]+\.[0-9]+' || echo "0.0")
+    NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | sed -n 's/.*v\([0-9]*\.[0-9]*\).*/\1/p')
+    if [[ -z "$NVIM_VERSION" ]]; then
+      NVIM_VERSION="0.0"
+    fi
     NVIM_MAJOR=$(echo "$NVIM_VERSION" | cut -d. -f1)
     NVIM_MINOR=$(echo "$NVIM_VERSION" | cut -d. -f2)
     
