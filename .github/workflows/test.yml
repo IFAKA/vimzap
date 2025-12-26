@@ -73,6 +73,7 @@ jobs:
             "mfussenegger/nvim-dap"
             "rcarriga/nvim-dap-ui"
             "nvim-neotest/nvim-nio"
+            "IFAKA/prophet.nvim"
           )
           
           for plugin in "${PLUGINS[@]}"; do
