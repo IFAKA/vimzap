@@ -6,6 +6,34 @@ set -euo pipefail
 
 VIMZAP_MARKER="# VimZap aliases"
 
+# Fetch the PLUGINS array from the latest installer script on GitHub
+fetch_plugins_list() {
+  local temp_script="/tmp/vimzap_installer_$$"
+  
+  # Download the latest installer script
+  if ! curl -fsSL "https://raw.githubusercontent.com/IFAKA/vimzap/main/i" -o "$temp_script" 2>/dev/null; then
+    rm -f "$temp_script"
+    return 1
+  fi
+  
+  # Extract the PLUGINS array from main() function
+  # Use the "Installing plugins" echo as a marker (only in main(), not update())
+  local plugins=$(sed -n '/Installing plugins\.\.\./,/^  PLUGIN_DIR=/{
+    /^    "[^"]*\/[^"]*"/{
+      s/^[[:space:]]*"\([^"]*\)".*/\1/p
+    }
+  }' "$temp_script" | tr '\n' ' ')
+  
+  rm -f "$temp_script"
+  
+  if [[ -z "$plugins" ]]; then
+    return 1
+  fi
+  
+  echo "$plugins"
+  return 0
+}
+
 get_shell_rc() {
   if [[ -n "${ZSH_VERSION:-}" ]] || [[ "$SHELL" == *"zsh"* ]]; then
     echo "$HOME/.zshrc"
@@ -179,25 +207,34 @@ update() {
   echo "  Updating plugins..."
   PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
   
-  # Define the list of plugins that should be installed
-  PLUGINS=(
-    "williamboman/mason.nvim"
-    "folke/snacks.nvim"
-    "folke/which-key.nvim"
-    "hrsh7th/nvim-cmp"
-    "hrsh7th/cmp-nvim-lsp"
-    "hrsh7th/cmp-buffer"
-    "hrsh7th/cmp-path"
-    "lewis6991/gitsigns.nvim"
-    "MeanderingProgrammer/render-markdown.nvim"
-    "stevearc/conform.nvim"
-    "echasnovski/mini.nvim"
-    "nvim-treesitter/nvim-treesitter"
-    "mfussenegger/nvim-dap"
-    "rcarriga/nvim-dap-ui"
-    "nvim-neotest/nvim-nio"
-    "IFAKA/prophet.nvim"
-  )
+  # Fetch the latest PLUGINS list from GitHub
+  local plugins_str=$(fetch_plugins_list)
+  
+  # If fetching fails, use fallback list
+  if [[ $? -ne 0 ]] || [[ -z "$plugins_str" ]]; then
+    echo "    (Using fallback plugin list)"
+    PLUGINS=(
+      "williamboman/mason.nvim"
+      "folke/snacks.nvim"
+      "folke/which-key.nvim"
+      "hrsh7th/nvim-cmp"
+      "hrsh7th/cmp-nvim-lsp"
+      "hrsh7th/cmp-buffer"
+      "hrsh7th/cmp-path"
+      "lewis6991/gitsigns.nvim"
+      "MeanderingProgrammer/render-markdown.nvim"
+      "stevearc/conform.nvim"
+      "echasnovski/mini.nvim"
+      "nvim-treesitter/nvim-treesitter"
+      "mfussenegger/nvim-dap"
+      "rcarriga/nvim-dap-ui"
+      "nvim-neotest/nvim-nio"
+      "IFAKA/prophet.nvim"
+    )
+  else
+    # Convert space-separated string to array
+    read -ra PLUGINS <<< "$plugins_str"
+  fi
   
   local plugins_installed=0
   
