@@ -235,12 +235,13 @@ pcall(function()
   })
 end)
 
--- Prophet (SFCC Development) - minimal setup
+-- Prophet (SFCC Development) - optimized async setup
+-- Performance improvements: parallel uploads, non-blocking UI, fixed buffer conflicts
 pcall(function()
   require("prophet").setup({
     auto_upload = false,    -- Don't auto-upload by default
     clean_on_start = false, -- Don't upload on startup
-    notify = true,          -- Basic notifications only
+    notify = true,          -- Real-time progress notifications
   })
 end)
 
