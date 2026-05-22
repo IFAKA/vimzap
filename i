@@ -18,6 +18,10 @@ CONFIG_FILES=(
   "lua/benchmark.lua"
   "lua/md-share.lua"
   "lua/health.lua"
+  "ftdetect/isml.vim"
+  "ftdetect/ds.vim"
+  "syntax/isml.vim"
+  "syntax/ds.vim"
   "scripts/md-server.py"
 )
 
@@ -191,6 +195,8 @@ update() {
   # Update config files
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
+  mkdir -p ~/.config/nvim/ftdetect
+  mkdir -p ~/.config/nvim/syntax
   mkdir -p ~/.config/nvim/scripts
 
   for file in "${CONFIG_FILES[@]}"; do
@@ -454,6 +460,8 @@ main() {
   # Directories
   echo "  [3/6] Setting up config..."
   mkdir -p ~/.config/nvim/lua
+  mkdir -p ~/.config/nvim/ftdetect
+  mkdir -p ~/.config/nvim/syntax
   mkdir -p ~/.config/nvim/scripts
   mkdir -p ~/.local/share/nvim/site/pack/plugins/opt
 
