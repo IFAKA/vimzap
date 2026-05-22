@@ -11,6 +11,12 @@ end
 local dap = require("dap")
 local dapui = require("dapui")
 
+local function notify_warn(message)
+  vim.schedule(function()
+    vim.notify(message, vim.log.levels.WARN, { title = "nvim-dap" })
+  end)
+end
+
 -- UI setup
 dapui.setup({
   layouts = {
@@ -54,6 +60,48 @@ dap.adapters["pwa-node"] = {
   },
 }
 
+-- Prophet adapter (SFCC server-side debugging via the local VS Code extension)
+local function find_prophet_adapter()
+  local extension_root = vim.fn.expand("~/.vscode/extensions")
+  local prophet_extensions = vim.fn.globpath(extension_root, "sqrtt.prophet-*", false, true)
+
+  if #prophet_extensions == 0 then
+    return nil
+  end
+
+  table.sort(prophet_extensions)
+
+  for i = #prophet_extensions, 1, -1 do
+    local adapter_path = prophet_extensions[i] .. "/dist/mockDebug.js"
+    if vim.fn.filereadable(adapter_path) == 1 then
+      return adapter_path
+    end
+  end
+
+  return nil
+end
+
+local prophet_adapter = find_prophet_adapter()
+local sfcc_config = nil
+
+if prophet_adapter then
+  dap.adapters.prophet = {
+    type = "executable",
+    command = "node",
+    args = { prophet_adapter },
+  }
+
+  sfcc_config = {
+    type = "prophet",
+    request = "attach",
+    name = "Attach to SFCC Sandbox",
+    cwd = "${workspaceFolder}",
+    trace = true,
+  }
+else
+  notify_warn("Prophet VS Code extension not found at ~/.vscode/extensions/sqrtt.prophet-*; SFCC debugging disabled")
+end
+
 -- Configurations for JS/TS
 local js_config = {
   {
@@ -86,7 +134,15 @@ local js_config = {
   },
 }
 
-dap.configurations.javascript = js_config
+local javascript_config = js_config
+
+if sfcc_config then
+  javascript_config = { sfcc_config }
+  vim.list_extend(javascript_config, js_config)
+  dap.configurations.dwscript = { sfcc_config }
+end
+
+dap.configurations.javascript = javascript_config
 dap.configurations.typescript = js_config
 dap.configurations.javascriptreact = js_config
 dap.configurations.typescriptreact = js_config

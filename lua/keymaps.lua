@@ -49,6 +49,14 @@ local function lsp_cmd(fn)
   end
 end
 
+-- VS Code-style debug keys
+vim.keymap.set("n", "<F5>", function() require("dap").continue() end, { desc = "Debug continue/start" })
+vim.keymap.set("n", "<F9>", function() require("dap").toggle_breakpoint() end, { desc = "Debug toggle breakpoint" })
+vim.keymap.set("n", "<F10>", function() require("dap").step_over() end, { desc = "Debug step over" })
+vim.keymap.set("n", "<F11>", function() require("dap").step_into() end, { desc = "Debug step into" })
+vim.keymap.set("n", "<S-F11>", function() require("dap").step_out() end, { desc = "Debug step out" })
+vim.keymap.set("n", "<S-F5>", function() require("dap").terminate() end, { desc = "Debug terminate" })
+
 -- LSP keymaps (on attach)
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
