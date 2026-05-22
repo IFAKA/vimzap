@@ -59,16 +59,28 @@ add_aliases() {
   local rc_file
   rc_file=$(get_shell_rc)
 
-  # Skip if already added
-  if grep -q "$VIMZAP_MARKER" "$rc_file" 2>/dev/null; then
-    return 0
-  fi
+  # Replace older VimZap alias blocks so updates get the latest shell helpers.
+  remove_aliases >/dev/null 2>&1 || true
 
   echo "" >> "$rc_file"
   echo "$VIMZAP_MARKER" >> "$rc_file"
-  echo "alias v='nvim'" >> "$rc_file"
-  echo "alias vi='nvim'" >> "$rc_file"
-  echo "alias vim='nvim'" >> "$rc_file"
+  cat >> "$rc_file" <<'EOF'
+v() {
+  if [ "$#" -eq 1 ]; then
+    _vimzap_target="${1%:*}"
+    _vimzap_line="${1##*:}"
+    if [ "$_vimzap_target" != "$1" ] && [ -n "$_vimzap_target" ] && [ -e "$_vimzap_target" ]; then
+      case "$_vimzap_line" in
+        ""|*[!0-9]*) ;;
+        *) nvim "+$_vimzap_line" "$_vimzap_target"; return ;;
+      esac
+    fi
+  fi
+  nvim "$@"
+}
+alias vi='nvim'
+alias vim='nvim'
+EOF
   echo "$VIMZAP_MARKER end" >> "$rc_file"
 }
 
@@ -294,6 +306,12 @@ update() {
     done
   fi
 
+  # Update shell aliases/functions
+  echo ""
+  echo "  Updating aliases..."
+  add_aliases
+  echo "    Updated: $(get_shell_rc)"
+
   # Summary
   echo ""
   echo "  Summary"
@@ -471,13 +489,14 @@ main() {
   # Add shell aliases
   echo "  [6/6] Setting up aliases..."
   add_aliases
-  echo "        v, vi, vim -> nvim"
+  echo "        v -> nvim (supports path:line), vi/vim -> nvim"
 
   echo ""
   echo "  Done! Run: source $(get_shell_rc)"
   echo ""
   echo "  Usage:"
   echo "    v                Open Neovim (also vi, vim)"
+  echo "    v file:line      Open file at line"
   echo "    <Space>          Show all commands"
   echo "    <Space>e         File explorer"
   echo "    <Space>ff        Find files"

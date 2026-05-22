@@ -12,7 +12,7 @@ Fast Neovim with file explorer, fuzzy finder, LSP, git, and markdown preview.
 bash <(curl -fsSL ifaka.github.io/vimzap/i)
 ```
 
-Then use `v`, `vi`, or `vim` to open Neovim.
+Then use `v`, `vi`, or `vim` to open Neovim. `v path/to/file:80` opens that file at line 80.
 
 ## Keymaps
 
