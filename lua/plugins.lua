@@ -274,6 +274,10 @@ pcall(function()
   })
 end)
 
+pcall(function()
+  vim.treesitter.language.register("html", "isml")
+end)
+
 -- Prophet (SFCC Development) - optimized async setup
 -- Performance improvements: parallel uploads, non-blocking UI, fixed buffer conflicts
 pcall(function()
@@ -287,11 +291,14 @@ end)
 -- SFCC file type settings (ISML and DS)
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "isml" },
-  callback = function()
+  callback = function(args)
     vim.opt_local.tabstop = 4
     vim.opt_local.shiftwidth = 4
     vim.opt_local.expandtab = true
-    vim.opt_local.commentstring = "<%-- %s --%>"
+    vim.opt_local.commentstring = "<iscomment> %s </iscomment>"
+    vim.bo[args.buf].syntax = "isml"
+
+    pcall(vim.treesitter.start, args.buf, "html")
   end,
 })
 
@@ -303,5 +310,3 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt_local.expandtab = true
   end,
 })
-
-

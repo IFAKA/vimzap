@@ -85,9 +85,13 @@ jobs:
       - name: Copy config files
         run: |
           mkdir -p ~/.config/nvim/lua
+          mkdir -p ~/.config/nvim/ftdetect
+          mkdir -p ~/.config/nvim/syntax
           mkdir -p ~/.config/nvim/scripts
           cp init.lua ~/.config/nvim/
           cp lua/*.lua ~/.config/nvim/lua/
+          cp ftdetect/*.vim ~/.config/nvim/ftdetect/
+          cp syntax/*.vim ~/.config/nvim/syntax/
           cp scripts/*.py ~/.config/nvim/scripts/
           chmod +x ~/.config/nvim/scripts/md-server.py
       
@@ -99,8 +103,19 @@ jobs:
           test -f ~/.config/nvim/lua/lsp.lua || exit 1
           test -f ~/.config/nvim/lua/keymaps.lua || exit 1
           test -f ~/.config/nvim/lua/health.lua || exit 1
+          test -f ~/.config/nvim/ftdetect/isml.vim || exit 1
+          test -f ~/.config/nvim/syntax/isml.vim || exit 1
           test -f ~/.config/nvim/scripts/md-server.py || exit 1
           echo "Config structure verified"
+
+      - name: Test ISML syntax detection
+        run: |
+          printf '<isif condition="${pdict.Product}">\n  <isprint value="${pdict.Product.name}"/>\n</isif>\n' > /tmp/vimzap-test.isml
+          timeout 30s nvim --headless /tmp/vimzap-test.isml \
+            -c 'lua assert(vim.bo.filetype == "isml", "expected isml filetype, got " .. vim.bo.filetype)' \
+            -c 'lua assert(vim.bo.syntax == "isml", "expected isml syntax, got " .. vim.bo.syntax)' \
+            -c 'lua assert(vim.b.current_syntax == "isml", "expected current_syntax=isml")' \
+            -c 'quit'
       
       - name: Test Neovim can load config
         run: |

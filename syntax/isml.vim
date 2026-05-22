@@ -11,6 +11,11 @@ endif
 runtime! syntax/html.vim
 unlet! b:current_syntax
 
+syn case ignore
+
+" ISML Comments
+syn region ismlComment start="<iscomment\>" end="</iscomment>" keepend contains=ismlTagName
+
 " ISML Tags - Control Flow
 syn region ismlTag start="<is\(if\|elseif\|else\|loop\|break\|next\|continue\)\>" end=">" contains=ismlTagName,ismlAttr,ismlString,ismlExpr
 syn region ismlTagEnd start="</is\(if\|loop\)\>" end=">" contains=ismlTagName
@@ -37,6 +42,8 @@ syn keyword ismlTagName contained isscript isactivedatahead isactivedatacontext 
 
 " ISML Attributes
 syn match ismlAttr contained /\<\(condition\|value\|name\|scope\|iterator\|items\|status\|begin\|end\|step\|template\|url\|locale\|encoding\|charset\|type\|pipeline\|hours\|minute\|varyby\|if\|alias\|attribute\|description\|var\|context\|decorator\)\s*=/
+syn region ismlString contained start=+"+ skip=+\\\\\|\\"+ end=+"+ contains=ismlExpr
+syn region ismlString contained start=+'+ skip=+\\\\\|\\'+ end=+'+ contains=ismlExpr
 
 " ISML Expressions ${...}
 syn region ismlExpr start="\${" end="}" contained contains=ismlExprContent
@@ -59,5 +66,6 @@ hi def link ismlExprContent Identifier
 hi def link ismlInlineExpr Special
 hi def link ismlScript PreProc
 hi def link ismlResource Function
+hi def link ismlComment Comment
 
 let b:current_syntax = "isml"

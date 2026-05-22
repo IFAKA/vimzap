@@ -35,6 +35,17 @@ vim.opt.incsearch = true
 -- Better completion
 vim.opt.completeopt = "menu,menuone,noselect"
 
+-- Project-specific filetypes. These mirror ftdetect/*.vim, but keep detection
+-- working even when Neovim's Lua filetype detector runs before Vimscript.
+vim.filetype.add({
+  extension = {
+    ds = "ds",
+    isml = "isml",
+  },
+})
+
+vim.cmd("syntax enable")
+
 -- Disable swap/backup files
 vim.opt.backup = false
 vim.opt.writebackup = false
