@@ -21,7 +21,7 @@ Press `<Space>` to open the command menu.
 | Key | Action |
 |-----|--------|
 | `e` | File explorer (toggle) |
-| `f` | File: `ff`=find `fg`=grep `fb`=buffers `fr`=recent |
+| `f` | File: `ff`=find `fg`=grep `fb`=buffers `fc`=commits `fr`=recent |
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |

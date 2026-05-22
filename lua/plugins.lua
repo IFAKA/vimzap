@@ -56,6 +56,21 @@ end
 -- Snacks.nvim - with error handling
 local snacks_ok, snacks = pcall(require, "snacks")
 if snacks_ok then
+  local project_search_exclude = {
+    ".git",
+    "node_modules",
+    "dist",
+    "build",
+    ".next",
+    ".nuxt",
+    "coverage",
+    ".cache",
+    "vendor",
+    "__pycache__",
+    ".venv",
+    "venv",
+  }
+
   local dashboard_cmd = [[bash -c '
     fmt() {
       if [ "$1" -ge 1000000 ]; then printf "%.1fM" $(echo "$1/1000000" | bc -l)
@@ -90,7 +105,26 @@ if snacks_ok then
 
   snacks.setup({
     explorer = { enabled = true, replace_netrw = true },
-    picker = { enabled = true },
+    picker = {
+      enabled = true,
+      sources = {
+        explorer = {
+          hidden = true,
+          ignored = true,
+          exclude = project_search_exclude,
+        },
+        files = {
+          hidden = true,
+          ignored = true,
+          exclude = project_search_exclude,
+        },
+        grep = {
+          hidden = true,
+          ignored = true,
+          exclude = project_search_exclude,
+        },
+      },
+    },
     notifier = { enabled = true },
     quickfile = { enabled = true },
     input = { enabled = true },

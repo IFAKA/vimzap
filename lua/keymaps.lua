@@ -77,6 +77,7 @@ if wk_ok then
   { "<leader>ff", function() Snacks.picker.files() end, desc = "find" },
   { "<leader>fg", function() Snacks.picker.grep() end, desc = "grep" },
   { "<leader>fb", function() Snacks.picker.buffers() end, desc = "buffers" },
+  { "<leader>fc", function() Snacks.picker.git_log() end, desc = "commits" },
   { "<leader>fr", function() Snacks.picker.recent() end, desc = "recent" },
 
   -- Code
