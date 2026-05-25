@@ -396,7 +396,7 @@ main() {
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
 
-    brew install neovim git node ripgrep fzf lazygit 2>/dev/null || {
+    brew install neovim git node tree-sitter ripgrep fzf lazygit 2>/dev/null || {
       echo "        Some packages may have failed, continuing..."
     }
   fi
@@ -423,7 +423,19 @@ main() {
       sudo pacman -Sy --noconfirm neovim git nodejs npm ripgrep fzf lazygit
     else
       echo "  Warning: Unknown package manager."
-      echo "  Please install manually: neovim git nodejs npm ripgrep fzf lazygit"
+      echo "  Please install manually: neovim git nodejs npm tree-sitter ripgrep fzf lazygit"
+    fi
+
+    if ! command -v tree-sitter &>/dev/null; then
+      echo "        Installing tree-sitter CLI..."
+      if command -v npm &>/dev/null; then
+        sudo npm install -g tree-sitter-cli 2>/dev/null || {
+          echo "        Failed to install tree-sitter CLI via npm."
+          echo "        Install manually: npm install -g tree-sitter-cli"
+        }
+      else
+        echo "        npm not found. Install manually: npm install -g tree-sitter-cli"
+      fi
     fi
   fi
 

@@ -65,6 +65,7 @@ local function check_external_tools()
   return {
     git = command_exists("git"),
     node = command_exists("node"),
+    ["tree-sitter"] = command_exists("tree-sitter"),
     python3 = command_exists("python3"),
     ripgrep = command_exists("rg"),
     lazygit = command_exists("lazygit"),
@@ -202,6 +203,7 @@ local function format_report()
   local tool_list = {
     { name = "git", required = true },
     { name = "node", required = true },
+    { name = "tree-sitter", required = true, missing = "required for Treesitter parser compilation" },
     { name = "python3", required = true },
     { name = "ripgrep", required = true },
     { name = "lazygit", required = false },
@@ -217,7 +219,7 @@ local function format_report()
       tools_ok_count = tools_ok_count + 1
     else
       if tool.required then
-        table.insert(lines, string.format("│ ✗ %-15s missing (required)", tool.name))
+        table.insert(lines, string.format("│ ✗ %-15s missing (%s)", tool.name, tool.missing or "required"))
       else
         table.insert(lines, string.format("│ ⚠ %-15s missing (optional)", tool.name))
       end
@@ -239,7 +241,7 @@ local function format_report()
   local all_ok = nvim_ok and 
                  plugin_ok_count == #core_plugins and 
                  lsp_ok_count == lsp_total and
-                 tools.git and tools.node and tools.python3 and tools.ripgrep
+                 tools.git and tools.node and tools["tree-sitter"] and tools.python3 and tools.ripgrep
   
   if all_ok then
     table.insert(lines, "┌─ Status ──────────────────────────────────────────────")
@@ -254,6 +256,12 @@ local function format_report()
     table.insert(lines, "│ To fix missing tools:")
     table.insert(lines, "│   brew install <tool-name>  (macOS)")
     table.insert(lines, "│   apt install <tool-name>   (Linux)")
+    if not tools["tree-sitter"] then
+      table.insert(lines, "│")
+      table.insert(lines, "│ To fix missing tree-sitter:")
+      table.insert(lines, "│   brew install tree-sitter          (macOS)")
+      table.insert(lines, "│   npm install -g tree-sitter-cli    (portable)")
+    end
   end
   
   table.insert(lines, "")
