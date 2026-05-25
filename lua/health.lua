@@ -259,7 +259,7 @@ local function format_report()
     if not tools["tree-sitter"] then
       table.insert(lines, "│")
       table.insert(lines, "│ To fix missing tree-sitter:")
-      table.insert(lines, "│   brew install tree-sitter          (macOS)")
+      table.insert(lines, "│   brew install tree-sitter-cli      (macOS)")
       table.insert(lines, "│   npm install -g tree-sitter-cli    (portable)")
     end
   end
