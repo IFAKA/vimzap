@@ -49,6 +49,32 @@ local function lsp_cmd(fn)
   end
 end
 
+local function copy_project_path()
+  local filepath = vim.api.nvim_buf_get_name(0)
+  if filepath == "" then
+    Snacks.notifier.notify("Current buffer has no file path", "warn")
+    return
+  end
+
+  filepath = vim.fs.normalize(vim.fn.resolve(filepath))
+  local root = vim.fs.root(0, { ".git", "package.json", "tsconfig.json", "jsconfig.json" })
+    or vim.fn.getcwd()
+  root = vim.fs.normalize(vim.fn.resolve(root))
+
+  local relative = filepath
+  local prefix = root .. "/"
+  if filepath:sub(1, #prefix) == prefix then
+    relative = filepath:sub(#prefix + 1)
+  else
+    Snacks.notifier.notify("File is outside the project root; copied absolute path", "warn")
+  end
+
+  vim.fn.setreg("+", relative)
+  Snacks.notifier.notify("Copied: " .. relative, "info")
+end
+
+vim.keymap.set("n", "<leader>fp", copy_project_path, { desc = "Copy project path" })
+
 -- VS Code-style debug keys
 vim.keymap.set("n", "<F5>", function() require("dap").continue() end, { desc = "Debug continue/start" })
 vim.keymap.set("n", "<F9>", function() require("dap").toggle_breakpoint() end, { desc = "Debug toggle breakpoint" })
@@ -87,6 +113,7 @@ if wk_ok then
   { "<leader>fb", function() Snacks.picker.buffers() end, desc = "buffers" },
   { "<leader>fc", function() Snacks.picker.git_log() end, desc = "commits" },
   { "<leader>fr", function() Snacks.picker.recent() end, desc = "recent" },
+  { "<leader>fp", copy_project_path, desc = "copy project path" },
 
   -- Code
   { "<leader>c", group = "code" },

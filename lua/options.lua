@@ -1,3 +1,6 @@
+-- Leader key must be configured before keymaps are registered.
+vim.g.mapleader = " "
+
 -- Editor options
 vim.opt.number = true
 vim.opt.relativenumber = true

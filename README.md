@@ -22,6 +22,7 @@ Press `<Space>` to open the command menu.
 |-----|--------|
 | `e` | File explorer (toggle) |
 | `f` | File: `ff`=find `fg`=grep `fb`=buffers `fc`=commits `fr`=recent |
+| `fp` | Copy current file path relative to the project root |
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |

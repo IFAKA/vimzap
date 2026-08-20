@@ -521,6 +521,7 @@ main() {
   echo "    <Space>e         File explorer"
   echo "    <Space>ff        Find files"
   echo "    <Space>fg        Grep"
+  echo "    <Space>fp        Copy project-relative file path"
   echo ""
   echo "  Explorer keys:"
   echo "    a                Add file/folder"
