@@ -204,6 +204,9 @@ update() {
   if [[ $config_unchanged -gt 0 ]]; then
     echo "    ($config_unchanged unchanged)"
   fi
+
+  # Removed in the Neovim 0.12 migration; Lua filetype detection replaces them.
+  rm -f ~/.config/nvim/ftdetect/isml.vim ~/.config/nvim/ftdetect/ds.vim
   
   # Make scripts executable
   chmod +x ~/.config/nvim/scripts/md-server.py

@@ -22,6 +22,7 @@ reject_match 'packadd' lua
 reject_match 'which-key\|nvim-cmp\|cmp_nvim_lsp' lua README.md i
 reject_match 'vim.lsp.start' lua/lsp.lua
 grep -q 'requires Neovim 0.12' i
+grep -q 'rm -f ~/.config/nvim/ftdetect/isml.vim ~/.config/nvim/ftdetect/ds.vim' i
 reject_match 'config_updated++\|config_unchanged++' i
 
 nvim --headless -u NONE \
