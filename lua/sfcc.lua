@@ -111,37 +111,21 @@ function M.controller_picker()
   })
 end
 
--- SFCC nvim-cmp source
-M.cmp_source = {}
-
-function M.cmp_source.new()
-  return setmetatable({}, { __index = M.cmp_source })
-end
-
-function M.cmp_source:get_trigger_characters()
-  return { ".", "(", '"', "'" }
-end
-
-function M.cmp_source:complete(params, callback)
+-- SFCC source for Neovim's native 'completefunc'.
+local function completion_items(line)
   local items = {}
-  local line = params.context.cursor_before_line
 
   -- Resource.msg completions
   if line:match("Resource%.msg[f]?%s*%($") or line:match("Resource%.msg[f]?%s*%(['\"]$") then
-    table.insert(items, { label = "Resource.msg", kind = 3, insertText = "Resource.msg('${1:key}', '${2:bundle}', null)" })
-    table.insert(items, { label = "Resource.msgf", kind = 3, insertText = "Resource.msgf('${1:key}', '${2:bundle}', null, ${3:args})" })
+    table.insert(items, { word = "Resource.msg('', '', null)", abbr = "Resource.msg", kind = "Function" })
+    table.insert(items, { word = "Resource.msgf('', '', null)", abbr = "Resource.msgf", kind = "Function" })
   end
 
   -- URLUtils completions
   if line:match("URLUtils%.$") then
-    table.insert(items, { label = "url", kind = 3, documentation = "Generate relative URL" })
-    table.insert(items, { label = "http", kind = 3, documentation = "Generate HTTP URL" })
-    table.insert(items, { label = "https", kind = 3, documentation = "Generate HTTPS URL" })
-    table.insert(items, { label = "abs", kind = 3, documentation = "Generate absolute URL" })
-    table.insert(items, { label = "home", kind = 3, documentation = "Home page URL" })
-    table.insert(items, { label = "staticURL", kind = 3, documentation = "Static resource URL" })
-    table.insert(items, { label = "webRoot", kind = 3, documentation = "Web root URL" })
-    table.insert(items, { label = "imageURL", kind = 3, documentation = "Image URL" })
+    for _, name in ipairs({ "url", "http", "https", "abs", "home", "staticURL", "webRoot", "imageURL" }) do
+      table.insert(items, { word = name, kind = "Function", menu = "[SFCC URLUtils]" })
+    end
   end
 
   -- require('dw/*') completions
@@ -152,56 +136,53 @@ function M.cmp_source:complete(params, callback)
       "template", "util", "value", "web", "ws"
     }
     for _, mod in ipairs(dw_modules) do
-      table.insert(items, { label = "dw/" .. mod, kind = 9, documentation = "SFCC " .. mod .. " module" })
+      table.insert(items, { word = "dw/" .. mod, kind = "Module", menu = "[SFCC]" })
     end
   end
 
   -- server.* completions
   if line:match("server%.$") then
-    table.insert(items, { label = "get", kind = 3, documentation = "Register GET endpoint" })
-    table.insert(items, { label = "post", kind = 3, documentation = "Register POST endpoint" })
-    table.insert(items, { label = "append", kind = 3, documentation = "Append to existing endpoint" })
-    table.insert(items, { label = "prepend", kind = 3, documentation = "Prepend to existing endpoint" })
-    table.insert(items, { label = "replace", kind = 3, documentation = "Replace existing endpoint" })
-    table.insert(items, { label = "use", kind = 3, documentation = "Apply middleware" })
-    table.insert(items, { label = "exports", kind = 3, documentation = "Export server" })
+    for _, name in ipairs({ "get", "post", "append", "prepend", "replace", "use", "exports" }) do
+      table.insert(items, { word = name, kind = "Function", menu = "[SFCC server]" })
+    end
   end
 
   -- res.* completions
   if line:match("res%.$") then
-    table.insert(items, { label = "render", kind = 3, documentation = "Render ISML template" })
-    table.insert(items, { label = "json", kind = 3, documentation = "Return JSON response" })
-    table.insert(items, { label = "redirect", kind = 3, documentation = "Redirect to URL" })
-    table.insert(items, { label = "setViewData", kind = 3, documentation = "Set template data" })
-    table.insert(items, { label = "getViewData", kind = 3, documentation = "Get template data" })
-    table.insert(items, { label = "setStatusCode", kind = 3, documentation = "Set HTTP status" })
-    table.insert(items, { label = "cachePeriod", kind = 3, documentation = "Set cache period" })
-    table.insert(items, { label = "cacheExpiration", kind = 3, documentation = "Set cache expiration" })
-    table.insert(items, { label = "print", kind = 3, documentation = "Print to response" })
+    for _, name in ipairs({ "render", "json", "redirect", "setViewData", "getViewData", "setStatusCode", "cachePeriod", "cacheExpiration", "print" }) do
+      table.insert(items, { word = name, kind = "Function", menu = "[SFCC response]" })
+    end
   end
 
   -- Transaction completions
   if line:match("Transaction%.$") then
-    table.insert(items, { label = "wrap", kind = 3, documentation = "Wrap in transaction" })
-    table.insert(items, { label = "begin", kind = 3, documentation = "Begin transaction" })
-    table.insert(items, { label = "commit", kind = 3, documentation = "Commit transaction" })
-    table.insert(items, { label = "rollback", kind = 3, documentation = "Rollback transaction" })
+    for _, name in ipairs({ "wrap", "begin", "commit", "rollback" }) do
+      table.insert(items, { word = name, kind = "Function", menu = "[SFCC Transaction]" })
+    end
   end
 
-  callback({ items = items, isIncomplete = false })
+  return items
 end
 
-function M.cmp_source:get_keyword_pattern()
-  return [[\k\+]]
-end
-
--- Register cmp source
-function M.setup_completions()
-  local cmp_ok, cmp = pcall(require, "cmp")
-  if cmp_ok then
-    cmp.register_source("sfcc", M.cmp_source.new())
+function M.completefunc(findstart, base)
+  if findstart == 1 then
+    local before_cursor = vim.api.nvim_get_current_line():sub(1, vim.fn.col(".") - 1)
+    return before_cursor:find("[%w_/'\"]*$") - 1
   end
+
+  local before_cursor = vim.api.nvim_get_current_line():sub(1, vim.fn.col(".") - 1)
+  return vim.tbl_filter(function(item)
+    return base == "" or item.word:lower():find(base:lower(), 1, true) == 1
+  end, completion_items(before_cursor))
 end
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "javascript", "javascriptreact", "typescript", "typescriptreact", "dwscript" },
+  callback = function()
+    vim.bo.completefunc = "v:lua.require'sfcc'.completefunc"
+    vim.opt_local.complete:append("F")
+  end,
+})
 
 -- Clear controller cache
 function M.refresh_controllers()

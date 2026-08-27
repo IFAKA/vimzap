@@ -23,7 +23,7 @@ local function check_neovim_version()
   local version = vim.version()
   local ver_str = string.format("%d.%d.%d", version.major, version.minor, version.patch)
   
-  if version.major == 0 and version.minor >= 11 then
+  if version.major == 0 and version.minor >= 12 then
     return true, ver_str
   elseif version.major > 0 then
     return true, ver_str
@@ -119,7 +119,7 @@ local function format_report()
   if nvim_ok then
     table.insert(lines, string.format("│ ✓ Version: %s (OK)", nvim_ver))
   else
-    table.insert(lines, string.format("│ ✗ Version: %s (requires 0.11+)", nvim_ver))
+    table.insert(lines, string.format("│ ✗ Version: %s (requires 0.12+)", nvim_ver))
   end
   
   -- Startup time
@@ -144,8 +144,6 @@ local function format_report()
   table.insert(lines, "┌─ Core Plugins ────────────────────────────────────────")
   local core_plugins = {
     { name = "snacks", module = "snacks" },
-    { name = "which-key", module = "which-key" },
-    { name = "nvim-cmp", module = "cmp" },
     { name = "gitsigns", module = "gitsigns" },
     { name = "mason", module = "mason" },
     { name = "conform", module = "conform" },
@@ -250,7 +248,7 @@ local function format_report()
     table.insert(lines, "┌─ Status ──────────────────────────────────────────────")
     table.insert(lines, "│ ⚠ VimZap has issues (see above)")
     table.insert(lines, "│")
-    table.insert(lines, "│ To fix missing LSP servers:")
+    table.insert(lines, "│ To install missing LSP servers and tools:")
     table.insert(lines, "│   :Mason")
     table.insert(lines, "│")
     table.insert(lines, "│ To fix missing tools:")

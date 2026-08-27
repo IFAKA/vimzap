@@ -3,6 +3,7 @@
 vim.opt.runtimepath:prepend(vim.fn.getcwd())
 require("options")
 require("plugins")
+require("sfcc")
 require("lsp")
 require("debug")
 require("keymaps")
@@ -15,4 +16,3 @@ local custom_config = vim.fn.stdpath("config") .. "/vimzap-custom.lua"
 if vim.fn.filereadable(custom_config) == 1 then
   dofile(custom_config)
 end
-

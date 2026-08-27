@@ -37,8 +37,8 @@ jobs:
           echo "Neovim version: $NVIM_VERSION"
           MAJOR=$(echo $NVIM_VERSION | cut -d. -f1)
           MINOR=$(echo $NVIM_VERSION | cut -d. -f2)
-          if [ "$MAJOR" -eq 0 ] && [ "$MINOR" -lt 11 ]; then
-            echo "Error: Neovim $NVIM_VERSION is too old (requires 0.11+)"
+          if [ "$MAJOR" -eq 0 ] && [ "$MINOR" -lt 12 ]; then
+            echo "Error: Neovim $NVIM_VERSION is too old (requires 0.12+)"
             exit 1
           fi
       
@@ -52,45 +52,14 @@ jobs:
             mv "$HOME/.config/nvim" "$HOME/.config/nvim.backup"
           fi
       
-      - name: Install plugins for testing
-        run: |
-          mkdir -p ~/.local/share/nvim/site/pack/plugins/opt
-          
-          # Install core plugins needed by config
-          PLUGINS=(
-            "williamboman/mason.nvim"
-            "folke/snacks.nvim"
-            "folke/which-key.nvim"
-            "hrsh7th/nvim-cmp"
-            "hrsh7th/cmp-nvim-lsp"
-            "hrsh7th/cmp-buffer"
-            "hrsh7th/cmp-path"
-            "lewis6991/gitsigns.nvim"
-            "MeanderingProgrammer/render-markdown.nvim"
-            "stevearc/conform.nvim"
-            "echasnovski/mini.nvim"
-            "nvim-treesitter/nvim-treesitter"
-            "mfussenegger/nvim-dap"
-            "rcarriga/nvim-dap-ui"
-            "nvim-neotest/nvim-nio"
-            "IFAKA/prophet.nvim"
-          )
-          
-          for plugin in "${PLUGINS[@]}"; do
-            name=$(basename "$plugin")
-            echo "Installing $name..."
-            git clone --depth=1 --quiet "https://github.com/$plugin" ~/.local/share/nvim/site/pack/plugins/opt/"$name" 2>/dev/null || true
-          done
-      
       - name: Copy config files
         run: |
           mkdir -p ~/.config/nvim/lua
-          mkdir -p ~/.config/nvim/ftdetect
           mkdir -p ~/.config/nvim/syntax
           mkdir -p ~/.config/nvim/scripts
           cp init.lua ~/.config/nvim/
+          cp nvim-pack-lock.json ~/.config/nvim/
           cp lua/*.lua ~/.config/nvim/lua/
-          cp ftdetect/*.vim ~/.config/nvim/ftdetect/
           cp syntax/*.vim ~/.config/nvim/syntax/
           cp scripts/*.py ~/.config/nvim/scripts/
           chmod +x ~/.config/nvim/scripts/md-server.py
@@ -98,12 +67,12 @@ jobs:
       - name: Verify config structure
         run: |
           test -f ~/.config/nvim/init.lua || exit 1
+          test -f ~/.config/nvim/nvim-pack-lock.json || exit 1
           test -f ~/.config/nvim/lua/options.lua || exit 1
           test -f ~/.config/nvim/lua/plugins.lua || exit 1
           test -f ~/.config/nvim/lua/lsp.lua || exit 1
           test -f ~/.config/nvim/lua/keymaps.lua || exit 1
           test -f ~/.config/nvim/lua/health.lua || exit 1
-          test -f ~/.config/nvim/ftdetect/isml.vim || exit 1
           test -f ~/.config/nvim/syntax/isml.vim || exit 1
           test -f ~/.config/nvim/scripts/md-server.py || exit 1
           echo "Config structure verified"
@@ -129,6 +98,9 @@ jobs:
             exit 1
           fi
           echo "Neovim loaded config successfully"
+
+      - name: Test Neovim 0.12 migration contracts
+        run: bash tests/smoke.sh
       
       - name: Restore backup
         if: always()

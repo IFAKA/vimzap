@@ -10,6 +10,7 @@ BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
 # Single source of truth for config files
 CONFIG_FILES=(
   "init.lua"
+  "nvim-pack-lock.json"
   "lua/options.lua"
   "lua/plugins.lua"
   "lua/lsp.lua"
@@ -18,31 +19,9 @@ CONFIG_FILES=(
   "lua/benchmark.lua"
   "lua/md-share.lua"
   "lua/health.lua"
-  "ftdetect/isml.vim"
-  "ftdetect/ds.vim"
   "syntax/isml.vim"
   "syntax/ds.vim"
   "scripts/md-server.py"
-)
-
-# Single source of truth for VimZap plugins
-VIMZAP_PLUGINS=(
-  "williamboman/mason.nvim"
-  "folke/snacks.nvim"
-  "folke/which-key.nvim"
-  "hrsh7th/nvim-cmp"
-  "hrsh7th/cmp-nvim-lsp"
-  "hrsh7th/cmp-buffer"
-  "hrsh7th/cmp-path"
-  "lewis6991/gitsigns.nvim"
-  "MeanderingProgrammer/render-markdown.nvim"
-  "stevearc/conform.nvim"
-  "echasnovski/mini.nvim"
-  "nvim-treesitter/nvim-treesitter"
-  "mfussenegger/nvim-dap"
-  "rcarriga/nvim-dap-ui"
-  "nvim-neotest/nvim-nio"
-  "IFAKA/prophet.nvim"
 )
 
 get_shell_rc() {
@@ -188,14 +167,10 @@ update() {
   # Counters for summary
   local config_updated=0
   local config_unchanged=0
-  local plugins_updated=0
-  local plugins_unchanged=0
-  local plugins_failed=0
 
   # Update config files
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
-  mkdir -p ~/.config/nvim/ftdetect
   mkdir -p ~/.config/nvim/syntax
   mkdir -p ~/.config/nvim/scripts
 
@@ -233,84 +208,11 @@ update() {
   # Make scripts executable
   chmod +x ~/.config/nvim/scripts/md-server.py
 
-  # Update plugins
+  # Update plugins through Neovim's native package manager.
   echo ""
   echo "  Updating plugins..."
-  PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
-  local plugins_installed=0
-  
-  # First, install any missing plugins
-  mkdir -p "$PLUGIN_DIR"
-  for plugin in "${VIMZAP_PLUGINS[@]}"; do
-    name=$(basename "$plugin")
-    if [[ ! -d "$PLUGIN_DIR/$name" ]]; then
-      printf "    %s... " "$name"
-      if git clone --depth=1 --quiet "https://github.com/$plugin" "$PLUGIN_DIR/$name" 2>/dev/null; then
-        echo "installed"
-        ((plugins_installed++))
-      else
-        echo "failed to install"
-        ((plugins_failed++))
-      fi
-    fi
-  done
-  
-  # Then, update existing plugins
-  if [[ ! -d "$PLUGIN_DIR" ]]; then
-    echo "    No plugins directory found"
-  else
-    for dir in "$PLUGIN_DIR"/*/; do
-      if [[ ! -d "$dir" ]]; then
-        continue
-      fi
-      
-      name=$(basename "$dir")
-      
-      # Skip if we just installed this plugin
-      local just_installed=false
-      for plugin in "${VIMZAP_PLUGINS[@]}"; do
-        if [[ "$(basename "$plugin")" == "$name" ]] && [[ ! -d "$dir/.git" ]] || [[ $plugins_installed -gt 0 ]]; then
-          just_installed=true
-          break
-        fi
-      done
-      
-      # Skip newly installed plugins in the update loop
-      if [[ $just_installed == true ]] && [[ ! -d "$dir/.git" ]]; then
-        continue
-      fi
-      
-      printf "    %s... " "$name"
-      
-      # Check if it's a git repo
-      if [[ ! -d "$dir/.git" ]]; then
-        echo "not a git repo"
-        ((plugins_failed++))
-        continue
-      fi
-      
-      # Get current HEAD before pulling
-      local old_head=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
-      
-      # Pull changes
-      if git -C "$dir" pull --quiet 2>/dev/null; then
-        local new_head=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
-        
-        if [[ "$old_head" != "$new_head" ]]; then
-          # Get number of new commits
-          local commit_count=$(git -C "$dir" rev-list --count "$old_head..$new_head" 2>/dev/null || echo "?")
-          echo "updated (+$commit_count commits)"
-          ((plugins_updated++))
-        else
-          echo "up to date"
-          ((plugins_unchanged++))
-        fi
-      else
-        echo "failed"
-        ((plugins_failed++))
-      fi
-    done
-  fi
+  nvim --headless "+lua vim.pack.update(nil, { force = true })" +qa
+  echo "    Native packages synchronized"
 
   # Update shell aliases/functions
   echo ""
@@ -323,27 +225,14 @@ update() {
   echo "  Summary"
   echo "  -------"
   echo "    Config files: $config_updated updated, $config_unchanged unchanged"
-  if [[ $plugins_installed -gt 0 ]]; then
-    echo "    Plugins: $plugins_installed installed, $plugins_updated updated, $plugins_unchanged up to date"
-  else
-    echo "    Plugins: $plugins_updated updated, $plugins_unchanged up to date"
-  fi
-  if [[ $plugins_failed -gt 0 ]]; then
-    echo "    Failed: $plugins_failed plugins"
-  fi
+  echo "    Plugins: managed by vim.pack"
   echo ""
   
-  # Suggest health check if updates were made
-  if [[ $config_updated -gt 0 || $plugins_updated -gt 0 || $plugins_installed -gt 0 ]]; then
-    echo "  ✓ Updates applied successfully!"
-    echo ""
-    echo "  Verify everything works:"
-    echo "    nvim -c 'VimZapHealth'"
-    echo ""
-  else
-    echo "  ✓ Already up to date!"
-    echo ""
-  fi
+  echo "  ✓ Update complete!"
+  echo ""
+  echo "  Verify everything works:"
+  echo "    nvim -c 'VimZapHealth'"
+  echo ""
 }
 
 # Check for --update flag
@@ -451,9 +340,9 @@ main() {
     
     echo "        Found: v${NVIM_VERSION}"
     
-    if [[ "$NVIM_MAJOR" -eq 0 && "$NVIM_MINOR" -lt 11 ]]; then
+    if [[ "$NVIM_MAJOR" -eq 0 && "$NVIM_MINOR" -lt 12 ]]; then
       echo ""
-      echo "  Error: VimZap requires Neovim 0.11 or higher"
+      echo "  Error: VimZap requires Neovim 0.12 or higher"
       echo "  Your version: v${NVIM_VERSION}"
       echo ""
       echo "  Update Neovim:"
@@ -472,10 +361,8 @@ main() {
   # Directories
   echo "  [3/6] Setting up config..."
   mkdir -p ~/.config/nvim/lua
-  mkdir -p ~/.config/nvim/ftdetect
   mkdir -p ~/.config/nvim/syntax
   mkdir -p ~/.config/nvim/scripts
-  mkdir -p ~/.local/share/nvim/site/pack/plugins/opt
 
   # Download config files
   for file in "${CONFIG_FILES[@]}"; do
@@ -488,20 +375,10 @@ main() {
   # Make scripts executable
   chmod +x ~/.config/nvim/scripts/md-server.py
 
-  # Plugins
+  # Plugins are declared by the config and installed by vim.pack.
   echo "  [4/6] Installing plugins..."
-  PLUGIN_DIR="$HOME/.local/share/nvim/site/pack/plugins/opt"
-  for plugin in "${VIMZAP_PLUGINS[@]}"; do
-    name=$(basename "$plugin")
-    if [[ ! -d "$PLUGIN_DIR/$name" ]]; then
-      printf "        %s " "$name"
-      if git clone --depth=1 --quiet "https://github.com/$plugin" "$PLUGIN_DIR/$name" 2>/dev/null; then
-        echo "ok"
-      else
-        echo "failed"
-      fi
-    fi
-  done
+  nvim --headless +qa
+  echo "        Native packages installed"
 
   # LSP servers (installed via Mason on first launch)
   echo "  [5/6] LSP servers will be installed via Mason on first launch..."
@@ -517,7 +394,7 @@ main() {
   echo "  Usage:"
   echo "    v                Open Neovim (also vi, vim)"
   echo "    v file:line      Open file at line"
-  echo "    <Space>          Show all commands"
+  echo "    <Space>?         Show all commands"
   echo "    <Space>e         File explorer"
   echo "    <Space>ff        Find files"
   echo "    <Space>fg        Grep"

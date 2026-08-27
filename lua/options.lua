@@ -13,8 +13,6 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.undofile = true
 vim.opt.updatetime = 250
-vim.g.mapleader = " "
-
 -- System clipboard integration
 vim.opt.clipboard = "unnamedplus"
 
@@ -35,19 +33,19 @@ vim.opt.splitbelow = true
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
--- Better completion
-vim.opt.completeopt = "menu,menuone,noselect"
+-- Neovim 0.12 native automatic completion. LSP adds its own candidates on
+-- attach; the remaining sources cover the current buffer and file paths.
+vim.opt.autocomplete = true
+vim.opt.complete = ".^5,w^5,b^5,u^5,f^5,o"
+vim.opt.completeopt = "menu,menuone,noselect,popup,fuzzy"
 
--- Project-specific filetypes. These mirror ftdetect/*.vim, but keep detection
--- working even when Neovim's Lua filetype detector runs before Vimscript.
+-- Project-specific filetypes.
 vim.filetype.add({
   extension = {
     ds = "ds",
     isml = "isml",
   },
 })
-
-vim.cmd("syntax enable")
 
 -- Disable swap/backup files
 vim.opt.backup = false

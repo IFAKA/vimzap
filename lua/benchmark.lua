@@ -60,9 +60,7 @@ end
 
 -- Get plugin count
 local function get_plugin_count()
-  local plugin_dir = vim.fn.stdpath("data") .. "/site/pack/plugins/opt"
-  local plugins = vim.fn.globpath(plugin_dir, "*", 0, 1)
-  return #plugins
+  return #vim.pack.get(nil, { info = false })
 end
 
 -- Get disk usage
@@ -78,8 +76,8 @@ end
 -- Get active LSP servers
 local function get_lsp_info()
   local servers = {}
-  for name, _ in pairs(vim.lsp._configs or {}) do
-    table.insert(servers, name)
+  for _, config in ipairs(vim.lsp.get_configs()) do
+    table.insert(servers, config.name)
   end
   table.sort(servers)
   return servers
@@ -95,7 +93,7 @@ local function get_plugin_timing()
   for _, line in ipairs(lines) do
     -- Format: "clock  self+sourced  self: sourcing path"
     -- We want self+sourced (2nd column) for the actual time spent
-    local self_sourced, plugin = line:match("^%s*[%d.]+%s+([%d.]+)%s+[%d.]+:%s+sourcing%s+.*/pack/plugins/opt/([^/]+)/")
+    local self_sourced, plugin = line:match("^%s*[%d.]+%s+([%d.]+)%s+[%d.]+:%s+sourcing%s+.*/pack/core/opt/([^/]+)/")
     if self_sourced and plugin then
       plugins[plugin] = (plugins[plugin] or 0) + tonumber(self_sourced)
     end

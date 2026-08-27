@@ -1,20 +1,10 @@
--- LSP capabilities (with completion support)
-local function get_capabilities()
-  local ok, cmp_lsp = pcall(require, "cmp_nvim_lsp")
-  if ok then
-    return cmp_lsp.default_capabilities()
-  end
-  return vim.lsp.protocol.make_client_capabilities()
-end
-
--- LSP servers (Neovim 0.11+ native)
+-- LSP servers (Neovim 0.12 native activation)
 vim.lsp.config("ts_ls", {
   cmd = { "typescript-language-server", "--stdio" },
   filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
   root_dir = function(fname)
     return vim.fs.root(fname, { "tsconfig.json", "jsconfig.json", "package.json", ".git" })
   end,
-  capabilities = get_capabilities(),
   -- Use workspace TypeScript version (like VS Code does)
   init_options = {},
   on_new_config = function(config, root_dir)
@@ -45,7 +35,6 @@ vim.lsp.config("html", {
   root_dir = function(fname)
     return vim.fs.root(fname, { "package.json", ".git" })
   end,
-  capabilities = get_capabilities(),
 })
 
 vim.lsp.config("cssls", {
@@ -54,7 +43,6 @@ vim.lsp.config("cssls", {
   root_dir = function(fname)
     return vim.fs.root(fname, { "package.json", ".git" })
   end,
-  capabilities = get_capabilities(),
 })
 
 vim.lsp.config("jsonls", {
@@ -63,7 +51,6 @@ vim.lsp.config("jsonls", {
   root_dir = function(fname)
     return vim.fs.root(fname, { ".git" })
   end,
-  capabilities = get_capabilities(),
 })
 
 vim.lsp.config("tailwindcss", {
@@ -80,7 +67,6 @@ vim.lsp.config("tailwindcss", {
       "package.json",
     })
   end,
-  capabilities = get_capabilities(),
   settings = {
     tailwindCSS = {
       experimental = {
@@ -100,7 +86,6 @@ vim.lsp.config("eslint", {
   root_dir = function(fname)
     return vim.fs.root(fname, { "eslint.config.mjs", "eslint.config.js", ".eslintrc.js", ".eslintrc.json", "package.json" })
   end,
-  capabilities = get_capabilities(),
   settings = {
     validate = "on",
     experimental = { useFlatConfig = true },
@@ -120,7 +105,6 @@ vim.lsp.config("lua_ls", {
   root_dir = function(fname)
     return vim.fs.root(fname, { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", ".git" })
   end,
-  capabilities = get_capabilities(),
   settings = {
     Lua = {
       runtime = {
@@ -141,23 +125,6 @@ vim.lsp.config("lua_ls", {
 })
 
 vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint", "lua_ls" })
-
--- Auto-attach LSP to buffers (Neovim 0.11 doesn't auto-attach with just enable())
-local filetype_to_lsp = {
-  typescript = "ts_ls", typescriptreact = "ts_ls", javascript = "ts_ls", javascriptreact = "ts_ls",
-  html = "html", css = "cssls", scss = "cssls",
-  json = "jsonls", jsonc = "jsonls", lua = "lua_ls",
-}
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = vim.tbl_keys(filetype_to_lsp),
-  callback = function(args)
-    local server = filetype_to_lsp[vim.bo[args.buf].filetype]
-    if server and vim.lsp.config[server] then
-      vim.lsp.start(vim.lsp.config[server])
-    end
-  end,
-})
 
 -- Format on save (all file types handled by conform)
 vim.api.nvim_create_autocmd("BufWritePre", {

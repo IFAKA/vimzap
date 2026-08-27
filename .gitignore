@@ -12,6 +12,12 @@
 !LICENSE
 !.gitignore
 !CHANGELOG.md
+!nvim-pack-lock.json
+!docs/
+!docs/plans/
+!docs/plans/*.md
+!tests/
+!tests/*.sh
 !.github/
 !.github/**
 !scripts/

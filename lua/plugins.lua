@@ -1,19 +1,22 @@
--- Load plugins
-vim.cmd[[packadd mason.nvim]]
-vim.cmd[[packadd snacks.nvim]]
-vim.cmd[[packadd which-key.nvim]]
-vim.cmd[[packadd gitsigns.nvim]]
-vim.cmd[[packadd nvim-cmp]]
-vim.cmd[[packadd cmp-nvim-lsp]]
-vim.cmd[[packadd cmp-buffer]]
-vim.cmd[[packadd cmp-path]]
-vim.cmd[[packadd render-markdown.nvim]]
-vim.cmd[[packadd conform.nvim]]
-vim.cmd[[packadd mini.nvim]]
-vim.cmd[[packadd nvim-treesitter]]
-pcall(function() vim.cmd[[packadd nvim-ts-autotag]] end)
--- Load optimized Prophet plugin (performance-enhanced fork)
-pcall(function() vim.cmd[[packadd prophet.nvim]] end)
+local gh = function(repo)
+  return "https://github.com/" .. repo
+end
+
+-- Neovim manages plugin installation, loading, updates, and the lockfile.
+vim.pack.add({
+  gh("williamboman/mason.nvim"),
+  gh("folke/snacks.nvim"),
+  gh("lewis6991/gitsigns.nvim"),
+  gh("stevearc/conform.nvim"),
+  gh("echasnovski/mini.nvim"),
+  gh("nvim-treesitter/nvim-treesitter"),
+  gh("MeanderingProgrammer/render-markdown.nvim"),
+  gh("windwp/nvim-ts-autotag"),
+  gh("mfussenegger/nvim-dap"),
+  gh("nvim-neotest/nvim-nio"),
+  gh("rcarriga/nvim-dap-ui"),
+  gh("IFAKA/prophet.nvim"),
+}, { confirm = false })
 
 -- Mason (LSP server manager) - with error handling
 local mason_ok, mason = pcall(require, "mason")
@@ -44,7 +47,10 @@ if mason_ok then
     end
     if #to_install > 0 then
       vim.defer_fn(function()
-        vim.cmd("MasonInstall " .. table.concat(to_install, " "))
+        local installed, err = pcall(vim.cmd, "MasonInstall " .. table.concat(to_install, " "))
+        if not installed then
+          vim.notify("Mason could not install every tool: " .. err, vim.log.levels.WARN)
+        end
       end, 500)
     end
   end
@@ -181,38 +187,6 @@ pcall(function()
       virt_text_pos = 'eol', -- 'eol' | 'overlay' | 'right_align'
       delay = 500,
     },
-  })
-end)
-
--- Completion - with error handling
-pcall(function()
-  local cmp = require("cmp")
-  cmp.setup({
-    mapping = cmp.mapping.preset.insert({
-      ["<C-Space>"] = cmp.mapping.complete(),
-      ["<CR>"] = cmp.mapping.confirm({ select = true }),
-      ["<Tab>"] = cmp.mapping.select_next_item(),
-      ["<S-Tab>"] = cmp.mapping.select_prev_item(),
-      ["<C-u>"] = cmp.mapping.scroll_docs(-4),
-      ["<C-d>"] = cmp.mapping.scroll_docs(4),
-    }),
-    sources = cmp.config.sources({
-      { name = "nvim_lsp", priority = 1000 },
-      { name = "sfcc", priority = 900 }, -- SFCC-specific completions
-      { name = "buffer", priority = 500 },
-      { name = "path", priority = 250 },
-    }),
-  })
-
-  -- Register SFCC completion source
-  pcall(function() require("sfcc").setup_completions() end)
-end)
-
--- Which-key - with error handling
-pcall(function()
-  require("which-key").setup({
-    delay = 100,
-    icons = { mappings = false },
   })
 end)
 

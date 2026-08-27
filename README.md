@@ -4,7 +4,7 @@
 
 Fast Neovim with file explorer, fuzzy finder, LSP, git, and markdown preview.
 
-**Requirements:** Neovim 0.11+
+**Requirements:** Neovim 0.12+
 
 ## Install
 
@@ -16,7 +16,7 @@ Then use `v`, `vi`, or `vim` to open Neovim. `v path/to/file:80` opens that file
 
 ## Keymaps
 
-Press `<Space>` to open the command menu.
+Press `<Space>?` to browse all described mappings.
 
 | Key | Action |
 |-----|--------|
@@ -262,13 +262,14 @@ This checks:
 
 ## Plugin Dependencies
 
-VimZap includes both **required** and **optional** plugins:
+Plugins are declared in `lua/plugins.lua`, installed by Neovim's native
+`vim.pack`, and recorded in `nvim-pack-lock.json`. Use `:packupdate` to review
+and apply plugin updates. Mason remains responsible only for external language
+servers, formatters, and the JavaScript debug adapter.
 
 ### Required Plugins (automatically installed)
 - `snacks.nvim` - Dashboard, file explorer, fuzzy finder
-- `mason.nvim` - LSP server manager  
-- `nvim-cmp` + completion sources - Autocompletion
-- `which-key.nvim` - Keymap hints
+- `mason.nvim` - External language-server and tool installer
 - `gitsigns.nvim` - Git integration
 - `render-markdown.nvim` - Markdown preview
 - `conform.nvim` - Code formatting
@@ -280,9 +281,10 @@ VimZap includes both **required** and **optional** plugins:
 - `nvim-dap` + `nvim-dap-ui` + `nvim-nio` - Debug support
 - `prophet.nvim` - Salesforce Commerce Cloud development
 
-**Note:** VimZap will continue to work even if optional plugins are missing. You may see reduced functionality for specific features (like debugging or SFCC development) but core editing will work fine.
-
-To install optional plugins, use your preferred Neovim package manager or add them to your `packpath`.
+Completion uses Neovim 0.12's native automatic, LSP, buffer, and path sources.
+Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
+`<C-y>` to accept a selected item. SFCC candidates use a native completion
+source rather than a completion plugin.
 
 ## Troubleshooting
 
