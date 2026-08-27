@@ -185,15 +185,15 @@ update() {
         if ! cmp -s "$dest" "$temp"; then
           mv "$temp" "$dest"
           echo "    Updated: $file"
-          ((config_updated++))
+          ((config_updated += 1))
         else
           rm "$temp"
-          ((config_unchanged++))
+          ((config_unchanged += 1))
         fi
       else
         mv "$temp" "$dest"
         echo "    Added: $file"
-        ((config_updated++))
+        ((config_updated += 1))
       fi
     else
       echo "    Failed: $file"

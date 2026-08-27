@@ -5,14 +5,24 @@ set -euo pipefail
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root"
 
+reject_match() {
+  local pattern=$1
+  shift
+  if grep -Rq -- "$pattern" "$@"; then
+    echo "Unexpected legacy pattern: $pattern" >&2
+    exit 1
+  fi
+}
+
 test ! -e ftdetect/ds.vim
 test ! -e ftdetect/isml.vim
 
 grep -q 'vim.pack.add' lua/plugins.lua
-! grep -Rq 'packadd' lua
-! grep -Rq 'which-key\|nvim-cmp\|cmp_nvim_lsp' lua README.md i
-! grep -q 'vim.lsp.start' lua/lsp.lua
+reject_match 'packadd' lua
+reject_match 'which-key\|nvim-cmp\|cmp_nvim_lsp' lua README.md i
+reject_match 'vim.lsp.start' lua/lsp.lua
 grep -q 'requires Neovim 0.12' i
+reject_match 'config_updated++\|config_unchanged++' i
 
 nvim --headless -u NONE \
   --cmd "set runtimepath^=$repo_root" \
