@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - Remove which-key.nvim, nvim-cmp and its source plugins, manual `packadd` calls, and duplicate Vimscript filetype detectors.
+- Remove automatic format on save (manual formatting remains available with `<leader>cf`).
 
 ## [1.0.1] - 2025-12-24
 

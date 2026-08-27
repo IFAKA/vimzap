@@ -125,10 +125,3 @@ vim.lsp.config("lua_ls", {
 })
 
 vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint", "lua_ls" })
-
--- Format on save (all file types handled by conform)
-vim.api.nvim_create_autocmd("BufWritePre", {
-  callback = function(args)
-    require("conform").format({ bufnr = args.buf, async = false, timeout_ms = 3000 })
-  end,
-})
