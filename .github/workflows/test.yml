@@ -60,7 +60,6 @@ jobs:
           cp init.lua ~/.config/nvim/
           cp nvim-pack-lock.json ~/.config/nvim/
           cp lua/*.lua ~/.config/nvim/lua/
-          cp syntax/*.vim ~/.config/nvim/syntax/
           cp scripts/*.py ~/.config/nvim/scripts/
           chmod +x ~/.config/nvim/scripts/md-server.py
       
@@ -73,7 +72,7 @@ jobs:
           test -f ~/.config/nvim/lua/lsp.lua || exit 1
           test -f ~/.config/nvim/lua/keymaps.lua || exit 1
           test -f ~/.config/nvim/lua/health.lua || exit 1
-          test -f ~/.config/nvim/syntax/isml.vim || exit 1
+          test ! -e ~/.config/nvim/syntax/isml.vim || exit 1
           test -f ~/.config/nvim/scripts/md-server.py || exit 1
           echo "Config structure verified"
 

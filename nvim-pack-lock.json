@@ -37,7 +37,7 @@
       "src": "https://github.com/windwp/nvim-ts-autotag"
     },
     "prophet.nvim": {
-      "rev": "a5ae8bd2c26f5f7071d8b59060ec1d707a39a73b",
+      "rev": "7a249d78df6bc99e215bb362460776decb4d83fe",
       "src": "https://github.com/IFAKA/prophet.nvim"
     },
     "render-markdown.nvim": {

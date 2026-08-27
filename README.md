@@ -126,7 +126,7 @@ VimZap includes prophet.nvim for SFCC development with optimized performance and
 | Controller Quick-Find | Yes (`<Space>pf`) | Yes (Ctrl+F7) |
 | ISML Template Picker | Yes (`<Space>pi`) | Via explorer |
 | SFCC Completions | Yes (URLUtils, Resource, server.*) | Yes (full LSP) |
-| Snippets | Yes | Yes |
+| Snippets | No | Yes |
 | Sandbox Connectivity Check | Yes | Yes |
 | Full SDAPI Debugger | No (placeholder) | Yes |
 | Log Viewer | Browser link | In-editor |
@@ -302,16 +302,6 @@ source rather than a completion plugin.
    ```vim
    :VimZapHealth
    ```
-
-### Slow startup
-
-1. Run benchmark:
-   ```vim
-   :VimZapBench
-   ```
-   Or press `<Space>B`
-
-2. If startup > 100ms, check plugin load times in the benchmark output
 
 ### Keymaps not working
 

@@ -3,11 +3,9 @@
 vim.opt.runtimepath:prepend(vim.fn.getcwd())
 require("options")
 require("plugins")
-require("sfcc")
 require("lsp")
 require("debug")
 require("keymaps")
-require("benchmark")
 require("health")
 
 -- Load custom user configuration (optional)

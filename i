@@ -16,11 +16,9 @@ CONFIG_FILES=(
   "lua/lsp.lua"
   "lua/debug.lua"
   "lua/keymaps.lua"
-  "lua/benchmark.lua"
   "lua/md-share.lua"
   "lua/health.lua"
-  "syntax/isml.vim"
-  "syntax/ds.vim"
+  "lua/vimzap/health.lua"
   "scripts/md-server.py"
 )
 
@@ -171,6 +169,7 @@ update() {
   # Update config files
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
+  mkdir -p ~/.config/nvim/lua/vimzap
   mkdir -p ~/.config/nvim/syntax
   mkdir -p ~/.config/nvim/scripts
 
@@ -205,8 +204,8 @@ update() {
     echo "    ($config_unchanged unchanged)"
   fi
 
-  # Removed in the Neovim 0.12 migration; Lua filetype detection replaces them.
-  rm -f ~/.config/nvim/ftdetect/isml.vim ~/.config/nvim/ftdetect/ds.vim
+  # Prophet v2 owns SFCC support; remove files installed by older VimZap releases.
+  rm -f ~/.config/nvim/lua/sfcc.lua ~/.config/nvim/lua/benchmark.lua ~/.config/nvim/syntax/isml.vim ~/.config/nvim/syntax/ds.vim ~/.config/nvim/ftdetect/isml.vim ~/.config/nvim/ftdetect/ds.vim
   
   # Make scripts executable
   chmod +x ~/.config/nvim/scripts/md-server.py
@@ -364,6 +363,7 @@ main() {
   # Directories
   echo "  [3/6] Setting up config..."
   mkdir -p ~/.config/nvim/lua
+  mkdir -p ~/.config/nvim/lua/vimzap
   mkdir -p ~/.config/nvim/syntax
   mkdir -p ~/.config/nvim/scripts
 

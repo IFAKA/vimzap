@@ -15,7 +15,7 @@ vim.pack.add({
   gh("mfussenegger/nvim-dap"),
   gh("nvim-neotest/nvim-nio"),
   gh("rcarriga/nvim-dap-ui"),
-  gh("IFAKA/prophet.nvim"),
+  { src = gh("IFAKA/prophet.nvim"), version = "v2.*" },
 }, { confirm = false })
 
 -- Mason (LSP server manager) - with error handling
@@ -248,39 +248,16 @@ pcall(function()
   })
 end)
 
-pcall(function()
-  vim.treesitter.language.register("html", "isml")
-end)
-
--- Prophet (SFCC Development) - optimized async setup
--- Performance improvements: parallel uploads, non-blocking UI, fixed buffer conflicts
-pcall(function()
-  require("prophet").setup({
-    auto_upload = false,    -- Don't auto-upload by default
-    clean_on_start = false, -- Don't upload on startup
-    notify = true,          -- Real-time progress notifications
-  })
-end)
-
--- SFCC file type settings (ISML and DS)
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "isml" },
-  callback = function(args)
-    vim.opt_local.tabstop = 4
-    vim.opt_local.shiftwidth = 4
-    vim.opt_local.expandtab = true
-    vim.opt_local.commentstring = "<iscomment> %s </iscomment>"
-    vim.bo[args.buf].syntax = "isml"
-
-    pcall(vim.treesitter.start, args.buf, "html")
-  end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "ds" },
-  callback = function()
-    vim.opt_local.tabstop = 4
-    vim.opt_local.shiftwidth = 4
-    vim.opt_local.expandtab = true
+require("prophet").setup({
+  auto_upload = false,
+  clean_on_start = false,
+  notify = true,
+  dap = { enabled = true },
+  picker = function(opts)
+    Snacks.picker({
+      title = opts.title,
+      items = vim.tbl_map(function(item) return { text = item.label, file = item.path, pos = item.lnum and { item.lnum, 0 } or nil, prophet_item = item } end, opts.items),
+      confirm = function(picker, item) picker:close(); if item then opts.select(item.prophet_item) end end,
+    })
   end,
 })
