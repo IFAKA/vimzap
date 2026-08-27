@@ -5,6 +5,13 @@ set -euo pipefail
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root"
 
+while IFS= read -r file; do
+  if [[ ! -f "$file" ]] || ! git ls-files --error-unmatch -- "$file" >/dev/null 2>&1; then
+    echo "Installer references missing or untracked file: $file" >&2
+    exit 1
+  fi
+done < <(awk '/^CONFIG_FILES=\(/,/^\)/ { if ($1 ~ /^"/) { gsub(/"/, "", $1); print $1 } }' i)
+
 reject_match() {
   local pattern=$1
   shift

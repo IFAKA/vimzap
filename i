@@ -18,7 +18,6 @@ CONFIG_FILES=(
   "lua/keymaps.lua"
   "lua/md-share.lua"
   "lua/health.lua"
-  "lua/vimzap/health.lua"
   "scripts/md-server.py"
 )
 
