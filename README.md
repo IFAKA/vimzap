@@ -2,7 +2,7 @@
 
 # VimZap
 
-Fast Neovim with file explorer, fuzzy finder, LSP, git, and markdown preview.
+Fast Neovim with fuzzy finding, LSP, git, formatting, debugging, and SFCC tooling.
 
 **Requirements:** Neovim 0.12+
 
@@ -20,28 +20,14 @@ Press `<Space>?` to browse all described mappings.
 
 | Key | Action |
 |-----|--------|
-| `e` | File explorer (toggle) |
 | `f` | File: `ff`=find `fg`=grep `fb`=buffers `fc`=commits `fr`=recent |
 | `fp` | Copy current file path relative to the project root |
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
 | `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=upload all `pf`=find controller `pi`=find template |
-| `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sq`=share markdown (QR) |
-| `h` | Health check (diagnostics + performance) |
+| `s` | Search: `sh`=help `sk`=keymaps `sc`=commands |
 | `?` | Show all keymaps |
-
-## Explorer
-
-Inside the file tree:
-
-| Key | Action |
-|-----|--------|
-| `a` | Add file/folder (end with `/` for folder) |
-| `d` | Delete |
-| `r` | Rename |
-| `m` | Move (select with Tab first) |
-| `c` | Copy |
 
 ## Buffer Navigation
 
@@ -211,54 +197,11 @@ VimZap uses system clipboard by default:
 
 **Tip:** If you delete something after yanking, use `"0p` to paste the yanked text (not the deleted text).
 
-## Markdown Preview
-
-Open any `.md` file to see rendered headings, code blocks, and tables.
-
-| Command | Action |
-|---------|--------|
-| `:RenderMarkdown toggle` | Toggle preview on/off |
-
-## Markdown Sharing (QR Code)
-
-Share your markdown file to your phone for reading on the go.
-
-**Setup:**
-```bash
-brew install qrencode
-```
-
-**Usage:**
-
-1. Open a markdown file in Neovim
-2. Press `<Space>sq` to show QR code
-3. Scan with your phone to open rendered markdown in browser
-4. Press `q` or `<Esc>` to close QR and stop server
-
-The server runs only on your local network and stops automatically when you close the QR window.
-
 ## Update
 
 ```bash
 bash <(curl -fsSL ifaka.github.io/vimzap/i) update
 ```
-
-## Health Check
-
-Run diagnostics to verify your setup:
-
-```vim
-:VimZapHealth
-```
-
-Or use the keymap: `<Space>h`
-
-This checks:
-- Neovim version
-- Plugin installation
-- LSP servers
-- External tools
-- Startup performance
 
 ## Plugin Dependencies
 
@@ -267,19 +210,11 @@ Plugins are declared in `lua/plugins.lua`, installed by Neovim's native
 and apply plugin updates. Mason remains responsible only for external language
 servers, formatters, and the JavaScript debug adapter.
 
-### Required Plugins (automatically installed)
-- `snacks.nvim` - Dashboard, file explorer, fuzzy finder
-- `mason.nvim` - External language-server and tool installer
-- `gitsigns.nvim` - Git integration
-- `render-markdown.nvim` - Markdown preview
-- `conform.nvim` - Code formatting
-- `mini.nvim` - Pairs, comments, surround
-- `nvim-treesitter` - Syntax highlighting
-
-### Optional Plugins (safe to skip)
-- `nvim-ts-autotag` - Auto-close HTML/JSX tags
-- `nvim-dap` + `nvim-dap-ui` + `nvim-nio` - Debug support
-- `prophet.nvim` - Salesforce Commerce Cloud development
+The retained plugins are `mason.nvim`, `nvim-lspconfig`, `mini.nvim` (pick,
+clue, and comment), `gitsigns.nvim`,
+`conform.nvim`, `nvim-dap`, `nvim-dap-ui`, `nvim-nio`, and `prophet.nvim`.
+Neovim's native package manager installs them; Mason installs external servers,
+formatters, and the JavaScript debug adapter.
 
 Completion uses Neovim 0.12's native automatic, LSP, buffer, and path sources.
 Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
@@ -298,10 +233,7 @@ source rather than a completion plugin.
    ```vim
    :LspInfo
    ```
-3. Check for errors:
-   ```vim
-   :VimZapHealth
-   ```
+3. Check for errors with `:checkhealth` and inspect `:LspInfo`.
 
 ### Keymaps not working
 

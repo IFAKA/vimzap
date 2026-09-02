@@ -30,9 +30,9 @@ test ! -e syntax/isml.vim
 grep -q 'vim.pack.add' lua/plugins.lua
 reject_match 'packadd' lua
 reject_match 'which-key\|nvim-cmp\|cmp_nvim_lsp' lua README.md i
+reject_match 'snacks\|blink\|oil.nvim\|trouble.nvim\|treesitter\|render-markdown\|ts-autotag' lua README.md i
 reject_match 'vim.lsp.start' lua/lsp.lua
 grep -q 'requires Neovim 0.12' i
-grep -q 'lua/sfcc.lua.*lua/benchmark.lua.*syntax/isml.vim' i
 reject_match 'config_updated++\|config_unchanged++' i
 
 nvim --headless -u NONE \
@@ -43,7 +43,6 @@ nvim --headless -u NONE \
   -c 'lua assert(vim.o.autocomplete == true)' \
   -c 'lua assert(vim.tbl_contains(vim.opt.completeopt:get(), "popup"))' \
   -c 'lua assert(vim.fn.maparg("<Space>w", "n") ~= "")' \
-  -c 'lua assert(vim.fn.maparg("<Tab>", "i", false, true).expr == 1)' \
   -c 'lua assert(vim.fn.maparg("<Space>pf", "n"):find("ProphetControllers"))' \
   -c 'lua assert(vim.fn.maparg("<Space>pi", "n"):find("ProphetTemplates"))' \
   -c 'quit!'

@@ -1,12 +1,9 @@
--- VimZap: Fast Neovim with snacks.nvim
--- Add current directory to runtime path for standalone mode
-vim.opt.runtimepath:prepend(vim.fn.getcwd())
+-- VimZap: a minimal Neovim configuration for coding and SFCC development.
 require("options")
 require("plugins")
 require("lsp")
 require("debug")
 require("keymaps")
-require("health")
 
 -- Load custom user configuration (optional)
 -- Create ~/.config/nvim/vimzap-custom.lua to override settings

@@ -16,9 +16,6 @@ CONFIG_FILES=(
   "lua/lsp.lua"
   "lua/debug.lua"
   "lua/keymaps.lua"
-  "lua/md-share.lua"
-  "lua/health.lua"
-  "scripts/md-server.py"
 )
 
 get_shell_rc() {
@@ -101,12 +98,6 @@ uninstall() {
   # Remove aliases
   remove_aliases
 
-  # Kill any running md-share servers
-  if lsof -ti:8765 >/dev/null 2>&1; then
-    echo "  Stopping markdown share server..."
-    kill $(lsof -ti:8765) 2>/dev/null || true
-  fi
-
   # Create backup before removing (just in case)
   if [[ -d ~/.config/nvim ]]; then
     echo "  Creating backup at ~/.config/nvim.backup.$(date +%s)..."
@@ -168,9 +159,6 @@ update() {
   # Update config files
   echo "  Updating config..."
   mkdir -p ~/.config/nvim/lua
-  mkdir -p ~/.config/nvim/lua/vimzap
-  mkdir -p ~/.config/nvim/syntax
-  mkdir -p ~/.config/nvim/scripts
 
   for file in "${CONFIG_FILES[@]}"; do
     local dest="$HOME/.config/nvim/$file"
@@ -204,11 +192,6 @@ update() {
   fi
 
   # Prophet v2 owns SFCC support; remove files installed by older VimZap releases.
-  rm -f ~/.config/nvim/lua/sfcc.lua ~/.config/nvim/lua/benchmark.lua ~/.config/nvim/syntax/isml.vim ~/.config/nvim/syntax/ds.vim ~/.config/nvim/ftdetect/isml.vim ~/.config/nvim/ftdetect/ds.vim
-  
-  # Make scripts executable
-  chmod +x ~/.config/nvim/scripts/md-server.py
-
   # Update plugins through Neovim's native package manager.
   echo ""
   echo "  Updating plugins..."
@@ -232,7 +215,7 @@ update() {
   echo "  ✓ Update complete!"
   echo ""
   echo "  Verify everything works:"
-  echo "    nvim -c 'VimZapHealth'"
+  echo "    nvim -c 'checkhealth'"
   echo ""
 }
 
@@ -286,7 +269,7 @@ main() {
       /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     fi
 
-    brew install neovim git node tree-sitter-cli ripgrep fzf lazygit 2>/dev/null || {
+    brew install neovim git node ripgrep fzf lazygit 2>/dev/null || {
       echo "        Some packages may have failed, continuing..."
     }
   fi
@@ -313,20 +296,9 @@ main() {
       sudo pacman -Sy --noconfirm neovim git nodejs npm ripgrep fzf lazygit
     else
       echo "  Warning: Unknown package manager."
-      echo "  Please install manually: neovim git nodejs npm tree-sitter-cli ripgrep fzf lazygit"
+      echo "  Please install manually: neovim git nodejs npm ripgrep fzf lazygit"
     fi
 
-    if ! command -v tree-sitter &>/dev/null; then
-      echo "        Installing tree-sitter CLI..."
-      if command -v npm &>/dev/null; then
-        sudo npm install -g tree-sitter-cli 2>/dev/null || {
-          echo "        Failed to install tree-sitter CLI via npm."
-          echo "        Install manually: npm install -g tree-sitter-cli"
-        }
-      else
-        echo "        npm not found. Install manually: npm install -g tree-sitter-cli"
-      fi
-    fi
   fi
 
   # Check Neovim version
@@ -362,9 +334,6 @@ main() {
   # Directories
   echo "  [3/6] Setting up config..."
   mkdir -p ~/.config/nvim/lua
-  mkdir -p ~/.config/nvim/lua/vimzap
-  mkdir -p ~/.config/nvim/syntax
-  mkdir -p ~/.config/nvim/scripts
 
   # Download config files
   for file in "${CONFIG_FILES[@]}"; do
@@ -374,9 +343,6 @@ main() {
     fi
   done
   
-  # Make scripts executable
-  chmod +x ~/.config/nvim/scripts/md-server.py
-
   # Plugins are declared by the config and installed by vim.pack.
   echo "  [4/6] Installing plugins..."
   nvim --headless +qa
@@ -397,17 +363,8 @@ main() {
   echo "    v                Open Neovim (also vi, vim)"
   echo "    v file:line      Open file at line"
   echo "    <Space>?         Show all commands"
-  echo "    <Space>e         File explorer"
   echo "    <Space>ff        Find files"
   echo "    <Space>fg        Grep"
-  echo "    <Space>fp        Copy project-relative file path"
-  echo ""
-  echo "  Explorer keys:"
-  echo "    a                Add file/folder"
-  echo "    d                Delete"
-  echo "    r                Rename"
-  echo "    m                Move"
-  echo "    c                Copy"
   echo ""
   echo "  Update:"
   echo "    bash <(curl -fsSL ifaka.github.io/vimzap/i) update"

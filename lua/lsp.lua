@@ -124,4 +124,9 @@ vim.lsp.config("lua_ls", {
   },
 })
 
-vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint", "lua_ls" })
+vim.lsp.config("pyright", { cmd = { "pyright-langserver", "--stdio" }, filetypes = { "python" }, root_dir = function(fname) return vim.fs.root(fname, { "pyproject.toml", "setup.py", "requirements.txt", ".git" }) end })
+vim.lsp.config("gopls", { cmd = { "gopls" }, filetypes = { "go", "gomod" }, root_dir = function(fname) return vim.fs.root(fname, { "go.work", "go.mod", ".git" }) end })
+vim.lsp.config("clangd", { cmd = { "clangd" }, filetypes = { "c", "cpp", "objc", "objcpp" }, root_dir = function(fname) return vim.fs.root(fname, { "compile_commands.json", "compile_flags.txt", ".git" }) end })
+vim.lsp.config("rust_analyzer", { cmd = { "rust-analyzer" }, filetypes = { "rust" }, root_dir = function(fname) return vim.fs.root(fname, { "Cargo.toml", ".git" }) end })
+
+vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint", "lua_ls", "pyright", "gopls", "clangd", "rust_analyzer" })
