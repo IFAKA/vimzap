@@ -226,7 +226,8 @@ The installer automatically installs the JavaScript, HTML/CSS/JSON, Tailwind,
 and ESLint language servers used by the SFRA workflow. They are installed
 globally with npm and are not removed by VimZap uninstall because they may be
 shared by other projects. TypeScript uses a project-local installation when
-available and otherwise falls back to the global installation.
+available and otherwise falls back to the global installation. On macOS,
+VimZap prefers the Homebrew Node toolchain even when an older nvm Node is active.
 
 Completion uses Neovim 0.12's native automatic, LSP, buffer, and path sources.
 Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
