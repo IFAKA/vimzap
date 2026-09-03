@@ -66,6 +66,7 @@ Open files appear in a tab bar at the top (like VSCode tabs).
 
 | Key | Action |
 |-----|--------|
+| `jj` (insert mode) | Exit insert mode |
 | `cs"'` | Change surrounding quotes " to ' |
 | `ds"` | Delete surrounding quotes |
 | `ysiw"` | Surround word with quotes |

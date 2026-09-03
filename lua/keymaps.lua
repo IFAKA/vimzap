@@ -2,6 +2,8 @@ local function map(lhs, rhs, desc, mode)
   vim.keymap.set(mode or "n", lhs, rhs, { desc = desc })
 end
 
+map("jj", "<Esc>", "Exit insert mode", "i")
+
 local function project_root()
   return vim.fs.root(0, { ".git", "package.json", "tsconfig.json", "jsconfig.json" }) or vim.fn.getcwd()
 end

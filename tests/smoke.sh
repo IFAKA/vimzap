@@ -46,6 +46,7 @@ nvim --headless -u NONE \
   -c 'lua assert(vim.fn.maparg("<Space>w", "n") ~= "")' \
   -c 'lua assert(vim.fn.maparg("<Space>pf", "n"):find("ProphetControllers"))' \
   -c 'lua assert(vim.fn.maparg("<Space>pi", "n"):find("ProphetTemplates"))' \
+  -c 'lua assert(vim.fn.maparg("jj", "i") ~= "")' \
   -c 'quit!'
 
 echo "VimZap smoke checks passed"
