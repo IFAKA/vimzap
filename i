@@ -304,7 +304,8 @@ main() {
 
   # Directories
   echo "  [3/5] Setting up config..."
-  mkdir -p ~/.config/nvim/lua
+  # Create every config directory before downloading nested Lua modules.
+  mkdir -p ~/.config/nvim/lua/vimzap
 
   # Download config files
   for file in "${CONFIG_FILES[@]}"; do
