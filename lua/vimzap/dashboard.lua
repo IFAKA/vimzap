@@ -8,7 +8,7 @@ local function open_dashboard()
     "  <Space>ff  Find files       <Space>fg  Grep project",
     "  <Space>fr  Recent files      <Space>gs  Git status",
     "  <Space>cf  Format with LSP    <Space>?   Show keymaps",
-    "  <C-/>      Terminal           q         Quit", "",
+    "  <C-_>      Terminal           q         Quit", "",
     "  Open a file to start coding.",
   })
   vim.api.nvim_set_current_buf(buf)
@@ -28,7 +28,7 @@ local function open_dashboard()
   map("g", "<cmd>VimZapGrep<cr>", "Grep project")
   map("r", "<cmd>VimZapRecent<cr>", "Recent files")
   map("s", "<leader>gs", "Git status")
-  map("t", "<C-/>", "Open terminal")
+  map("t", "<cmd>VimZapTerminalToggle<cr>", "Toggle terminal")
   map("?", "<cmd>map<cr>", "Show keymaps")
   map("q", "<cmd>quit<cr>", "Quit")
   map("<CR>", "<cmd>VimZapFiles<cr>", "Find files")

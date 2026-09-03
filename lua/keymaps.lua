@@ -86,16 +86,38 @@ local function copy_project_path()
   vim.notify("Copied: " .. relative)
 end
 
+local terminal_bufnr
+
 local function toggle_terminal()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.bo[vim.api.nvim_win_get_buf(win)].buftype == "terminal" then
-      vim.api.nvim_win_close(win, false)
+    local bufnr = vim.api.nvim_win_get_buf(win)
+    if vim.bo[bufnr].buftype == "terminal" then
+      terminal_bufnr = bufnr
+      vim.api.nvim_win_hide(win)
       return
     end
   end
-  vim.cmd("botright split | terminal")
+
+  if not terminal_bufnr or not vim.api.nvim_buf_is_valid(terminal_bufnr) then
+    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+      if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buftype == "terminal" then
+        terminal_bufnr = bufnr
+        break
+      end
+    end
+  end
+
+  vim.cmd("botright split")
+  if terminal_bufnr and vim.api.nvim_buf_is_valid(terminal_bufnr) then
+    vim.api.nvim_win_set_buf(0, terminal_bufnr)
+  else
+    vim.cmd("terminal")
+    terminal_bufnr = vim.api.nvim_get_current_buf()
+  end
   vim.cmd("startinsert")
 end
+
+vim.api.nvim_create_user_command("VimZapTerminalToggle", toggle_terminal, {})
 
 local function lsp_cmd(fn)
   return function()
