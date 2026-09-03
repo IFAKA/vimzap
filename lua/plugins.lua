@@ -7,7 +7,7 @@ vim.pack.add({
   "https://github.com/nvim-neotest/nvim-nio",
   "https://github.com/rcarriga/nvim-dap-ui",
   { src = "https://github.com/IFAKA/prophet.nvim", version = "v2.*" },
-}, { confirm = false })
+}, { confirm = false, load = true })
 
 require("mini.pick").setup()
 require("gitsigns").setup({

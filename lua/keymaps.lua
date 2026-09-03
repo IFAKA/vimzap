@@ -16,8 +16,57 @@ end
 
 local function buffers() MiniPick.builtin.buffers() end
 local function recent_files() MiniPick.builtin.oldfiles() end
+local git_command
 
-local function git_command(command)
+local function select_commands()
+  local commands = vim.api.nvim_get_commands({ builtin = false })
+  local items = {}
+  for name, command in pairs(commands) do
+    table.insert(items, { name = name, description = command.definition or "" })
+  end
+  table.sort(items, function(a, b) return a.name < b.name end)
+  vim.ui.select(items, {
+    prompt = "Commands",
+    format_item = function(item) return item.name .. "  " .. item.description end,
+  }, function(item)
+    if item then vim.cmd(item.name) end
+  end)
+end
+
+local function select_diagnostics()
+  local items = vim.diagnostic.toqflist(vim.diagnostic.get())
+  if #items == 0 then
+    vim.notify("No diagnostics")
+    return
+  end
+  vim.ui.select(items, {
+    prompt = "Diagnostics",
+    format_item = function(item)
+      return string.format("%s:%d:%d  %s", item.filename, item.lnum, item.col, item.text)
+    end,
+  }, function(item)
+    if not item then return end
+    local bufnr = vim.fn.bufadd(item.filename)
+    vim.fn.bufload(bufnr)
+    vim.api.nvim_set_current_buf(bufnr)
+    vim.api.nvim_win_set_cursor(0, { item.lnum, math.max(item.col - 1, 0) })
+  end)
+end
+
+local function select_commits()
+  local lines = vim.fn.systemlist({ "git", "log", "--oneline", "--decorate", "-100" })
+  if vim.v.shell_error ~= 0 or #lines == 0 then
+    vim.notify("No Git commits found", vim.log.levels.WARN)
+    return
+  end
+  vim.ui.select(lines, { prompt = "Git commits" }, function(line)
+    if not line then return end
+    local sha = line:match("^(%S+)")
+    if sha then git_command("show " .. sha) end
+  end)
+end
+
+git_command = function(command)
   vim.cmd("botright split | terminal git " .. command)
   vim.cmd("startinsert")
 end
@@ -78,16 +127,16 @@ map("<leader>cd", vim.diagnostic.open_float, "Line diagnostics")
 map("<leader>cs", lsp_cmd(vim.lsp.buf.document_symbol), "Document symbols")
 map("<leader>gf", function() git_command("ls-files") end, "Git files")
 map("<leader>gs", function() git_command("status") end, "Git status")
-map("<leader>gc", function() git_command("log --oneline --decorate -20") end, "Git commits")
+map("<leader>gc", select_commits, "Find Git commits")
 map("<leader>gp", "<cmd>Gitsigns preview_hunk<cr>", "Preview hunk")
 map("<leader>ga", "<cmd>Gitsigns stage_hunk<cr>", "Stage hunk")
 map("<leader>gr", "<cmd>Gitsigns reset_hunk<cr>", "Reset hunk")
 map("<leader>gb", "<cmd>Gitsigns blame_line<cr>", "Blame line")
-map("<leader>sh", "<cmd>help<cr>", "Open help")
+map("<leader>sh", function() MiniPick.builtin.help() end, "Find help")
 map("<leader>sk", "<cmd>map<cr>", "Show keymaps")
-map("<leader>sc", "<cmd>command<cr>", "Show commands")
-map("<leader>sd", vim.diagnostic.setqflist, "Diagnostics quickfix")
-map("<leader>?", "<cmd>map<cr>", "Show keymaps")
+map("<leader>sc", select_commands, "Find commands")
+map("<leader>sd", select_diagnostics, "Find diagnostics")
+map("<leader>?", function() MiniPick.builtin.help({}) end, "Find help")
 map("<leader>db", dap_action("toggle_breakpoint"), "Debug breakpoint")
 map("<leader>dB", function() require("vimzap.debug").setup(); require("dap").set_breakpoint(vim.fn.input("Condition: ")) end, "Debug conditional breakpoint")
 map("<leader>dc", dap_action("continue"), "Debug continue/start")

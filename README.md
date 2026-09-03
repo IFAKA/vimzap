@@ -20,18 +20,20 @@ Use `f` to find files, `g` to grep, `r` for recent files, `s` for Git status,
 
 ## Keymaps
 
-Press `<Space>?` to browse all described mappings.
+Press `<Space>?` to open fuzzy help. The main navigation actions use the fuzzy
+picker: files, grep, buffers, recent files, help, commands, diagnostics, and
+Git commits.
 
 | Key | Action |
 |-----|--------|
-| `f` | File: `ff`=find `fg`=grep `fb`=buffers `fc`=commits `fr`=recent |
+| `f` | File: `ff`=find `fg`=grep `fb`=buffers `gc`=commits `fr`=recent |
 | `fp` | Copy current file path relative to the project root |
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
 | `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=upload all `pf`=find controller `pi`=find template |
-| `s` | Search: `sh`=help `sk`=keymaps `sc`=commands |
-| `?` | Show all keymaps |
+| `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sd`=diagnostics |
+| `?` | Fuzzy help |
 
 ## Buffer Navigation
 
