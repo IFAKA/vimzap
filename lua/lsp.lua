@@ -13,10 +13,15 @@ if vim.fn.executable("brew") == 1 then
 end
 
 local global_typescript
+local global_tsserver
 if vim.fn.executable(npm_command) == 1 then
   local npm_root = vim.fn.system({ npm_command, "root", "-g" }):gsub("%s+$", "")
   local candidate = npm_root .. "/typescript/lib"
-  if vim.fn.isdirectory(candidate) == 1 then global_typescript = candidate end
+  local tsserver = candidate .. "/tsserver.js"
+  if vim.fn.isdirectory(candidate) == 1 and vim.fn.filereadable(tsserver) == 1 then
+    global_typescript = candidate
+    global_tsserver = tsserver
+  end
 end
 
 vim.lsp.config("ts_ls", {
@@ -24,7 +29,10 @@ vim.lsp.config("ts_ls", {
   cmd = typescript_language_server ~= "" and { typescript_language_server, "--stdio" } or nil,
   init_options = {
     preferences = { includePackageJsonAutoImports = "auto" },
-    tsserver = global_typescript and { fallbackPath = global_typescript } or nil,
+    tsserver = global_tsserver and {
+      path = global_tsserver,
+      fallbackPath = global_typescript,
+    } or nil,
   },
 })
 
