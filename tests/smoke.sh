@@ -29,7 +29,7 @@ test ! -e syntax/isml.vim
 
 grep -q 'vim.pack.add' lua/plugins.lua
 reject_match 'packadd' lua
-reject_match 'which-key\|nvim-cmp\|cmp_nvim_lsp' lua README.md i
+reject_match 'nvim-cmp\|cmp_nvim_lsp' lua README.md i
 reject_match 'snacks\|blink\|oil.nvim\|trouble.nvim\|treesitter\|render-markdown\|ts-autotag' lua README.md i
 reject_match 'vim.lsp.start' lua/lsp.lua
 grep -q 'requires Neovim 0.12' i

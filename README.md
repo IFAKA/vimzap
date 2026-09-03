@@ -20,7 +20,8 @@ Use `f` to find files, `g` to grep, `r` for recent files, `s` for Git status,
 
 ## Keymaps
 
-Press `<Space>?` to open fuzzy help. The main navigation actions use the fuzzy
+Press `<Space>` and pause briefly to open live keymap hints. Press `<Space>?` to
+open fuzzy help. The main navigation actions use the fuzzy
 picker: files, grep, buffers, recent files, help, commands, diagnostics, and
 Git commits.
 
@@ -73,9 +74,10 @@ Open files appear in a tab bar at the top (like VSCode tabs).
 
 | Key | Action |
 |-----|--------|
-| `Ctrl+/` | Toggle floating terminal |
+| `Ctrl+/` or `Ctrl+_` | Toggle terminal split (tmux-compatible) |
 
-Open terminal, run `npm run dev`, then `Ctrl+/` to hide (keeps running). Press `Ctrl+/` again to show logs.
+Open terminal, run `npm run dev`, then `Ctrl+/` (or `Ctrl+_` in tmux) to hide
+(keeps running). Press the same shortcut again to show logs.
 
 ## Debugging (Node.js)
 
@@ -228,6 +230,10 @@ Completion uses Neovim 0.12's native automatic, LSP, buffer, and path sources.
 Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
 `<C-y>` to accept a selected item. SFCC candidates use a native completion
 source rather than a completion plugin.
+
+`which-key.nvim` provides live hints for leader-key groups. Press `<Space>` and
+wait briefly to see available actions; groups include Find, Code, Debug, Git,
+Prophet/SFCC, and Search/Help.
 
 ## Troubleshooting
 

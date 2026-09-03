@@ -1,6 +1,7 @@
 -- Keep only plugins for features Neovim does not provide itself.
 vim.pack.add({
   "https://github.com/echasnovski/mini.nvim",
+  "https://github.com/folke/which-key.nvim",
   "https://github.com/lewis6991/gitsigns.nvim",
   "https://github.com/neovim/nvim-lspconfig",
   "https://github.com/mfussenegger/nvim-dap",
@@ -10,6 +11,7 @@ vim.pack.add({
 }, { confirm = false, load = true })
 
 require("mini.pick").setup()
+require("which-key").setup({ delay = 300 })
 require("gitsigns").setup({
   signs = { add = { text = "+" }, change = { text = "~" }, delete = { text = "_" }, topdelete = { text = "‾" }, changedelete = { text = "~" } },
   current_line_blame = true,
