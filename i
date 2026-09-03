@@ -319,8 +319,8 @@ main() {
   nvim --headless +qa
   echo "        Native packages installed"
 
-  # LSP servers (installed via Mason on first launch)
-  echo "  [5/5] LSP servers will be installed via Mason on first launch..."
+  # External language servers, formatters, and debug adapters are user-managed.
+  echo "  [5/5] Install language servers and formatters separately (see README)"
 
   echo ""
   echo "  Done! Run: nvim"

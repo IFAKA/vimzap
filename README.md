@@ -16,8 +16,7 @@ Use `nvim` to open Neovim. `nvim path/to/file:80` opens that file at line 80.
 
 When Neovim starts without a file, VimZap opens a native developer dashboard.
 Use `f` to find files, `g` to grep, `r` for recent files, `s` for Git status,
-`m` for Mason, `l` for LSP health, `t` for a terminal, `h` for health checks,
-and `?` to browse all keymaps.
+`t` for a terminal, and `?` to browse all keymaps.
 
 ## Keymaps
 
@@ -64,8 +63,6 @@ Open files appear in a tab bar at the top (like VSCode tabs).
 
 | Key | Action |
 |-----|--------|
-| `gcc` | Comment/uncomment line |
-| `gc` (visual) | Comment selection |
 | `cs"'` | Change surrounding quotes " to ' |
 | `ds"` | Delete surrounding quotes |
 | `ysiw"` | Surround word with quotes |
@@ -212,14 +209,18 @@ bash <(curl -fsSL ifaka.github.io/vimzap/i) update
 
 Plugins are declared in `lua/plugins.lua`, installed by Neovim's native
 `vim.pack`, and recorded in `nvim-pack-lock.json`. Use `:packupdate` to review
-and apply plugin updates. Mason remains responsible only for external language
-servers, formatters, and the JavaScript debug adapter.
+and apply plugin updates.
 
-The retained plugins are `mason.nvim`, `nvim-lspconfig`, `mini.nvim` (pick
-and comment), `gitsigns.nvim`,
-`conform.nvim`, `nvim-dap`, `nvim-dap-ui`, `nvim-nio`, and `prophet.nvim`.
-Neovim's native package manager installs them; Mason installs external servers,
-formatters, and the JavaScript debug adapter.
+VimZap keeps only plugins for functionality Neovim does not provide itself:
+`nvim-lspconfig` for server configurations, `gitsigns.nvim` for Git signs and
+hunk actions, `nvim-dap`/`nvim-dap-ui` for debugging, and `prophet.nvim` for
+SFCC development. File selection, grep, buffers, recent files, diagnostics,
+completion, formatting through LSP, and terminal management use native Neovim
+APIs and commands.
+
+Language servers, formatters, and the JavaScript debug adapter are no longer
+installed automatically. Install them with your preferred system or project
+package manager and make sure their executables are on `$PATH`.
 
 Completion uses Neovim 0.12's native automatic, LSP, buffer, and path sources.
 Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
@@ -230,15 +231,12 @@ source rather than a completion plugin.
 
 ### LSP not working
 
-1. Check if LSP servers are installed:
+1. Verify LSP is running:
    ```vim
-   :Mason
-   ```
-2. Verify LSP is running:
-   ```vim
+   :checkhealth vim.lsp
    :LspInfo
    ```
-3. Check for errors with `:checkhealth` and inspect `:LspInfo`.
+2. Make sure the server executable is installed and available on `$PATH`.
 
 ### Keymaps not working
 
@@ -253,13 +251,9 @@ source rather than a completion plugin.
 
 ### Missing LSP servers
 
-LSP servers install automatically on first launch. If they're missing:
-
-```vim
-:Mason
-```
-
-Then select and install: `i` to install, `X` to uninstall
+Install the required server using your operating system or project package
+manager, then restart Neovim. The server names configured by VimZap are listed
+in `lua/lsp.lua`.
 
 ### Missing external tools
 

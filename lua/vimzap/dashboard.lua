@@ -1,19 +1,15 @@
--- Native startup dashboard. It only appears when Nvim starts without a file.
-
-local function picker(method)
-  return function() require("mini.pick").builtin[method]() end
-end
-
+-- Small native startup dashboard. It only appears when Nvim starts without a file.
 local function open_dashboard()
   if vim.fn.argc() ~= 0 or vim.api.nvim_buf_get_name(0) ~= "" or vim.bo.buftype ~= "" then return end
 
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
-    "", "  VimZap", "", "  Developer dashboard", "",
-    "  f  Find files        g  Grep project       r  Recent files",
-    "  s  Git status        m  Mason tools        l  LSP health",
-    "  t  Terminal           h  Neovim health      ?  All keymaps",
-    "  q  Quit", "", "  Open a file to start coding.",
+    "", "  VimZap", "", "  Native developer dashboard", "",
+    "  <Space>ff  Find files       <Space>fg  Grep project",
+    "  <Space>fr  Recent files      <Space>gs  Git status",
+    "  <Space>cf  Format with LSP    <Space>?   Show keymaps",
+    "  <C-/>      Terminal           q         Quit", "",
+    "  Open a file to start coding.",
   })
   vim.api.nvim_set_current_buf(buf)
   vim.bo[buf].filetype = "vimzap-dashboard"
@@ -28,18 +24,14 @@ local function open_dashboard()
   local function map(lhs, rhs, desc)
     vim.keymap.set("n", lhs, rhs, { buffer = buf, silent = true, desc = desc })
   end
-
-  map("f", picker("files"), "Find files")
-  map("g", picker("grep_live"), "Grep project")
-  map("r", picker("oldfiles"), "Recent files")
-  map("s", picker("git_status"), "Git status")
-  map("m", "<cmd>Mason<cr>", "Manage external tools")
-  map("l", "<cmd>checkhealth vim.lsp<cr>", "LSP health")
-  map("t", "<cmd>botright split | terminal<cr>", "Open terminal")
-  map("h", "<cmd>checkhealth<cr>", "Neovim health")
-  map("?", picker("keymaps"), "Show all keymaps")
+  map("f", "<cmd>VimZapFiles<cr>", "Find files")
+  map("g", "<cmd>VimZapGrep<cr>", "Grep project")
+  map("r", "<cmd>VimZapRecent<cr>", "Recent files")
+  map("s", "<leader>gs", "Git status")
+  map("t", "<C-/>", "Open terminal")
+  map("?", "<cmd>map<cr>", "Show keymaps")
   map("q", "<cmd>quit<cr>", "Quit")
-  map("<CR>", picker("files"), "Find files")
+  map("<CR>", "<cmd>VimZapFiles<cr>", "Find files")
 end
 
 vim.api.nvim_create_autocmd("VimEnter", { once = true, callback = open_dashboard })

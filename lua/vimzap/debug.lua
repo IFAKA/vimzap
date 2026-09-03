@@ -41,18 +41,17 @@ function M.setup()
   vim.fn.sign_define("DapBreakpoint", { text = "●", texthl = "DiagnosticError" })
   vim.fn.sign_define("DapStopped", { text = "▶", texthl = "DiagnosticOk", linehl = "CursorLine" })
 
-  dap.adapters["pwa-node"] = {
-    type = "server",
-    host = "localhost",
-    port = "${port}",
-    executable = {
-      command = "node",
-      args = {
-        vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js",
-        "${port}",
-      },
-    },
-  }
+  local js_debug_adapter = vim.fn.exepath("js-debug-adapter")
+  if js_debug_adapter ~= "" then
+    dap.adapters["pwa-node"] = {
+      type = "server",
+      host = "localhost",
+      port = "${port}",
+      executable = { command = js_debug_adapter, args = { "${port}" } },
+    }
+  else
+    notify_warn("js-debug-adapter not found on PATH; Node.js debugging is disabled")
+  end
 
   local function find_prophet_adapter()
     local extension_root = vim.fn.expand("~/.vscode/extensions")
