@@ -62,7 +62,7 @@ install_required_tools() {
   fi
 
   npm install --global \
-    typescript \
+    typescript@5.9.3 \
     typescript-language-server \
     vscode-langservers-extracted \
     @tailwindcss/language-server
