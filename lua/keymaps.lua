@@ -2,54 +2,20 @@ local function map(lhs, rhs, desc, mode)
   vim.keymap.set(mode or "n", lhs, rhs, { desc = desc })
 end
 
-local function select_item(items, prompt, format_item, on_choice)
-  vim.ui.select(items, { prompt = prompt, format_item = format_item }, on_choice)
-end
-
 local function project_root()
   return vim.fs.root(0, { ".git", "package.json", "tsconfig.json", "jsconfig.json" }) or vim.fn.getcwd()
 end
 
 local function files()
-  local root = project_root()
-  local candidates = vim.fn.globpath(root, "**/*", false, true)
-  candidates = vim.tbl_filter(function(path)
-    return vim.fn.isdirectory(path) == 0
-      and not path:match("/%.git/")
-      and not path:match("/node_modules/")
-  end, candidates)
-  table.sort(candidates)
-  select_item(candidates, "Files", function(path) return vim.fn.fnamemodify(path, ":.") end, function(path)
-    if path then vim.cmd.edit(vim.fn.fnameescape(path)) end
-  end)
+  MiniPick.builtin.files({ tool = "git" })
 end
 
 local function grep()
-  local query = vim.fn.input("Grep: ")
-  if query == "" then return end
-  vim.cmd("silent! noautocmd vimgrep /" .. vim.fn.escape(query, "/") .. "/gj **/*")
-  vim.cmd("copen")
+  MiniPick.builtin.grep_live()
 end
 
-local function buffers()
-  local items = {}
-  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_valid(bufnr) and vim.bo[bufnr].buflisted then
-      local name = vim.api.nvim_buf_get_name(bufnr)
-      table.insert(items, { bufnr = bufnr, name = name == "" and "[No Name]" or name })
-    end
-  end
-  select_item(items, "Buffers", function(item) return item.bufnr .. "  " .. item.name end, function(item)
-    if item then vim.api.nvim_set_current_buf(item.bufnr) end
-  end)
-end
-
-local function recent_files()
-  local items = vim.tbl_filter(function(path) return vim.fn.filereadable(path) == 1 end, vim.v.oldfiles)
-  select_item(items, "Recent files", function(path) return vim.fn.fnamemodify(path, ":~:.") end, function(path)
-    if path then vim.cmd.edit(vim.fn.fnameescape(path)) end
-  end)
-end
+local function buffers() MiniPick.builtin.buffers() end
+local function recent_files() MiniPick.builtin.oldfiles() end
 
 local function git_command(command)
   vim.cmd("botright split | terminal git " .. command)
