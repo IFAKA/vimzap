@@ -4,11 +4,11 @@
 local typescript_language_server = vim.fn.exepath("typescript-language-server")
 local npm_command = "npm"
 if vim.fn.executable("brew") == 1 then
-  local brew_node_bin = vim.fn.system({ "brew", "--prefix", "node" }):gsub("%s+$", "") .. "/bin"
-  local brew_tsls = brew_node_bin .. "/typescript-language-server"
+  local brew_bin = vim.fn.system({ "brew", "--prefix" }):gsub("%s+$", "") .. "/bin"
+  local brew_tsls = brew_bin .. "/typescript-language-server"
   if vim.fn.executable(brew_tsls) == 1 then
     typescript_language_server = brew_tsls
-    npm_command = brew_node_bin .. "/npm"
+    npm_command = brew_bin .. "/npm"
   end
 end
 
