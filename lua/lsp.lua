@@ -2,12 +2,14 @@
 -- nvim-lspconfig supplies server defaults; Neovim owns the client.
 
 local typescript_language_server = vim.fn.exepath("typescript-language-server")
+local node_command = vim.fn.exepath("node")
 local npm_command = "npm"
 if vim.fn.executable("brew") == 1 then
   local brew_bin = vim.fn.system({ "brew", "--prefix" }):gsub("%s+$", "") .. "/bin"
   local brew_tsls = brew_bin .. "/typescript-language-server"
   if vim.fn.executable(brew_tsls) == 1 then
     typescript_language_server = brew_tsls
+    node_command = brew_bin .. "/node"
     npm_command = brew_bin .. "/npm"
   end
 end
@@ -26,7 +28,7 @@ end
 
 vim.lsp.config("ts_ls", {
   -- Prefer workspace TypeScript; use the global installation as fallback.
-  cmd = typescript_language_server ~= "" and { typescript_language_server, "--stdio" } or nil,
+  cmd = typescript_language_server ~= "" and { node_command, typescript_language_server, "--stdio" } or nil,
   init_options = {
     preferences = { includePackageJsonAutoImports = "auto" },
     tsserver = global_tsserver and {
