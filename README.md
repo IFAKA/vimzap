@@ -222,9 +222,10 @@ SFCC development. File selection, grep, buffers, recent files, diagnostics,
 completion, formatting through LSP, and terminal management use native Neovim
 APIs and commands.
 
-Language servers, formatters, and the JavaScript debug adapter are no longer
-installed automatically. Install them with your preferred system or project
-package manager and make sure their executables are on `$PATH`.
+The installer automatically installs the JavaScript, HTML/CSS/JSON, Tailwind,
+and ESLint language servers used by the SFRA workflow. They are installed
+globally with npm and are not removed by VimZap uninstall because they may be
+shared by other projects.
 
 Completion uses Neovim 0.12's native automatic, LSP, buffer, and path sources.
 Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
@@ -259,9 +260,10 @@ Prophet/SFCC, and Search/Help.
 
 ### Missing LSP servers
 
-Install the required server using your operating system or project package
-manager, then restart Neovim. The server names configured by VimZap are listed
-in `lua/lsp.lua`.
+Run the installer again to repair the standard SFRA tools:
+```bash
+bash <(curl -fsSL ifaka.github.io/vimzap/i)
+```
 
 ### Missing external tools
 

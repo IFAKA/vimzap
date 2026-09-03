@@ -45,6 +45,23 @@ remove_aliases() {
   fi
 }
 
+install_required_tools() {
+  echo "  [5/5] Installing JavaScript/SFCC developer tools..."
+
+  if ! command -v npm &>/dev/null; then
+    echo "        npm is required but was not found"
+    return 1
+  fi
+
+  npm install --global \
+    typescript \
+    typescript-language-server \
+    vscode-langservers-extracted \
+    @tailwindcss/language-server
+
+  echo "        Language servers installed"
+}
+
 uninstall() {
   echo ""
   echo "  VimZap Uninstall"
@@ -320,8 +337,7 @@ main() {
   nvim --headless +qa
   echo "        Native packages installed"
 
-  # External language servers, formatters, and debug adapters are user-managed.
-  echo "  [5/5] Install language servers and formatters separately (see README)"
+  install_required_tools
 
   echo ""
   echo "  Done! Run: nvim"
