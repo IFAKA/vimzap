@@ -15,7 +15,9 @@ local function grep()
 end
 
 local function buffers() MiniPick.builtin.buffers() end
-local function recent_files() MiniPick.builtin.oldfiles() end
+local function recent_files()
+  MiniPick.start({ source = { items = vim.v.oldfiles, name = "Recent files" } })
+end
 local git_command
 
 local function select_commands()
