@@ -53,6 +53,14 @@ install_required_tools() {
     return 1
   fi
 
+  local node_major
+  node_major=$(node -p 'process.versions.node.split(".")[0]')
+  if [[ "$node_major" -lt 22 ]]; then
+    echo "        Node.js 22+ is required (found $(node --version))"
+    echo "        Reopen your terminal and run the installer again"
+    return 1
+  fi
+
   npm install --global \
     typescript \
     typescript-language-server \
@@ -260,6 +268,9 @@ main() {
     brew install neovim git node ripgrep fzf lazygit 2>/dev/null || {
       echo "        Some packages may have failed, continuing..."
     }
+    # Prefer Homebrew's modern Node over an older nvm/system Node.
+    brew upgrade node >/dev/null 2>&1 || true
+    export PATH="$(brew --prefix node)/bin:$PATH"
   fi
 
   # Linux
