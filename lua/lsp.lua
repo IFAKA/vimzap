@@ -1,25 +1,19 @@
 -- LSP configuration and activation.
 -- nvim-lspconfig supplies server defaults; Neovim owns the client.
 
-vim.lsp.config("ts_ls", {
-  -- Use the workspace TypeScript version when one is installed.
-  on_new_config = function(config, root_dir)
-    local local_ts = root_dir and (root_dir .. "/node_modules/typescript/lib")
-    local global_ts
-    if vim.fn.executable("npm") == 1 then
-      local npm_root = vim.fn.system({ "npm", "root", "-g" }):gsub("%s+$", "")
-      global_ts = npm_root .. "/typescript/lib"
-    end
-    config.init_options = {
-      preferences = { includePackageJsonAutoImports = "auto" },
-    }
+local global_typescript
+if vim.fn.executable("npm") == 1 then
+  local npm_root = vim.fn.system({ "npm", "root", "-g" }):gsub("%s+$", "")
+  local candidate = npm_root .. "/typescript/lib"
+  if vim.fn.isdirectory(candidate) == 1 then global_typescript = candidate end
+end
 
-    if local_ts and vim.fn.isdirectory(local_ts) == 1 then
-      config.init_options.tsserver = { path = local_ts }
-    elseif global_ts and vim.fn.isdirectory(global_ts) == 1 then
-      config.init_options.tsserver = { path = global_ts }
-    end
-  end,
+vim.lsp.config("ts_ls", {
+  -- Prefer workspace TypeScript; use the global installation as fallback.
+  init_options = {
+    preferences = { includePackageJsonAutoImports = "auto" },
+    tsserver = global_typescript and { fallbackPath = global_typescript } or nil,
+  },
 })
 
 vim.lsp.config("eslint", {
