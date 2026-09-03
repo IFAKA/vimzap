@@ -12,7 +12,12 @@ Fast Neovim with fuzzy finding, LSP, git, formatting, debugging, and SFCC toolin
 bash <(curl -fsSL ifaka.github.io/vimzap/i)
 ```
 
-Then use `v`, `vi`, or `vim` to open Neovim. `v path/to/file:80` opens that file at line 80.
+Use `nvim` to open Neovim. `nvim path/to/file:80` opens that file at line 80.
+
+When Neovim starts without a file, VimZap opens a native developer dashboard.
+Use `f` to find files, `g` to grep, `r` for recent files, `s` for Git status,
+`m` for Mason, `l` for LSP health, `t` for a terminal, `h` for health checks,
+and `?` to browse all keymaps.
 
 ## Keymaps
 
@@ -210,8 +215,8 @@ Plugins are declared in `lua/plugins.lua`, installed by Neovim's native
 and apply plugin updates. Mason remains responsible only for external language
 servers, formatters, and the JavaScript debug adapter.
 
-The retained plugins are `mason.nvim`, `nvim-lspconfig`, `mini.nvim` (pick,
-clue, and comment), `gitsigns.nvim`,
+The retained plugins are `mason.nvim`, `nvim-lspconfig`, `mini.nvim` (pick
+and comment), `gitsigns.nvim`,
 `conform.nvim`, `nvim-dap`, `nvim-dap-ui`, `nvim-nio`, and `prophet.nvim`.
 Neovim's native package manager installs them; Mason installs external servers,
 formatters, and the JavaScript debug adapter.

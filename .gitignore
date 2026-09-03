@@ -2,6 +2,8 @@
 !init.lua
 !lua/
 !lua/*.lua
+!lua/vimzap/
+!lua/vimzap/*.lua
 !syntax/
 !syntax/*.vim
 !ftdetect/

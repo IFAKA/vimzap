@@ -1,72 +1,41 @@
--- LSP servers (Neovim 0.12 native activation)
+-- LSP configuration and activation.
+-- nvim-lspconfig supplies server defaults; Neovim owns the client.
+
 vim.lsp.config("ts_ls", {
-  cmd = { "typescript-language-server", "--stdio" },
-  filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-  root_dir = function(fname)
-    return vim.fs.root(fname, { "tsconfig.json", "jsconfig.json", "package.json", ".git" })
-  end,
-  -- Use workspace TypeScript version (like VS Code does)
-  init_options = {},
+  -- Use the workspace TypeScript version when one is installed.
   on_new_config = function(config, root_dir)
-    -- Find local TypeScript installation
-    local local_ts = root_dir .. "/node_modules/typescript/lib"
-    if vim.fn.isdirectory(local_ts) == 1 then
-      config.init_options = {
-        preferences = {
-          includePackageJsonAutoImports = "auto",
-        },
-        tsserver = {
-          path = local_ts
-        }
-      }
-    else
-      config.init_options = {
-        preferences = {
-          includePackageJsonAutoImports = "auto",
-        },
-      }
+    local local_ts = root_dir and (root_dir .. "/node_modules/typescript/lib")
+    config.init_options = {
+      preferences = { includePackageJsonAutoImports = "auto" },
+    }
+
+    if local_ts and vim.fn.isdirectory(local_ts) == 1 then
+      config.init_options.tsserver = { path = local_ts }
     end
   end,
 })
 
-vim.lsp.config("html", {
-  cmd = { "vscode-html-language-server", "--stdio" },
-  filetypes = { "html" },
-  root_dir = function(fname)
-    return vim.fs.root(fname, { "package.json", ".git" })
-  end,
+vim.lsp.config("eslint", {
+  init_options = {
+    documentFormatting = false,
+  },
 })
 
-vim.lsp.config("cssls", {
-  cmd = { "vscode-css-language-server", "--stdio" },
-  filetypes = { "css", "scss" },
-  root_dir = function(fname)
-    return vim.fs.root(fname, { "package.json", ".git" })
-  end,
-})
-
-vim.lsp.config("jsonls", {
-  cmd = { "vscode-json-language-server", "--stdio" },
-  filetypes = { "json", "jsonc" },
-  root_dir = function(fname)
-    return vim.fs.root(fname, { ".git" })
-  end,
+vim.lsp.config("lua_ls", {
+  settings = {
+    Lua = {
+      runtime = { version = "LuaJIT" },
+      diagnostics = { globals = { "vim" } },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
+      },
+      telemetry = { enable = false },
+    },
+  },
 })
 
 vim.lsp.config("tailwindcss", {
-  cmd = { "tailwindcss-language-server", "--stdio" },
-  filetypes = { "typescriptreact", "javascriptreact", "html", "css" },
-  root_dir = function(fname)
-    return vim.fs.root(fname, {
-      "tailwind.config.js",
-      "tailwind.config.ts",
-      "tailwind.config.mjs",
-      "tailwind.config.cjs",
-      "postcss.config.js",
-      "postcss.config.mjs",  -- Tailwind v4
-      "package.json",
-    })
-  end,
   settings = {
     tailwindCSS = {
       experimental = {
@@ -80,53 +49,16 @@ vim.lsp.config("tailwindcss", {
   },
 })
 
-vim.lsp.config("eslint", {
-  cmd = { "vscode-eslint-language-server", "--stdio" },
-  filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
-  root_dir = function(fname)
-    return vim.fs.root(fname, { "eslint.config.mjs", "eslint.config.js", ".eslintrc.js", ".eslintrc.json", "package.json" })
-  end,
-  settings = {
-    validate = "on",
-    experimental = { useFlatConfig = true },
-    rulesCustomizations = {},
-    run = "onType",
-    problems = { shortenToSingleLine = false },
-    nodePath = "",
-  },
-  init_options = {
-    documentFormatting = false, -- Let Prettier handle formatting
-  },
+vim.lsp.enable({
+  "ts_ls",
+  "html",
+  "cssls",
+  "jsonls",
+  "tailwindcss",
+  "eslint",
+  "lua_ls",
+  "pyright",
+  "gopls",
+  "clangd",
+  "rust_analyzer",
 })
-
-vim.lsp.config("lua_ls", {
-  cmd = { "lua-language-server" },
-  filetypes = { "lua" },
-  root_dir = function(fname)
-    return vim.fs.root(fname, { ".luarc.json", ".luarc.jsonc", ".luacheckrc", ".stylua.toml", "stylua.toml", ".git" })
-  end,
-  settings = {
-    Lua = {
-      runtime = {
-        version = "LuaJIT",
-      },
-      diagnostics = {
-        globals = { "vim" },
-      },
-      workspace = {
-        library = vim.api.nvim_get_runtime_file("", true),
-        checkThirdParty = false,
-      },
-      telemetry = {
-        enable = false,
-      },
-    },
-  },
-})
-
-vim.lsp.config("pyright", { cmd = { "pyright-langserver", "--stdio" }, filetypes = { "python" }, root_dir = function(fname) return vim.fs.root(fname, { "pyproject.toml", "setup.py", "requirements.txt", ".git" }) end })
-vim.lsp.config("gopls", { cmd = { "gopls" }, filetypes = { "go", "gomod" }, root_dir = function(fname) return vim.fs.root(fname, { "go.work", "go.mod", ".git" }) end })
-vim.lsp.config("clangd", { cmd = { "clangd" }, filetypes = { "c", "cpp", "objc", "objcpp" }, root_dir = function(fname) return vim.fs.root(fname, { "compile_commands.json", "compile_flags.txt", ".git" }) end })
-vim.lsp.config("rust_analyzer", { cmd = { "rust-analyzer" }, filetypes = { "rust" }, root_dir = function(fname) return vim.fs.root(fname, { "Cargo.toml", ".git" }) end })
-
-vim.lsp.enable({ "ts_ls", "html", "cssls", "jsonls", "tailwindcss", "eslint", "lua_ls", "pyright", "gopls", "clangd", "rust_analyzer" })

@@ -14,8 +14,9 @@ CONFIG_FILES=(
   "lua/options.lua"
   "lua/plugins.lua"
   "lua/lsp.lua"
-  "lua/debug.lua"
   "lua/keymaps.lua"
+  "lua/vimzap/debug.lua"
+  "lua/vimzap/dashboard.lua"
 )
 
 get_shell_rc() {
@@ -30,35 +31,6 @@ get_shell_rc() {
   else
     echo "$HOME/.profile"
   fi
-}
-
-add_aliases() {
-  local rc_file
-  rc_file=$(get_shell_rc)
-
-  # Replace older VimZap alias blocks so updates get the latest shell helpers.
-  remove_aliases >/dev/null 2>&1 || true
-
-  echo "" >> "$rc_file"
-  echo "$VIMZAP_MARKER" >> "$rc_file"
-  cat >> "$rc_file" <<'EOF'
-v() {
-  if [ "$#" -eq 1 ]; then
-    _vimzap_target="${1%:*}"
-    _vimzap_line="${1##*:}"
-    if [ "$_vimzap_target" != "$1" ] && [ -n "$_vimzap_target" ] && [ -e "$_vimzap_target" ]; then
-      case "$_vimzap_line" in
-        ""|*[!0-9]*) ;;
-        *) nvim "+$_vimzap_line" "$_vimzap_target"; return ;;
-      esac
-    fi
-  fi
-  nvim "$@"
-}
-alias vi='nvim'
-alias vim='nvim'
-EOF
-  echo "$VIMZAP_MARKER end" >> "$rc_file"
 }
 
 remove_aliases() {
@@ -158,7 +130,7 @@ update() {
 
   # Update config files
   echo "  Updating config..."
-  mkdir -p ~/.config/nvim/lua
+  mkdir -p ~/.config/nvim/lua/vimzap
 
   for file in "${CONFIG_FILES[@]}"; do
     local dest="$HOME/.config/nvim/$file"
@@ -198,11 +170,10 @@ update() {
   nvim --headless "+lua vim.pack.update(nil, { force = true })" +qa
   echo "    Native packages synchronized"
 
-  # Update shell aliases/functions
+  # Remove aliases created by older VimZap versions.
   echo ""
-  echo "  Updating aliases..."
-  add_aliases
-  echo "    Updated: $(get_shell_rc)"
+  echo "  Removing legacy shell aliases..."
+  remove_aliases
 
   # Summary
   echo ""
@@ -262,7 +233,7 @@ main() {
 
   # macOS
   if [[ "$OS" == "Darwin" ]]; then
-    echo "  [1/6] Installing tools via Homebrew..."
+    echo "  [1/5] Installing tools via Homebrew..."
 
     if ! command -v brew &>/dev/null; then
       echo "        Installing Homebrew..."
@@ -276,7 +247,7 @@ main() {
 
   # Linux
   if [[ "$OS" == "Linux" ]]; then
-    echo "  [1/6] Installing tools..."
+    echo "  [1/5] Installing tools..."
 
     if command -v apt-get &>/dev/null; then
       sudo apt-get update -qq
@@ -302,7 +273,7 @@ main() {
   fi
 
   # Check Neovim version
-  echo "  [2/6] Checking Neovim version..."
+  echo "  [2/5] Checking Neovim version..."
   if command -v nvim &>/dev/null; then
     NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | sed -n 's/.*v\([0-9]*\.[0-9]*\).*/\1/p')
     if [[ -z "$NVIM_VERSION" ]]; then
@@ -332,7 +303,7 @@ main() {
   echo ""
 
   # Directories
-  echo "  [3/6] Setting up config..."
+  echo "  [3/5] Setting up config..."
   mkdir -p ~/.config/nvim/lua
 
   # Download config files
@@ -344,24 +315,19 @@ main() {
   done
   
   # Plugins are declared by the config and installed by vim.pack.
-  echo "  [4/6] Installing plugins..."
+  echo "  [4/5] Installing plugins..."
   nvim --headless +qa
   echo "        Native packages installed"
 
   # LSP servers (installed via Mason on first launch)
-  echo "  [5/6] LSP servers will be installed via Mason on first launch..."
-
-  # Add shell aliases
-  echo "  [6/6] Setting up aliases..."
-  add_aliases
-  echo "        v -> nvim (supports path:line), vi/vim -> nvim"
+  echo "  [5/5] LSP servers will be installed via Mason on first launch..."
 
   echo ""
-  echo "  Done! Run: source $(get_shell_rc)"
+  echo "  Done! Run: nvim"
   echo ""
   echo "  Usage:"
-  echo "    v                Open Neovim (also vi, vim)"
-  echo "    v file:line      Open file at line"
+  echo "    nvim             Open Neovim"
+  echo "    nvim file:line  Open file at line"
   echo "    <Space>?         Show all commands"
   echo "    <Space>ff        Find files"
   echo "    <Space>fg        Grep"

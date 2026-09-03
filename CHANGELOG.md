@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Require Neovim 0.12 and use native `vim.pack` for plugin installation and updates.
 - Replace nvim-cmp with native automatic and LSP completion while retaining SFCC candidates.
-- Register mappings directly with `vim.keymap.set()` and browse them through Snacks.
+- Register mappings directly with `vim.keymap.set()` and browse them through `mini.pick`.
 - Let `vim.lsp.enable()` handle server attachment; Mason now manages external tools only.
 
 ### Removed

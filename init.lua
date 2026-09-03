@@ -2,8 +2,8 @@
 require("options")
 require("plugins")
 require("lsp")
-require("debug")
 require("keymaps")
+require("vimzap.dashboard")
 
 -- Load custom user configuration (optional)
 -- Create ~/.config/nvim/vimzap-custom.lua to override settings
