@@ -16,13 +16,25 @@ end
 
 local global_typescript
 local global_tsserver
+local npm_roots = {}
+if typescript_language_server ~= "" then
+  local tsls_prefix = vim.fn.fnamemodify(
+    vim.fn.fnamemodify(typescript_language_server, ":h"),
+    ":h"
+  )
+  table.insert(npm_roots, tsls_prefix .. "/lib/node_modules")
+end
 if vim.fn.executable(npm_command) == 1 then
-  local npm_root = vim.fn.system({ npm_command, "root", "-g" }):gsub("%s+$", "")
+  table.insert(npm_roots, vim.fn.system({ npm_command, "root", "-g" }):gsub("%s+$", ""))
+end
+
+for _, npm_root in ipairs(npm_roots) do
   local candidate = npm_root .. "/typescript/lib"
   local tsserver = candidate .. "/tsserver.js"
   if vim.fn.isdirectory(candidate) == 1 and vim.fn.filereadable(tsserver) == 1 then
     global_typescript = candidate
     global_tsserver = tsserver
+    break
   end
 end
 

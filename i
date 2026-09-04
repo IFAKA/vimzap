@@ -5,6 +5,7 @@
 set -euo pipefail
 
 VIMZAP_MARKER="# VimZap aliases"
+VIMZAP_NPM_PREFIX="$HOME/.local/share/vimzap/npm"
 BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
 
 # Single source of truth for config files
@@ -20,9 +21,9 @@ CONFIG_FILES=(
 )
 
 get_shell_rc() {
-  if [[ -n "${ZSH_VERSION:-}" ]] || [[ "$SHELL" == *"zsh"* ]]; then
+  if [[ "${SHELL:-}" == *"zsh"* ]]; then
     echo "$HOME/.zshrc"
-  elif [[ -n "${BASH_VERSION:-}" ]] || [[ "$SHELL" == *"bash"* ]]; then
+  elif [[ "${SHELL:-}" == *"bash"* ]]; then
     if [[ "$(uname -s)" == "Darwin" ]]; then
       echo "$HOME/.bash_profile"
     else
@@ -31,6 +32,21 @@ get_shell_rc() {
   else
     echo "$HOME/.profile"
   fi
+}
+
+add_npm_path() {
+  local rc_file
+  rc_file=$(get_shell_rc)
+  local path_line="export PATH=\"$VIMZAP_NPM_PREFIX/bin:\$PATH\""
+
+  mkdir -p "$(dirname "$rc_file")"
+  touch "$rc_file"
+  if ! grep -Fqx "$path_line" "$rc_file"; then
+    printf '\n# VimZap language servers\n%s\n' "$path_line" >> "$rc_file"
+  fi
+  export PATH="$VIMZAP_NPM_PREFIX/bin:$PATH"
+  echo "        Language servers are available via $VIMZAP_NPM_PREFIX/bin"
+  echo "        Added that directory to $rc_file"
 }
 
 remove_aliases() {
@@ -61,12 +77,14 @@ install_required_tools() {
     return 1
   fi
 
-  npm install --global \
+  mkdir -p "$VIMZAP_NPM_PREFIX/bin" "$VIMZAP_NPM_PREFIX/lib"
+  npm install --global --prefix "$VIMZAP_NPM_PREFIX" \
     typescript@5.9.3 \
     typescript-language-server \
     vscode-langservers-extracted \
     @tailwindcss/language-server
 
+  add_npm_path
   echo "        Language servers installed"
 }
 

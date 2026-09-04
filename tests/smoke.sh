@@ -34,6 +34,7 @@ reject_match 'snacks\|blink\|oil.nvim\|trouble.nvim\|treesitter\|render-markdown
 reject_match 'vim.lsp.start' lua/lsp.lua
 grep -q 'requires Neovim 0.12' i
 grep -q 'install_required_tools' i
+grep -q -- '--prefix "\$VIMZAP_NPM_PREFIX"' i
 reject_match 'config_updated++\|config_unchanged++' i
 
 nvim --headless -u NONE \

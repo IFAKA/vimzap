@@ -216,18 +216,22 @@ Plugins are declared in `lua/plugins.lua`, installed by Neovim's native
 `vim.pack`, and recorded in `nvim-pack-lock.json`. Use `:packupdate` to review
 and apply plugin updates.
 
-VimZap keeps only plugins for functionality Neovim does not provide itself:
-`nvim-lspconfig` for server configurations, `gitsigns.nvim` for Git signs and
-hunk actions, `nvim-dap`/`nvim-dap-ui` for debugging, and `prophet.nvim` for
-SFCC development. File selection, grep, buffers, recent files, diagnostics,
-completion, formatting through LSP, and terminal management use native Neovim
-APIs and commands.
+VimZap uses native Neovim wherever it provides the needed capability. The
+remaining plugins are deliberately limited to two UX improvements and a few
+capability gaps: `mini.pick` provides fuzzy navigation, `which-key.nvim`
+provides live leader-key hints, `nvim-lspconfig` supplies server definitions,
+`gitsigns.nvim` provides Git signs and hunk actions, `nvim-dap`/`nvim-dap-ui`
+provide debugging, and `prophet.nvim` provides SFCC development support.
+Diagnostics, completion, formatting through LSP, terminal management, the
+dashboard, keymap definitions, and plugin installation use native Neovim APIs
+and commands.
 
 The installer automatically installs the JavaScript, HTML/CSS/JSON, Tailwind,
 and ESLint language servers used by the SFRA workflow. They are installed
-globally with npm and are not removed by VimZap uninstall because they may be
-shared by other projects. TypeScript uses a project-local installation when
-available and otherwise falls back to the global installation. On macOS,
+in VimZap's user-local npm prefix (`~/.local/share/vimzap/npm`) and are not
+removed by VimZap uninstall because they may be shared by other projects.
+TypeScript uses a project-local installation when available and otherwise falls
+back to VimZap's managed installation. On macOS,
 VimZap prefers the Homebrew Node toolchain even when an older nvm Node is active.
 
 Completion uses Neovim 0.12's native automatic, LSP, buffer, and path sources.

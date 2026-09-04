@@ -29,7 +29,7 @@ local function open_dashboard()
   map("r", "<cmd>VimZapRecent<cr>", "Recent files")
   map("s", "<leader>gs", "Git status")
   map("t", "<cmd>VimZapTerminalToggle<cr>", "Toggle terminal")
-  map("?", "<cmd>map<cr>", "Show keymaps")
+  map("<leader>?", "<cmd>map<cr>", "Show keymaps")
   map("q", "<cmd>quit<cr>", "Quit")
   map("<CR>", "<cmd>VimZapFiles<cr>", "Find files")
 end
