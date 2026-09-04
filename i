@@ -6,7 +6,7 @@ set -euo pipefail
 
 VIMZAP_MARKER="# VimZap aliases"
 VIMZAP_NPM_PREFIX="$HOME/.local/share/vimzap/npm"
-BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
+BASE_URL="https://github.com/IFAKA/vimzap/raw/refs/heads/main"
 CACHE_BUST="$(date +%s)"
 
 # Single source of truth for config files
