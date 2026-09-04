@@ -14,16 +14,20 @@ bash <(curl -fsSL ifaka.github.io/vimzap/i)
 
 Use `nvim` to open Neovim. `nvim path/to/file:80` opens that file at line 80.
 
-When Neovim starts without a file, VimZap opens a native developer dashboard.
-Use `f` to find files, `g` to grep, `r` for recent files, `s` for Git status,
-`t` for a terminal, and `?` to browse all keymaps.
+When Neovim starts without a file, VimZap opens a native dashboard with Recent
+Projects and inline Git Status. Projects are inferred from the current working
+directory and existing files in Neovim's recent-file list. Press a numbered
+shortcut to change to that project and open the file picker; press `q` to quit.
+Git status shows the current branch and compact staged, modified, deleted, and
+untracked counts, or reports when the current directory is not a Git project.
 
 ## Keymaps
 
 Press `<Space>` and pause briefly to open live keymap hints. Press `<Space>?` to
-open fuzzy help. The main navigation actions use the fuzzy
-picker: files, grep, buffers, recent files, help, commands, diagnostics, and
-Git commits.
+open fuzzy help. The main navigation actions use the fuzzy picker: files, grep,
+buffers, recent files, help, commands, diagnostics, and Git commits. The
+dashboard is limited to project selection, inline Git status, and quit; all
+other actions remain available through their keymaps.
 
 | Key | Action |
 |-----|--------|

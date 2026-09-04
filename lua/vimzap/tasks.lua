@@ -1,17 +1,13 @@
 -- Native project task runner. It discovers package.json scripts and runs them
 -- through vim.system, using quickfix for compiler-style failures.
 local M = {}
+local projects = require("vimzap.projects")
 
 local last_task
 local task_bufnr
 
 local function root_from(path)
-  path = path or vim.fn.getcwd()
-  local marker = vim.fs.find({ "package.json", "Makefile", "dw.json", ".git" }, {
-    path = path,
-    upward = true,
-  })[1]
-  return marker and vim.fs.dirname(marker) or path
+  return projects.root_or_cwd(path)
 end
 
 function M.project_root(path)

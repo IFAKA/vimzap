@@ -4,9 +4,10 @@ end
 
 map("jj", "<Esc>", "Exit insert mode", "i")
 local tasks = require("vimzap.tasks")
+local projects = require("vimzap.projects")
 
 local function project_root()
-  return vim.fs.root(0, { ".git", "package.json", "tsconfig.json", "jsconfig.json" }) or vim.fn.getcwd()
+  return projects.root_or_cwd()
 end
 
 local function files()
