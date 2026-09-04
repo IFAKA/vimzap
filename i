@@ -70,6 +70,20 @@ install_required_tools() {
   echo "        Language servers installed"
 }
 
+install_nerd_font() {
+  if brew list --cask font-jetbrains-mono-nerd-font &>/dev/null; then
+    echo "        JetBrainsMono Nerd Font already installed"
+    return 0
+  fi
+
+  echo "        Installing JetBrainsMono Nerd Font..."
+  if brew install --cask font-jetbrains-mono-nerd-font; then
+    echo "        Select 'JetBrainsMono Nerd Font' in Terminal.app → Settings → Profiles → Text"
+  else
+    echo "        Nerd Font installation failed; which-key icons may show as '?'"
+  fi
+}
+
 uninstall() {
   echo ""
   echo "  VimZap Uninstall"
@@ -268,6 +282,7 @@ main() {
     brew install neovim git node ripgrep fzf lazygit 2>/dev/null || {
       echo "        Some packages may have failed, continuing..."
     }
+    install_nerd_font
     # Prefer Homebrew's modern Node over an older nvm/system Node.
     brew upgrade node >/dev/null 2>&1 || true
     export PATH="$(brew --prefix node)/bin:$PATH"
