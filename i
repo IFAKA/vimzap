@@ -7,6 +7,7 @@ set -euo pipefail
 VIMZAP_MARKER="# VimZap aliases"
 VIMZAP_NPM_PREFIX="$HOME/.local/share/vimzap/npm"
 BASE_URL="https://raw.githubusercontent.com/IFAKA/vimzap/main"
+CACHE_BUST="$(date +%s)"
 
 # Single source of truth for config files
 CONFIG_FILES=(
@@ -194,7 +195,7 @@ update() {
     local temp="/tmp/vimzap_${file//\//_}"
     
     # Download to temp file
-    if curl -fsSL "$BASE_URL/$file" -o "$temp" 2>/dev/null; then
+    if curl -fsSL "$BASE_URL/$file?vimzap_cache=$CACHE_BUST" -o "$temp" 2>/dev/null; then
       # Check if file exists and has changed
       if [[ -f "$dest" ]]; then
         if ! cmp -s "$dest" "$temp"; then
@@ -370,7 +371,7 @@ main() {
 
   # Download config files
   for file in "${CONFIG_FILES[@]}"; do
-    if ! curl -fsSL "$BASE_URL/$file" -o ~/.config/nvim/"$file"; then
+    if ! curl -fsSL "$BASE_URL/$file?vimzap_cache=$CACHE_BUST" -o ~/.config/nvim/"$file"; then
       echo "Error: Failed to download $file"
       exit 1
     fi
