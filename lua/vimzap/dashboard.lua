@@ -7,7 +7,8 @@ local function open_dashboard()
     "", "  VimZap", "", "  Native developer dashboard", "",
     "  <Space>ff  Find files       <Space>fg  Grep project",
     "  <Space>fr  Recent files      <Space>gs  Git status",
-    "  <Space>cf  Format with LSP    <Space>?   Show keymaps",
+    "  <Space>cf  Format with LSP    <Space>rr  Run project task",
+    "  <Space>?   Show keymaps",
     "  <C-_>      Terminal           q         Quit", "",
     "  Open a file to start coding.",
   })
@@ -27,6 +28,7 @@ local function open_dashboard()
   map("f", "<cmd>VimZapFiles<cr>", "Find files")
   map("g", "<cmd>VimZapGrep<cr>", "Grep project")
   map("r", "<cmd>VimZapRecent<cr>", "Recent files")
+  map("R", "<cmd>VimZapTasks<cr>", "Run project task")
   map("s", "<leader>gs", "Git status")
   map("t", "<cmd>VimZapTerminalToggle<cr>", "Toggle terminal")
   map("<leader>?", "<cmd>map<cr>", "Show keymaps")

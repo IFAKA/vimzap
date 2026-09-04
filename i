@@ -17,6 +17,7 @@ CONFIG_FILES=(
   "lua/plugins.lua"
   "lua/lsp.lua"
   "lua/keymaps.lua"
+  "lua/vimzap/tasks.lua"
   "lua/vimzap/debug.lua"
   "lua/vimzap/dashboard.lua"
 )

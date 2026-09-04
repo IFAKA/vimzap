@@ -20,6 +20,7 @@
 !docs/plans/*.md
 !tests/
 !tests/*.sh
+!tests/*.lua
 !.github/
 !.github/**
 !scripts/

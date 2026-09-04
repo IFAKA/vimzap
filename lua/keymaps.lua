@@ -3,6 +3,7 @@ local function map(lhs, rhs, desc, mode)
 end
 
 map("jj", "<Esc>", "Exit insert mode", "i")
+local tasks = require("vimzap.tasks")
 
 local function project_root()
   return vim.fs.root(0, { ".git", "package.json", "tsconfig.json", "jsconfig.json" }) or vim.fn.getcwd()
@@ -136,6 +137,24 @@ vim.api.nvim_create_user_command("VimZapFiles", files, {})
 vim.api.nvim_create_user_command("VimZapGrep", grep, {})
 vim.api.nvim_create_user_command("VimZapBuffers", buffers, {})
 vim.api.nvim_create_user_command("VimZapRecent", recent_files, {})
+vim.api.nvim_create_user_command("VimZapTasks", tasks.pick, {})
+vim.api.nvim_create_user_command("VimZapTaskLast", tasks.rerun, {})
+vim.api.nvim_create_user_command("VimZapTaskQuickfix", tasks.open_quickfix, {})
+vim.api.nvim_create_user_command("VimZapTask", function(opts)
+  local root = tasks.project_root()
+  for _, task in ipairs(tasks.discover(root)) do
+    if task.name == opts.args then
+      tasks.run(task, root)
+      return
+    end
+  end
+  vim.notify("Unknown project task: " .. opts.args, vim.log.levels.ERROR)
+end, {
+  nargs = 1,
+  complete = function()
+    return vim.tbl_map(function(task) return task.name end, tasks.discover(tasks.project_root()))
+  end,
+})
 
 map("<leader>w", "<cmd>w<cr>", "Save")
 map("<leader>ff", files, "Find files")
@@ -149,6 +168,9 @@ map("<leader>cf", lsp_cmd(function() vim.lsp.buf.format({ async = true }) end), 
 map("<leader>co", lsp_cmd(function()
   vim.lsp.buf.code_action({ apply = true, context = { only = { "source.removeUnusedImports.ts" }, diagnostics = {} } })
 end), "Remove unused imports")
+map("<leader>rr", tasks.pick, "Run project task")
+map("<leader>rl", tasks.rerun, "Rerun last task")
+map("<leader>rq", tasks.open_quickfix, "Open task quickfix")
 map("<leader>cd", vim.diagnostic.open_float, "Line diagnostics")
 map("<leader>cs", lsp_cmd(vim.lsp.buf.document_symbol), "Document symbols")
 map("<leader>gf", function() git_command("ls-files") end, "Git files")
@@ -188,6 +210,8 @@ map("[d", function() vim.diagnostic.jump({ count = -1 }) end, "Previous diagnost
 map("]d", function() vim.diagnostic.jump({ count = 1 }) end, "Next diagnostic")
 map("[e", function() vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR }) end, "Previous error")
 map("]e", function() vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR }) end, "Next error")
+map("[q", "<cmd>cprevious<cr>", "Previous task error")
+map("]q", "<cmd>cnext<cr>", "Next task error")
 map("[h", "<cmd>Gitsigns nav_hunk prev<cr>", "Previous hunk")
 map("]h", "<cmd>Gitsigns nav_hunk next<cr>", "Next hunk")
 map("<S-h>", "<cmd>bprevious<cr>", "Previous buffer")
@@ -203,6 +227,7 @@ if which_key_ok then
   which_key.add({
     { "<leader>f", group = "Find / files" },
     { "<leader>c", group = "Code" },
+    { "<leader>r", group = "Run / tasks" },
     { "<leader>d", group = "Debug" },
     { "<leader>g", group = "Git" },
     { "<leader>p", group = "Prophet / SFCC" },

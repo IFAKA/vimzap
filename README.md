@@ -30,6 +30,7 @@ Git commits.
 | `f` | File: `ff`=find `fg`=grep `fb`=buffers `gc`=commits `fr`=recent |
 | `fp` | Copy current file path relative to the project root |
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
+| `r` | Run: `rr`=task picker `rl`=rerun last `rq`=task quickfix |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
 | `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
 | `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=upload all `pf`=find controller `pi`=find template |
@@ -79,6 +80,25 @@ Open files appear in a tab bar at the top (like VSCode tabs).
 
 Open terminal, run `npm run dev`, then `Ctrl+/` (or `Ctrl+_` in tmux) to hide
 (keeps running). Press the same shortcut again to show logs.
+
+## Project Tasks
+
+VimZap discovers scripts from the nearest `package.json` and runs them with
+Neovim's native asynchronous job API. This gives JavaScript, Next.js, Vitest,
+Jest, Playwright, ESLint, and TypeScript projects one consistent task picker.
+
+| Key | Action |
+|-----|--------|
+| `<Space>rr` | Pick and run an npm script (or `make` when no scripts exist) |
+| `<Space>rl` | Rerun the last task |
+| `<Space>rq` | Open errors captured from the last task |
+| `[q` / `]q` | Previous/next task error |
+
+The task output stays in a reusable split. Lines shaped like
+`file:line:column: message` are loaded into quickfix, so `[q` and `]q` jump
+directly to failures. The equivalent commands are
+`:VimZapTasks`, `:VimZapTask <name>`, `:VimZapTaskLast`, and
+`:VimZapTaskQuickfix`.
 
 ## Debugging (Node.js)
 
