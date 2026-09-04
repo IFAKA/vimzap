@@ -25,7 +25,8 @@ if typescript_language_server ~= "" then
   table.insert(npm_roots, tsls_prefix .. "/lib/node_modules")
 end
 if vim.fn.executable(npm_command) == 1 then
-  table.insert(npm_roots, vim.fn.system({ npm_command, "root", "-g" }):gsub("%s+$", ""))
+  local npm_root = vim.fn.system({ npm_command, "root", "-g" }):gsub("%s+$", "")
+  table.insert(npm_roots, npm_root)
 end
 
 for _, npm_root in ipairs(npm_roots) do
