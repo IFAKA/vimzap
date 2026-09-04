@@ -1,4 +1,4 @@
--- Minimal native startup dashboard: recent projects, Git status, and quit.
+-- Native startup dashboard using VimZap's existing commands and pickers.
 local projects = require("vimzap.projects")
 local M = {}
 
@@ -20,6 +20,12 @@ local function open_dashboard()
     table.insert(lines, "")
     git_line = #lines + 1
     table.insert(lines, "  Git Status  " .. (status or "Loading..."))
+    table.insert(lines, "")
+    table.insert(lines, "  Actions")
+    table.insert(lines, "  f  Find files       g  Grep project")
+    table.insert(lines, "  r  Recent files     b  Buffers")
+    table.insert(lines, "  t  Project tasks    s  Git status")
+    table.insert(lines, "  T  Terminal         ?  Help")
     table.insert(lines, "")
     table.insert(lines, "  Press a number to open a project, or q to quit.")
     vim.bo[buf].modifiable = true
@@ -48,6 +54,14 @@ local function open_dashboard()
     vim.cmd("VimZapFiles")
   end
   for index = 1, #recent do map(tostring(index), function() select_project(index) end, "Open project") end
+  map("f", "<cmd>VimZapFiles<cr>", "Find files")
+  map("g", "<cmd>VimZapGrep<cr>", "Grep project")
+  map("r", "<cmd>VimZapRecent<cr>", "Recent files")
+  map("b", "<cmd>VimZapBuffers<cr>", "Buffers")
+  map("t", "<cmd>VimZapTasks<cr>", "Project tasks")
+  map("s", "<leader>gs", "Git status")
+  map("T", "<cmd>VimZapTerminalToggle<cr>", "Terminal")
+  map("?", function() MiniPick.builtin.help({}) end, "Help")
   map("q", "<cmd>quit<cr>", "Quit")
 
   M.refresh_git(buf, git_line)

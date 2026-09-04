@@ -20,14 +20,17 @@ directory and existing files in Neovim's recent-file list. Press a numbered
 shortcut to change to that project and open the file picker; press `q` to quit.
 Git status shows the current branch and compact staged, modified, deleted, and
 untracked counts, or reports when the current directory is not a Git project.
+The dashboard also provides native shortcuts for find files (`f`), grep (`g`),
+recent files (`r`), buffers (`b`), tasks (`t`), Git status (`s`), terminal (`T`),
+and help (`?`).
 
 ## Keymaps
 
 Press `<Space>` and pause briefly to open live keymap hints. Press `<Space>?` to
 open fuzzy help. The main navigation actions use the fuzzy picker: files, grep,
 buffers, recent files, help, commands, diagnostics, and Git commits. The
-dashboard is limited to project selection, inline Git status, and quit; all
-other actions remain available through their keymaps.
+dashboard uses the same existing native commands and pickers as the keymaps,
+with no additional dashboard dependency.
 
 | Key | Action |
 |-----|--------|
