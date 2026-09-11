@@ -1,15 +1,19 @@
-#!/bin/bash
-# VimZap Installer - https://github.com/IFAKA/vimzap
-# Verify: curl -fsSL ifaka.github.io/vimzap/i | less
+#!/usr/bin/env bash
+# VimZap installer — https://github.com/IFAKA/vimzap
+# Verify: curl -fsSL ifaka.github.io/vimzap/i | bash
 
 set -euo pipefail
 
-VIMZAP_MARKER="# VimZap aliases"
-VIMZAP_NPM_PREFIX="$HOME/.local/share/vimzap/npm"
 BASE_URL="https://github.com/IFAKA/vimzap/raw/refs/heads/main"
+VIMZAP_NPM_PREFIX="${HOME}/.local/share/vimzap/npm"
+VIMZAP_MARKER="${HOME}/.config/nvim/.vimzap-managed"
 CACHE_BUST="$(date +%s)"
+SKIP_PROMPTS=false
+DRY_RUN=false
+ACTION="install"
+VIMZAP_STAGE=""
 
-# Single source of truth for config files
+# Single source of truth for files owned by VimZap.
 CONFIG_FILES=(
   "init.lua"
   "nvim-pack-lock.json"
@@ -23,385 +27,225 @@ CONFIG_FILES=(
   "lua/vimzap/dashboard.lua"
 )
 
-get_shell_rc() {
-  if [[ "${SHELL:-}" == *"zsh"* ]]; then
-    echo "$HOME/.zshrc"
-  elif [[ "${SHELL:-}" == *"bash"* ]]; then
-    if [[ "$(uname -s)" == "Darwin" ]]; then
-      echo "$HOME/.bash_profile"
-    else
-      echo "$HOME/.bashrc"
+usage() {
+  cat <<'EOF'
+VimZap — lean Neovim setup
+
+Usage:
+  bash <(curl -fsSL ifaka.github.io/vimzap/i) [action] [options]
+
+Actions:
+  install       Install or repair VimZap (default)
+  update        Refresh VimZap files and plugins
+  uninstall     Remove VimZap-owned files, keeping a backup
+
+Options:
+  -y, --yes     Skip confirmation prompts
+  --dry-run     Show actions without changing files or installing packages
+  -h, --help    Show this help
+
+Supported platforms: macOS and Linux
+EOF
+}
+
+die() {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+confirm() {
+  [[ "$SKIP_PROMPTS" == "true" ]] && return 0
+  read -r -p "  $1 (y/N) " answer
+  [[ "$answer" =~ ^[Yy]$ ]]
+}
+
+install_packages() {
+  local os="$1"
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    echo "  [1/5] Would install Neovim, Git, Node.js, ripgrep, fzf, and lazygit"
+    return 0
+  fi
+
+  if [[ "$os" == "Darwin" ]]; then
+    echo "  [1/5] Installing tools via Homebrew..."
+    if ! command -v brew &>/dev/null; then
+      echo "        Homebrew is required: https://brew.sh"
+      return 1
     fi
+    brew install neovim git node ripgrep fzf lazygit 2>/dev/null || true
+    brew upgrade node >/dev/null 2>&1 || true
+    export PATH="$(brew --prefix node)/bin:$PATH"
+    return 0
+  fi
+
+  echo "  [1/5] Installing tools..."
+  if command -v apt-get &>/dev/null; then
+    sudo apt-get update -qq
+    sudo apt-get install -y neovim git nodejs npm ripgrep fzf curl
+  elif command -v dnf &>/dev/null; then
+    sudo dnf install -y neovim git nodejs npm ripgrep fzf curl
+    sudo dnf copr enable atim/lazygit -y 2>/dev/null && sudo dnf install -y lazygit || true
+  elif command -v pacman &>/dev/null; then
+    sudo pacman -Sy --noconfirm neovim git nodejs npm ripgrep fzf lazygit curl
   else
-    echo "$HOME/.profile"
+    echo "  Warning: install Neovim, Git, Node.js, npm, ripgrep, fzf, curl, and lazygit manually."
   fi
 }
 
-add_npm_path() {
-  local rc_file
-  rc_file=$(get_shell_rc)
-  local path_line="export PATH=\"$VIMZAP_NPM_PREFIX/bin:\$PATH\""
-
-  mkdir -p "$(dirname "$rc_file")"
-  touch "$rc_file"
-  if ! grep -Fqx "$path_line" "$rc_file"; then
-    printf '\n# VimZap language servers\n%s\n' "$path_line" >> "$rc_file"
+check_nvim() {
+  echo "  [2/5] Checking Neovim version..."
+  if [[ "$DRY_RUN" == "true" ]]; then
+    echo "        Would verify Neovim 0.12+"
+    return 0
   fi
-  export PATH="$VIMZAP_NPM_PREFIX/bin:$PATH"
-  echo "        Language servers are available via $VIMZAP_NPM_PREFIX/bin"
-  echo "        Added that directory to $rc_file"
+  command -v nvim &>/dev/null || die "Neovim was not found. Install Neovim 0.12+ and run this again."
+
+  local version major minor
+  version=$(nvim --version 2>/dev/null | head -1 | sed -n 's/.*v\([0-9]*\.[0-9]*\).*/\1/p')
+  major=${version%%.*}
+  minor=${version#*.}
+  echo "        Found: v${version:-unknown}"
+  [[ -n "$version" && ( "$major" -gt 0 || "$minor" -ge 12 ) ]] || die "VimZap requires Neovim 0.12 or higher."
 }
 
-remove_aliases() {
-  local rc_file
-  rc_file=$(get_shell_rc)
+stage_config() {
+  local stage="$1"
+  local file
+  mkdir -p "$stage/lua/vimzap"
+  for file in "${CONFIG_FILES[@]}"; do
+    echo "        Downloading $file"
+    curl -fsSL "$BASE_URL/$file?vimzap_cache=$CACHE_BUST" -o "$stage/$file" \
+      || die "Failed to download $file; your existing config was left untouched."
+  done
+}
 
-  if [[ -f "$rc_file" ]] && grep -q "$VIMZAP_MARKER" "$rc_file"; then
-    # Remove lines between markers (inclusive)
-    sed -i.bak "/$VIMZAP_MARKER/,/$VIMZAP_MARKER end/d" "$rc_file"
-    rm -f "${rc_file}.bak"
-    echo "  Removed aliases from $rc_file"
+backup_and_install_config() {
+  local stage="$1"
+  local config_dir="$HOME/.config/nvim"
+  local backup_dir="$HOME/.config/nvim.backup.$(date +%s)"
+  local file dest
+
+  echo "  [3/5] Installing VimZap config..."
+  if [[ -d "$config_dir" && ! -f "$VIMZAP_MARKER" ]]; then
+    if ! confirm "Existing Neovim config found. Back up and replace VimZap-owned paths?"; then
+      echo "  Installation cancelled."
+      exit 0
+    fi
   fi
+
+  if [[ "$DRY_RUN" == "true" ]]; then
+    echo "        Would replace ${#CONFIG_FILES[@]} managed files in $config_dir"
+    return 0
+  fi
+
+  mkdir -p "$config_dir" "$backup_dir"
+  for file in "${CONFIG_FILES[@]}"; do
+    dest="$config_dir/$file"
+    if [[ -f "$dest" ]]; then
+      mkdir -p "$backup_dir/$(dirname "$file")"
+      cp "$dest" "$backup_dir/$file"
+    fi
+    mkdir -p "$(dirname "$dest")"
+    cp "$stage/$file" "$dest"
+  done
+  printf 'VimZap owns the files listed in the installer manifest.\n' > "$VIMZAP_MARKER"
+  echo "        Backup: $backup_dir"
 }
 
 install_required_tools() {
   echo "  [5/5] Installing JavaScript/SFCC developer tools..."
-
-  if ! command -v npm &>/dev/null; then
-    echo "        npm is required but was not found"
-    return 1
-  fi
+  [[ "$DRY_RUN" == "true" ]] && { echo "        Would install language servers"; return 0; }
+  command -v npm &>/dev/null || die "npm is required but was not found."
 
   local node_major
   node_major=$(node -p 'process.versions.node.split(".")[0]')
-  if [[ "$node_major" -lt 22 ]]; then
-    echo "        Node.js 22+ is required (found $(node --version))"
-    echo "        Reopen your terminal and run the installer again"
-    return 1
-  fi
+  [[ "$node_major" -ge 22 ]] || die "Node.js 22+ is required (found $(node --version))."
 
   mkdir -p "$VIMZAP_NPM_PREFIX/bin" "$VIMZAP_NPM_PREFIX/lib"
   npm install --global --prefix "$VIMZAP_NPM_PREFIX" \
-    typescript@5.9.3 \
-    typescript-language-server \
-    vscode-langservers-extracted \
+    typescript@5.9.3 typescript-language-server vscode-langservers-extracted \
     @tailwindcss/language-server
-
-  add_npm_path
-  echo "        Language servers installed"
 }
 
-install_nerd_font() {
-  if brew list --cask font-jetbrains-mono-nerd-font &>/dev/null; then
-    echo "        JetBrainsMono Nerd Font already installed"
-    return 0
-  fi
-
-  echo "        Installing JetBrainsMono Nerd Font..."
-  if brew install --cask font-jetbrains-mono-nerd-font; then
-    echo "        Select 'JetBrainsMono Nerd Font' in Terminal.app → Settings → Profiles → Text"
-  else
-    echo "        Nerd Font installation failed; which-key icons may show as '?'"
-  fi
-}
-
-uninstall() {
-  echo ""
-  echo "  VimZap Uninstall"
-  echo "  ================"
-  echo ""
-  echo "  This will remove:"
-  echo "    - ~/.config/nvim (VimZap config)"
-  echo "    - ~/.local/share/nvim (plugins & data)"
-  echo "    - ~/.cache/nvim (cache files)"
-  echo "    - Shell aliases (v, vi, vim)"
-  echo ""
-  
-  if [[ "$SKIP_PROMPTS" != "true" ]]; then
-    read -p "  Are you sure? (y/N) " -n 1 -r
-    echo ""
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-      echo "  Uninstall cancelled."
-      exit 0
-    fi
-    echo ""
-  fi
-
-  # Remove aliases
-  remove_aliases
-
-  # Create backup before removing (just in case)
-  if [[ -d ~/.config/nvim ]]; then
-    echo "  Creating backup at ~/.config/nvim.backup.$(date +%s)..."
-    cp -r ~/.config/nvim ~/.config/nvim.backup.$(date +%s)
-  fi
-
-  # Remove nvim config and data
-  echo "  Removing config..."
-  rm -rf ~/.config/nvim
-
-  echo "  Removing plugins and data..."
-  rm -rf ~/.local/share/nvim
-
-  echo "  Removing cache..."
-  rm -rf ~/.cache/nvim
-
-  echo ""
-  echo "  ✓ VimZap uninstalled successfully!"
-  echo "  Backup saved at ~/.config/nvim.backup.*"
-  echo ""
-  echo "  Run: source $(get_shell_rc)"
-  echo ""
-}
-
-# Parse flags
-SKIP_PROMPTS=false
-ACTION=""
-
-for arg in "$@"; do
-  case "$arg" in
-    --uninstall|uninstall)
-      ACTION="uninstall"
-      ;;
-    --update|update)
-      ACTION="update"
-      ;;
-    --yes|-y)
-      SKIP_PROMPTS=true
-      ;;
-  esac
-done
-
-# Check for --uninstall flag
-if [[ "$ACTION" == "uninstall" ]]; then
-  uninstall
-  exit 0
-fi
-
-update() {
-  echo ""
-  echo "  VimZap Update"
-  echo "  ============="
-  echo ""
-
-  # Counters for summary
-  local config_updated=0
-  local config_unchanged=0
-
-  # Update config files
-  echo "  Updating config..."
-  mkdir -p ~/.config/nvim/lua/vimzap
-
-  for file in "${CONFIG_FILES[@]}"; do
-    local dest="$HOME/.config/nvim/$file"
-    local temp="/tmp/vimzap_${file//\//_}"
-    
-    # Download to temp file
-    if curl -fsSL "$BASE_URL/$file?vimzap_cache=$CACHE_BUST" -o "$temp" 2>/dev/null; then
-      # Check if file exists and has changed
-      if [[ -f "$dest" ]]; then
-        if ! cmp -s "$dest" "$temp"; then
-          mv "$temp" "$dest"
-          echo "    Updated: $file"
-          ((config_updated += 1))
-        else
-          rm "$temp"
-          ((config_unchanged += 1))
-        fi
-      else
-        mv "$temp" "$dest"
-        echo "    Added: $file"
-        ((config_updated += 1))
-      fi
-    else
-      echo "    Failed: $file"
-      rm -f "$temp"
-    fi
-  done
-  
-  if [[ $config_unchanged -gt 0 ]]; then
-    echo "    ($config_unchanged unchanged)"
-  fi
-
-  # Prophet v2 owns SFCC support; remove files installed by older VimZap releases.
-  # Update plugins through Neovim's native package manager.
-  echo ""
-  echo "  Updating plugins..."
-  nvim --headless "+lua vim.pack.update(nil, { force = true })" +qa
-  echo "    Native packages synchronized"
-
-  # Remove aliases created by older VimZap versions.
-  echo ""
-  echo "  Removing legacy shell aliases..."
-  remove_aliases
-
-  # Summary
-  echo ""
-  echo "  Summary"
-  echo "  -------"
-  echo "    Config files: $config_updated updated, $config_unchanged unchanged"
-  echo "    Plugins: managed by vim.pack"
-  echo ""
-  
-  echo "  ✓ Update complete!"
-  echo ""
-  echo "  Verify everything works:"
-  echo "    nvim -c 'checkhealth'"
-  echo ""
-}
-
-# Check for --update flag
-if [[ "$ACTION" == "update" ]]; then
-  update
-  exit 0
-fi
-
-main() {
-  echo ""
-  echo "  VimZap Installer"
-  echo "  ================"
-  echo ""
-
-  OS="$(uname -s)"
-  if [[ "$OS" != "Darwin" && "$OS" != "Linux" ]]; then
-    echo "Error: Unsupported OS: $OS (only macOS and Linux supported)"
-    exit 1
-  fi
-
-  echo "  OS: $OS"
-  echo ""
-  
-  # Check for existing nvim config and warn
-  if [[ -d "$HOME/.config/nvim" ]]; then
-    echo "  Warning: Existing Neovim config detected!"
-    echo "  This will overwrite: ~/.config/nvim"
-    echo ""
-    
-    if [[ "$SKIP_PROMPTS" != "true" ]]; then
-      read -p "  Continue? (y/N) " -n 1 -r
-      echo ""
-      if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "  Installation cancelled."
-        exit 0
-      fi
-      echo ""
-    else
-      echo "  Continuing (--yes flag provided)..."
-      echo ""
-    fi
-  fi
-
-  # macOS
-  if [[ "$OS" == "Darwin" ]]; then
-    echo "  [1/5] Installing tools via Homebrew..."
-
-    if ! command -v brew &>/dev/null; then
-      echo "        Installing Homebrew..."
-      /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    fi
-
-    brew install neovim git node ripgrep fzf lazygit 2>/dev/null || {
-      echo "        Some packages may have failed, continuing..."
-    }
-    install_nerd_font
-    # Prefer Homebrew's modern Node over an older nvm/system Node.
-    brew upgrade node >/dev/null 2>&1 || true
-    export PATH="$(brew --prefix node)/bin:$PATH"
-  fi
-
-  # Linux
-  if [[ "$OS" == "Linux" ]]; then
-    echo "  [1/5] Installing tools..."
-
-    if command -v apt-get &>/dev/null; then
-      sudo apt-get update -qq
-      sudo apt-get install -y neovim git nodejs npm ripgrep fzf curl
-      # lazygit via binary
-      if ! command -v lazygit &>/dev/null; then
-        echo "        Installing lazygit..."
-        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | sed -n 's/.*"tag_name": "v\([^"]*\)".*/\1/p' | head -1)
-        curl -Lo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-        sudo tar xf /tmp/lazygit.tar.gz -C /usr/local/bin lazygit
-        rm /tmp/lazygit.tar.gz
-      fi
-    elif command -v dnf &>/dev/null; then
-      sudo dnf install -y neovim git nodejs npm ripgrep fzf
-      sudo dnf copr enable atim/lazygit -y 2>/dev/null && sudo dnf install -y lazygit || true
-    elif command -v pacman &>/dev/null; then
-      sudo pacman -Sy --noconfirm neovim git nodejs npm ripgrep fzf lazygit
-    else
-      echo "  Warning: Unknown package manager."
-      echo "  Please install manually: neovim git nodejs npm ripgrep fzf lazygit"
-    fi
-
-  fi
-
-  # Check Neovim version
-  echo "  [2/5] Checking Neovim version..."
-  if command -v nvim &>/dev/null; then
-    NVIM_VERSION=$(nvim --version 2>/dev/null | head -1 | sed -n 's/.*v\([0-9]*\.[0-9]*\).*/\1/p')
-    if [[ -z "$NVIM_VERSION" ]]; then
-      NVIM_VERSION="0.0"
-    fi
-    NVIM_MAJOR=$(echo "$NVIM_VERSION" | cut -d. -f1)
-    NVIM_MINOR=$(echo "$NVIM_VERSION" | cut -d. -f2)
-    
-    echo "        Found: v${NVIM_VERSION}"
-    
-    if [[ "$NVIM_MAJOR" -eq 0 && "$NVIM_MINOR" -lt 12 ]]; then
-      echo ""
-      echo "  Error: VimZap requires Neovim 0.12 or higher"
-      echo "  Your version: v${NVIM_VERSION}"
-      echo ""
-      echo "  Update Neovim:"
-      if [[ "$OS" == "Darwin" ]]; then
-        echo "    brew upgrade neovim"
-      else
-        echo "    See: https://github.com/neovim/neovim/releases"
-      fi
-      exit 1
-    fi
-  else
-    echo "        Neovim not found (will be installed)"
-  fi
-  echo ""
-
-  # Directories
-  echo "  [3/5] Setting up config..."
-  # Create every config directory before downloading nested Lua modules.
-  mkdir -p ~/.config/nvim/lua/vimzap
-
-  # Download config files
-  for file in "${CONFIG_FILES[@]}"; do
-    if ! curl -fsSL "$BASE_URL/$file?vimzap_cache=$CACHE_BUST" -o ~/.config/nvim/"$file"; then
-      echo "Error: Failed to download $file"
-      exit 1
-    fi
-  done
-  
-  # Plugins are declared by the config and installed by vim.pack.
+sync_plugins() {
   echo "  [4/5] Installing plugins..."
+  [[ "$DRY_RUN" == "true" ]] && { echo "        Would synchronize native packages"; return 0; }
   nvim --headless +qa
-  echo "        Native packages installed"
+  echo "        Native packages synchronized"
+}
 
+install_or_update() {
+  local os
+  os=$(uname -s)
+  [[ "$os" == "Darwin" || "$os" == "Linux" ]] || die "Unsupported OS: $os (only macOS and Linux supported)"
+  echo ""
+  [[ "$ACTION" == "update" ]] && echo "  VimZap Update" || echo "  VimZap Install"
+  echo "  ==============="
+  echo ""
+
+  install_packages "$os"
+  check_nvim
+  VIMZAP_STAGE=$(mktemp -d "${TMPDIR:-/tmp}/vimzap.XXXXXX")
+  trap '[[ -n "${VIMZAP_STAGE:-}" ]] && rm -rf "$VIMZAP_STAGE"' EXIT
+  stage_config "$VIMZAP_STAGE"
+  backup_and_install_config "$VIMZAP_STAGE"
+  sync_plugins
   install_required_tools
 
   echo ""
-  echo "  Done! Run: nvim"
-  echo ""
-  echo "  Usage:"
-  echo "    nvim             Open Neovim"
-  echo "    nvim file:line  Open file at line"
-  echo "    <Space>?         Show all commands"
-  echo "    <Space>ff        Find files"
-  echo "    <Space>fg        Grep"
-  echo ""
-  echo "  Update:"
-  echo "    bash <(curl -fsSL ifaka.github.io/vimzap/i) update"
-  echo ""
-  echo "  Uninstall:"
-  echo "    bash <(curl -fsSL ifaka.github.io/vimzap/i) uninstall"
-  echo ""
+  echo "  ✓ VimZap $ACTION complete. Run: nvim"
+  echo "  Update:    bash <(curl -fsSL ifaka.github.io/vimzap/i) update"
+  echo "  Uninstall: bash <(curl -fsSL ifaka.github.io/vimzap/i) uninstall"
 }
 
-main "$@"
+uninstall() {
+  local config_dir="$HOME/.config/nvim"
+  local backup_dir="$HOME/.config/nvim.uninstall-backup.$(date +%s)"
+  local file path found=false
+
+  echo ""
+  echo "  VimZap Uninstall"
+  echo "  ================"
+  if [[ ! -f "$VIMZAP_MARKER" ]]; then
+    echo "  No VimZap ownership marker found; nothing was removed."
+    echo "  If this is a legacy install, back up your config and remove its files manually."
+    return 0
+  fi
+  confirm "Remove VimZap-owned config files?" || { echo "  Uninstall cancelled."; return 0; }
+  [[ "$DRY_RUN" == "true" ]] && { echo "  Would remove VimZap-owned files from $config_dir"; return 0; }
+
+  mkdir -p "$backup_dir"
+  for file in "${CONFIG_FILES[@]}"; do
+    path="$config_dir/$file"
+    if [[ -f "$path" ]]; then
+      mkdir -p "$backup_dir/$(dirname "$file")"
+      cp "$path" "$backup_dir/$file"
+      rm -f "$path"
+      found=true
+    fi
+  done
+  rm -f "$VIMZAP_MARKER"
+  echo "  ✓ VimZap config removed."
+  echo "  Backup: $backup_dir"
+  echo "  Shared Neovim data and language servers were kept."
+  [[ "$found" == true ]] || rmdir "$config_dir" 2>/dev/null || true
+}
+
+for arg in "$@"; do
+  case "$arg" in
+    install) ACTION="install" ;;
+    update|--update) ACTION="update" ;;
+    uninstall|--uninstall) ACTION="uninstall" ;;
+    -y|--yes) SKIP_PROMPTS=true ;;
+    --dry-run) DRY_RUN=true ;;
+    -h|--help) usage; exit 0 ;;
+    *) die "Unknown argument '$arg'. Run with --help for usage." ;;
+  esac
+done
+
+if [[ "$ACTION" == "uninstall" ]]; then
+  uninstall
+else
+  install_or_update
+fi

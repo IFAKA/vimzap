@@ -12,6 +12,30 @@ Fast Neovim with fuzzy finding, LSP, git, formatting, debugging, and SFCC toolin
 bash <(curl -fsSL ifaka.github.io/vimzap/i)
 ```
 
+That one command is the complete bootstrap for macOS and Linux. It installs the
+small set of CLI tools VimZap needs, downloads the config into a staging
+directory, backs up files it replaces, and installs the language servers in
+`~/.local/share/vimzap/npm`. It is safe to run again when repairing a device.
+
+The same command manages the full lifecycle:
+
+```bash
+# Update config, plugins, and language servers
+bash <(curl -fsSL ifaka.github.io/vimzap/i) update
+
+# Preview actions without changing the device
+bash <(curl -fsSL ifaka.github.io/vimzap/i) --dry-run
+
+# Remove only files owned by VimZap; keep shared Neovim data and servers
+bash <(curl -fsSL ifaka.github.io/vimzap/i) uninstall
+```
+
+VimZap records its owned config files in `~/.config/nvim/.vimzap-managed`.
+Uninstall creates a timestamped backup and leaves unrelated files in
+`~/.config/nvim` alone. An install on top of another config always asks first.
+Use `--yes` for unattended setup. Run `--help` to see the complete command
+surface.
+
 Use `nvim` to open Neovim. `nvim path/to/file:80` opens that file at line 80.
 
 When Neovim starts without a file, VimZap opens a native dashboard with Recent
@@ -351,3 +375,7 @@ If you have existing Neovim config, VimZap will warn before overwriting. To keep
 ```bash
 bash <(curl -fsSL ifaka.github.io/vimzap/i) uninstall
 ```
+
+The uninstall action intentionally keeps `~/.local/share/nvim` and VimZap’s
+shared language-server prefix. Other Neovim configurations and projects may
+use that data; remove it separately only when you know it is unused.

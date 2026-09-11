@@ -27,3 +27,7 @@
 !scripts/*.html
 !scripts/*.js
 !scripts/*.py
+
+# Local test and planning files
+/tests/
+/docs/
