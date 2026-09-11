@@ -63,7 +63,7 @@ with no additional dashboard dependency.
 | `c` | Code: `ca`=action `cr`=rename `cf`=format `cs`=symbols |
 | `r` | Run: `rr`=task picker `rl`=rerun last `rq`=task quickfix |
 | `d` | Debug: `db`=breakpoint `dc`=continue `di`=step in `do`=step over |
-| `g` | Git: `gg`=lazygit `gf`=files `gs`=status |
+| `g` | Git: `gf`=files `gs`=status `gc`=commits |
 | `p` | Prophet (SFCC): `pe`=enable `pd`=disable `pt`=toggle `pc`=upload all `pf`=find controller `pi`=find template |
 | `s` | Search: `sh`=help `sk`=keymaps `sc`=commands `sd`=diagnostics |
 | `?` | Fuzzy help |
@@ -267,12 +267,16 @@ Plugins are declared in `lua/plugins.lua`, installed by Neovim's native
 `vim.pack`, and recorded in `nvim-pack-lock.json`. Use `:packupdate` to review
 and apply plugin updates.
 
-VimZap uses native Neovim wherever it provides the needed capability. The
-remaining plugins are deliberately limited to two UX improvements and a few
-capability gaps: `mini.pick` provides fuzzy navigation, `which-key.nvim`
-provides live leader-key hints, `nvim-lspconfig` supplies server definitions,
-`gitsigns.nvim` provides Git signs and hunk actions, `nvim-dap`/`nvim-dap-ui`
-provide debugging, and `prophet.nvim` provides SFCC development support.
+VimZap uses native Neovim wherever it provides the needed capability. Navigation
+uses `vim.ui.select`, `vim.fs`, `vim.system`, `rg`, and the Git CLI. Git status,
+diffs, blame, partial staging, and partial restore use native Git commands and
+Neovim's built-in diff navigation. LSP server definitions live in the local
+`lsp/` directory and use Neovim's native `vim.lsp.config()` system.
+
+Only protocol or domain-specific capabilities remain plugins: `nvim-dap` and
+`nvim-dap-ui` provide debugging, `nvim-nio` supports the DAP UI, and
+`prophet.nvim` provides SFCC development support. There is no picker, key-hint,
+or Git-sign plugin dependency.
 Diagnostics, completion, formatting through LSP, terminal management, the
 dashboard, keymap definitions, and plugin installation use native Neovim APIs
 and commands.
@@ -290,9 +294,8 @@ Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
 `<C-y>` to accept a selected item. SFCC candidates use a native completion
 source rather than a completion plugin.
 
-`which-key.nvim` provides live hints for leader-key groups. Press `<Space>` and
-wait briefly to see available actions; groups include Find, Code, Debug, Git,
-Prophet/SFCC, and Search/Help.
+Keymaps retain native `desc` metadata. Use `:map <Space>` to inspect the leader
+tree and `<Space>sh` or `<Space>?` to search Neovim help tags.
 
 ## Troubleshooting
 
@@ -327,13 +330,13 @@ bash <(curl -fsSL ifaka.github.io/vimzap/i)
 
 **macOS:**
 ```bash
-brew install lazygit qrencode ripgrep
+brew install ripgrep
 ```
 
 **Linux:**
 ```bash
-sudo apt install lazygit qrencode ripgrep  # Ubuntu/Debian
-sudo dnf install lazygit qrencode ripgrep  # Fedora
+sudo apt install ripgrep  # Ubuntu/Debian
+sudo dnf install ripgrep  # Fedora
 ```
 
 ### Markdown share not working

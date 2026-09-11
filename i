@@ -20,6 +20,17 @@ CONFIG_FILES=(
   "lua/options.lua"
   "lua/plugins.lua"
   "lua/lsp.lua"
+  "lsp/ts_ls.lua"
+  "lsp/html.lua"
+  "lsp/cssls.lua"
+  "lsp/jsonls.lua"
+  "lsp/tailwindcss.lua"
+  "lsp/eslint.lua"
+  "lsp/lua_ls.lua"
+  "lsp/pyright.lua"
+  "lsp/gopls.lua"
+  "lsp/clangd.lua"
+  "lsp/rust_analyzer.lua"
   "lua/keymaps.lua"
   "lua/vimzap/tasks.lua"
   "lua/vimzap/projects.lua"
@@ -63,7 +74,7 @@ install_packages() {
   local os="$1"
 
   if [[ "$DRY_RUN" == "true" ]]; then
-    echo "  [1/5] Would install Neovim, Git, Node.js, ripgrep, fzf, and lazygit"
+    echo "  [1/5] Would install Neovim, Git, Node.js, ripgrep, and curl"
     return 0
   fi
 
@@ -73,7 +84,7 @@ install_packages() {
       echo "        Homebrew is required: https://brew.sh"
       return 1
     fi
-    brew install neovim git node ripgrep fzf lazygit 2>/dev/null || true
+    brew install neovim git node ripgrep 2>/dev/null || true
     brew upgrade node >/dev/null 2>&1 || true
     export PATH="$(brew --prefix node)/bin:$PATH"
     return 0
@@ -82,14 +93,13 @@ install_packages() {
   echo "  [1/5] Installing tools..."
   if command -v apt-get &>/dev/null; then
     sudo apt-get update -qq
-    sudo apt-get install -y neovim git nodejs npm ripgrep fzf curl
+    sudo apt-get install -y neovim git nodejs npm ripgrep curl
   elif command -v dnf &>/dev/null; then
-    sudo dnf install -y neovim git nodejs npm ripgrep fzf curl
-    sudo dnf copr enable atim/lazygit -y 2>/dev/null && sudo dnf install -y lazygit || true
+    sudo dnf install -y neovim git nodejs npm ripgrep curl
   elif command -v pacman &>/dev/null; then
-    sudo pacman -Sy --noconfirm neovim git nodejs npm ripgrep fzf lazygit curl
+    sudo pacman -Sy --noconfirm neovim git nodejs npm ripgrep curl
   else
-    echo "  Warning: install Neovim, Git, Node.js, npm, ripgrep, fzf, curl, and lazygit manually."
+    echo "  Warning: install Neovim, Git, Node.js, npm, ripgrep, and curl manually."
   fi
 }
 
