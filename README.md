@@ -156,7 +156,9 @@ Then attach in Neovim with `<Space>dc` and select "Attach to Node".
 
 ## Prophet (Salesforce Commerce Cloud Development)
 
-VimZap includes prophet.nvim for SFCC development with optimized performance and non-intrusive notifications. It aims to match the functionality of the [VSCode Prophet extension](https://github.com/SqrTT/prophet).
+VimZap enables prophet.nvim only when the detected project root contains
+`dw.json` or `dw.js`; normal projects do not load Prophet or its keymaps. It
+aims to match the functionality of the [VSCode Prophet extension](https://github.com/SqrTT/prophet).
 
 ### Features
 
@@ -276,7 +278,8 @@ Only protocol, domain, or high-value discoverability capabilities remain
 plugins: `mini.pick` provides fuzzy navigation, `flash.nvim` provides jump
 motions, `which-key.nvim` provides live leader-key hints, `nvim-dap` and
 `nvim-dap-ui` provide debugging, `nvim-nio` supports the DAP UI, and
-`prophet.nvim` provides SFCC development support. There is no Git-sign plugin
+`prophet.nvim` provides SFCC development support only in detected SFCC
+projects. There is no Git-sign plugin
 dependency.
 Diagnostics, completion, formatting through LSP, terminal management, the
 dashboard, keymap definitions, and plugin installation use native Neovim APIs
