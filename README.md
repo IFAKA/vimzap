@@ -39,11 +39,9 @@ surface.
 Use `nvim` to open Neovim. `nvim path/to/file:80` opens that file at line 80.
 
 When Neovim starts without a file, VimZap opens a native dashboard with Recent
-Projects and inline Git Status. Projects are inferred from the current working
+Files. Projects are inferred from the current working
 directory and existing files in Neovim's recent-file list. Press `p` to choose a
 project and open the file picker; press `q` to quit.
-Git status shows the current branch and compact staged, modified, deleted, and
-untracked counts, or reports when the current directory is not a Git project.
 The dashboard shows the eight most recent files. Move with `j`/`k` or the arrow
 keys and press Enter to open a file and change to its project; `r` opens the
 full fuzzy recent-files picker. The other essential shortcuts are projects
