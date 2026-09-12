@@ -44,18 +44,18 @@ directory and existing files in Neovim's recent-file list. Press `p` to choose a
 project and open the file picker; press `q` to quit.
 Git status shows the current branch and compact staged, modified, deleted, and
 untracked counts, or reports when the current directory is not a Git project.
-The dashboard provides only the essential startup shortcuts: projects (`p`),
-find files (`f`), grep (`g`), and quit (`q`). Other commands remain available
-through the leader menu.
+The dashboard shows the eight most recent files. Move with `j`/`k` or the arrow
+keys and press Enter to open a file and change to its project; `r` opens the
+full fuzzy recent-files picker. The other essential shortcuts are projects
+(`p`), find files (`f`), grep (`g`), and quit (`q`).
 
 ## Keymaps
 
 Press `<Space>` and pause briefly to open live keymap hints. Press `<Space>?` to
-open help-tag selection. The main navigation actions use native selection lists:
-files, grep,
-buffers, recent files, help, commands, diagnostics, and Git commits. The
-dashboard uses the same existing native commands and pickers as the keymaps,
-with no additional dashboard dependency.
+open help-tag selection. The main navigation actions use `mini.pick` for fuzzy
+files, grep, buffers, and recent files; smaller metadata lists use native
+selection where appropriate. The dashboard uses the same commands and pickers
+as the keymaps.
 
 | Key | Action |
 |-----|--------|
@@ -269,16 +269,17 @@ Plugins are declared in `lua/plugins.lua`, installed by Neovim's native
 and apply plugin updates.
 
 VimZap uses native Neovim wherever it provides the needed capability. Navigation
-uses `vim.ui.select`, `vim.fs`, `vim.system`, `rg`, and the Git CLI. Git status,
+uses `mini.pick`, `vim.fs`, `vim.system`, `rg`, and the Git CLI. Git status,
 diffs, blame, partial staging, and partial restore use native Git commands and
 Neovim's built-in diff navigation. LSP server definitions live in the local
 `lsp/` directory and use Neovim's native `vim.lsp.config()` system.
 
 Only protocol, domain, or high-value discoverability capabilities remain
-plugins: `which-key.nvim` provides live leader-key hints, `nvim-dap` and
+plugins: `mini.pick` provides fuzzy navigation, `flash.nvim` provides jump
+motions, `which-key.nvim` provides live leader-key hints, `nvim-dap` and
 `nvim-dap-ui` provide debugging, `nvim-nio` supports the DAP UI, and
-`prophet.nvim` provides SFCC development support. There is no picker or
-Git-sign plugin dependency.
+`prophet.nvim` provides SFCC development support. There is no Git-sign plugin
+dependency.
 Diagnostics, completion, formatting through LSP, terminal management, the
 dashboard, keymap definitions, and plugin installation use native Neovim APIs
 and commands.
