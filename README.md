@@ -51,7 +51,8 @@ and help (`?`).
 ## Keymaps
 
 Press `<Space>` and pause briefly to open live keymap hints. Press `<Space>?` to
-open fuzzy help. The main navigation actions use the fuzzy picker: files, grep,
+open help-tag selection. The main navigation actions use native selection lists:
+files, grep,
 buffers, recent files, help, commands, diagnostics, and Git commits. The
 dashboard uses the same existing native commands and pickers as the keymaps,
 with no additional dashboard dependency.
@@ -273,10 +274,11 @@ diffs, blame, partial staging, and partial restore use native Git commands and
 Neovim's built-in diff navigation. LSP server definitions live in the local
 `lsp/` directory and use Neovim's native `vim.lsp.config()` system.
 
-Only protocol or domain-specific capabilities remain plugins: `nvim-dap` and
+Only protocol, domain, or high-value discoverability capabilities remain
+plugins: `which-key.nvim` provides live leader-key hints, `nvim-dap` and
 `nvim-dap-ui` provide debugging, `nvim-nio` supports the DAP UI, and
-`prophet.nvim` provides SFCC development support. There is no picker, key-hint,
-or Git-sign plugin dependency.
+`prophet.nvim` provides SFCC development support. There is no picker or
+Git-sign plugin dependency.
 Diagnostics, completion, formatting through LSP, terminal management, the
 dashboard, keymap definitions, and plugin installation use native Neovim APIs
 and commands.
@@ -294,8 +296,8 @@ Use `<C-Space>` to request LSP completion, `<Tab>`/`<S-Tab>` to move, and
 `<C-y>` to accept a selected item. SFCC candidates use a native completion
 source rather than a completion plugin.
 
-Keymaps retain native `desc` metadata. Use `:map <Space>` to inspect the leader
-tree and `<Space>sh` or `<Space>?` to search Neovim help tags.
+Press `<Space>` and pause briefly to see the leader-key menu. Groups include
+Find, Code, Run, Debug, Git, Prophet/SFCC, and Search/Help.
 
 ## Troubleshooting
 

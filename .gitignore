@@ -1,4 +1,6 @@
 *
+!lsp/
+!lsp/*.lua
 !init.lua
 !lua/
 !lua/*.lua
